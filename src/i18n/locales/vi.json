@@ -1,0 +1,437 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "heritageSites": "Di sản",
+    "explore": "Khám phá",
+    "about": "Giới thiệu",
+    "favorites": "Yêu thích",
+    "profile": "Hồ sơ",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất",
+    "admin": "Quản trị viên"
+  },
+  "home": {
+    "title": "Khám Phá Di Sản Việt Nam",
+    "subtitle": "Hành trình khám phá nền văn hóa phong phú và lịch sử lâu đời của Việt Nam",
+    "popularHeritage": "Di sản phổ biến",
+    "viewAll": "Xem tất cả",
+    "viewAllSites": "Xem tất cả di sản",
+    "loadingError": "Đã xảy ra lỗi khi tải dữ liệu",
+    "hero": {
+      "slide1Title": "Khám Phá Di Sản Văn Hóa Việt Nam",
+      "slide1Subtitle": "Hành trình qua nhiều thế kỷ lịch sử, văn hóa và thiên nhiên hùng vĩ.",
+      "slide2Title": "Du Hành Ngược Thời Gian",
+      "slide2Subtitle": "Trải nghiệm những di tích lịch sử và văn hóa quan trọng nhất.",
+      "slide3Title": "Kết Nối Với Quá Khứ Việt Nam",
+      "slide3Subtitle": "Đắm chìm trong những câu chuyện đã định hình đất nước chúng ta."
+    },
+    "features": {
+      "title": "Tính năng nổi bật",
+      "knowledgeQuiz": {
+        "title": "Trắc nghiệm kiến thức",
+        "description": "Thử thách bản thân với các câu hỏi trắc nghiệm và tìm hiểu thêm về di sản văn hóa."
+      },
+      "rolePlay": {
+        "title": "Trải nghiệm nhập vai",
+        "description": "Khám phá lịch sử qua góc nhìn của các nhân vật lịch sử trong các sự kiện quan trọng."
+      },
+      "mapExplore": {
+        "title": "Khám phá bản đồ",
+        "description": "Tìm kiếm và khám phá các di tích lịch sử trên bản đồ với sự hỗ trợ của Google Maps."
+      }
+    },
+    "howItWorks": {
+      "title": "Cách thức hoạt động",
+      "step1": {
+        "title": "Đăng ký",
+        "description": "Tạo tài khoản để truy cập tất cả các tính năng"
+      },
+      "step2": {
+        "title": "Tìm kiếm di sản",
+        "description": "Khám phá các di tích lịch sử trên khắp Việt Nam"
+      },
+      "step3": {
+        "title": "Trải nghiệm tương tác",
+        "description": "Tham gia các hoạt động tương tác và bài kiểm tra kiến thức"
+      },
+      "step4": {
+        "title": "Chia sẻ & Đánh giá",
+        "description": "Chia sẻ trải nghiệm và đánh giá các di tích"
+      }
+    }
+  },
+  "heritage": {
+    "search": "Tìm kiếm di sản...",
+    "noResults": "Không tìm thấy kết quả",
+    "loading": "Đang tải...",
+    "location": "Vị trí",
+    "rating": "Đánh giá",
+    "visits": "Lượt xem",
+    "favorites": "Yêu thích",
+    "reviews": "Đánh giá",
+    "addToFavorites": "Thêm vào yêu thích",
+    "removeFromFavorites": "Xóa khỏi yêu thích",
+    "details": "Chi tiết",
+    "description": "Mô tả",
+    "history": "Lịch sử",
+    "gallery": "Thư viện ảnh",
+    "nearestHeritages": "Di sản gần bạn",
+    "relatedHeritages": "Di sản liên quan",
+    "interactiveFeatures": "Tính năng tương tác"
+  },
+  "heritageDetail": {
+    "overview": "Tổng quan",
+    "history": "Lịch sử",
+    "gallery": "Thư viện ảnh",
+    "reviews": "Đánh giá",
+    "location": "Vị trí",
+    "interactiveFeatures": "Tính năng tương tác",
+    "relatedHeritages": "Di sản liên quan",
+    "loginToExperience": "Đăng nhập để trải nghiệm",
+    "loginToUseFeatures": "Đăng nhập để sử dụng tất cả các tính năng tương tác và cá nhân hóa.",
+    "loginNow": "Đăng nhập ngay",
+    "chatWithAI": "Trò chuyện với AI",
+    "takeKnowledgeTest": "Kiểm tra kiến thức",
+    "viewLeaderboard": "Bảng xếp hạng",
+    "joinCommunityChat": "Tham gia chat cộng đồng",
+    "errorOccurred": "Đã xảy ra lỗi",
+    "unableToLoad": "Không thể tải thông tin di sản. Vui lòng thử lại sau.",
+    "backToList": "Quay lại danh sách di sản",
+    "chatAbout": "Trò chuyện về",
+    "leaderboardTitle": "Bảng xếp hạng",
+    "leaderboardDescription": "Xem thứ hạng của bạn so với những người khác khi khám phá",
+    "knowledgeTestTitle": "Kiểm tra kiến thức",
+    "knowledgeTestDescription": "Kiểm tra kiến thức của bạn về"
+  },
+  "heritageInfo": {
+      "titlee": "Thông tin chi tiết",
+      "address": "Địa chỉ",
+      "title": "Tiêu đề",
+      "coordinates": "Tọa độ"
+  },
+  "heritageFeatures": {
+    "leaderboard": "Bảng xếp hạng",
+    "knowledgeTest": "Kiểm tra kiến thức",
+    "roleplay": "Trải nghiệm vai trò",
+    "chatroom": "Tham gia chat cộng đồng"
+  },
+  "tabs": {
+    "overview": "Tổng quan",
+    "history": "Lịch sử",
+    "gallery": "Thư viện ảnh",
+    "reviews": "Đánh giá",
+    "introduction": "Giới thiệu",
+    "historicalEvents": "Sự kiện lịch sử"
+  },
+  "chat": {
+    "community": "Cộng đồng",
+    "private": "Riêng tư",
+    "typeMessage": "Nhập tin nhắn...",
+    "send": "Gửi",
+    "noMessages": "Chưa có tin nhắn",
+    "startConversation": "Bắt đầu cuộc trò chuyện!",
+    "loadingMessages": "Đang tải tin nhắn...",
+    "allMessagesSeen": "Bạn đã xem hết tin nhắn",
+    "selectUser": "Chọn người dùng để bắt đầu trò chuyện",
+    "hello": "Xin chào! Tôi có thể giúp bạn tìm hiểu về {{name}}. Hãy hỏi tôi bất cứ điều gì!",
+    "pleaseEnterMessage": "Vui lòng nhập tin nhắn!",
+    "online": "Trực tuyến",
+    "offline": "Ngoại tuyến"
+  },
+  "knowledgeTest": {
+    "title": "Kiểm tra kiến thức",
+    "startTest": "Bắt đầu kiểm tra",
+    "question": "Câu hỏi",
+    "of": "của",
+    "next": "Tiếp theo",
+    "previous": "Trước",
+    "submit": "Nộp bài",
+    "score": "Điểm",
+    "correct": "Đúng",
+    "incorrect": "Sai",
+    "congratulations": "Chúc mừng!",
+    "yourScore": "Điểm của bạn",
+    "tryAgain": "Thử lại",
+    "viewLeaderboard": "Xem bảng xếp hạng"
+  },
+  "leaderboard": {
+    "title": "Bảng xếp hạng",
+    "rank": "Hạng",
+    "user": "Người dùng",
+    "score": "Điểm",
+    "time": "Thời gian",
+    "noData": "Chưa có dữ liệu",
+    "topPlayers": "Top người chơi",
+    "yourRank": "Hạng của bạn"
+  },
+  "profile": {
+    "title": "Thông tin cá nhân",
+    "subtitle": "Quản lý thông tin cá nhân của bạn",
+    "editProfile": "Chỉnh sửa hồ sơ",
+    "changePassword": "Đổi mật khẩu",
+    "personalInfo": "Thông tin cá nhân",
+    "displayName": "Tên hiển thị",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "gender": "Giới tính",
+    "dateOfBirth": "Ngày sinh",
+    "address": "Địa chỉ",
+    "save": "Lưu thay đổi",
+    "saving": "Đang lưu...",
+    "cancel": "Hủy",
+    "edit": "Chỉnh sửa",
+    "avatar": "Ảnh đại diện",
+    "uploadAvatar": "Tải ảnh đại diện",
+    "genderOptions": {
+      "other": "Khác",
+      "men": "Nam",
+      "woman": "Nữ"
+    },
+    "placeholders": {
+      "displayName": "Nhập tên hiển thị",
+      "phone": "Nhập số điện thoại"
+    },
+    "errors": {
+      "displayNameRequired": "Tên hiển thị không được để trống",
+      "displayNameMinLength": "Tên hiển thị phải có ít nhất 3 ký tự",
+      "phoneInvalid": "Vui lòng nhập số điện thoại hợp lệ (10-11 chữ số)",
+      "checkInfo": "Vui lòng kiểm tra thông tin đã nhập"
+    },
+    "messages": {
+      "imageSizeExceeded": "Kích thước ảnh không được vượt quá 1MB",
+      "imageTypeInvalid": "Chỉ chấp nhận file ảnh JPEG, PNG hoặc GIF",
+      "avatarUpdateInfo": "Ảnh đại diện sẽ được cập nhật khi bạn lưu thay đổi",
+      "unableToReadImage": "Không thể đọc file ảnh",
+      "updateSuccess": "Cập nhật hồ sơ thành công!",
+      "updateFailed": "Cập nhật thất bại"
+    }
+  },
+  "favorites": {
+    "title": "Khám phá di sản yêu thích của bạn",
+    "subtitle": "Lưu và theo dõi các địa danh lịch sử và văn hóa bạn quan tâm nhất",
+    "empty": "Chưa có di sản yêu thích",
+    "emptyDescription": "Khám phá các địa danh lịch sử và thêm chúng vào yêu thích để xem sau.",
+    "exploreHeritages": "Khám phá di sản",
+    "errorLoading": "Đã xảy ra lỗi khi tải danh sách yêu thích",
+    "errorNoFavorites": "Bạn chưa có di sản yêu thích nào.",
+    "errorTryAgain": "Vui lòng thử lại sau."
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "forgotPasswordLink": "Quên mật khẩu?",
+    "dontHaveAccount": "Chưa có tài khoản?",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "loginHere": "Đăng nhập tại đây",
+    "registerHere": "Đăng ký tại đây",
+    "signUpNow": "Đăng ký ngay",
+    "loginNow": "Đăng nhập ngay",
+    "loginSuccess": "Đăng nhập thành công!",
+    "registerSuccess": "Đăng ký thành công!",
+    "logoutSuccess": "Đăng xuất thành công!",
+    "processing": "Đang xử lý...",
+    "login_page": {
+      "title": "Đăng nhập Heritage",
+      "subtitle": "Khám phá quá khứ, tận hưởng hiện tại",
+      "emailPlaceholder": "Nhập email...",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Đăng nhập"
+    },
+    "register_page": {
+      "title": "Tạo tài khoản mới",
+      "subtitle": "Nhanh chóng và dễ dàng",
+      "emailPlaceholder": "Nhập email...",
+      "phonePlaceholder": "Nhập số điện thoại...",
+      "phone": "Số điện thoại",
+      "passwordPlaceholder": "••••••••",
+      "signUpButton": "Đăng ký",
+      "verifyEmailMessage": "Vui lòng kiểm tra email để xác minh tài khoản của bạn.",
+      "errors": {
+        "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ.",
+        "invalidPhone": "Vui lòng nhập số điện thoại hợp lệ (10-15 chữ số).",
+        "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự.",
+        "passwordMismatch": "Mật khẩu không khớp.",
+        "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại."
+      }
+    },
+    "forgotPassword": {
+      "title": "Quên mật khẩu",
+      "titleReset": "Đặt lại mật khẩu",
+      "titleSuccess": "Đặt lại mật khẩu thành công",
+      "subtitle": "Nhập email của bạn để nhận mã xác minh",
+      "subtitleReset": "Nhập mã xác minh và mật khẩu mới của bạn",
+      "subtitleSuccess": "Mật khẩu của bạn đã được đặt lại thành công",
+      "emailPlaceholder": "Nhập email của bạn...",
+      "sendCodeButton": "Gửi mã xác minh",
+      "verificationCode": "Mã xác minh",
+      "verificationCodePlaceholder": "Nhập mã xác minh...",
+      "newPassword": "Mật khẩu mới",
+      "newPasswordPlaceholder": "Nhập mật khẩu mới...",
+      "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới...",
+      "resetButton": "Đặt lại mật khẩu",
+      "resendCode": "Gửi lại mã xác minh",
+      "resendCodeCooldown": "Gửi lại mã ({time}s)",
+      "backToLogin": "Quay lại đăng nhập",
+      "codeSent": "Mã xác minh đã được gửi đến email của bạn!",
+      "codeResent": "Đã gửi lại mã xác minh!",
+      "resetSuccess": "Đặt lại mật khẩu thành công!",
+      "resetSuccessMessage": "Đặt lại mật khẩu thành công!",
+      "redirectMessage": "Bạn sẽ được chuyển hướng đến trang đăng nhập trong vài giây...",
+      "emailSentMessage": "Chúng tôi đã gửi mã xác minh đến <strong>{email}</strong>. Vui lòng kiểm tra hộp thư đến và nhập mã xác minh bên dưới.",
+      "goToLogin": "Đến trang đăng nhập",
+      "errors": {
+        "sendFailed": "Không thể gửi email khôi phục. Vui lòng thử lại.",
+        "resendFailed": "Không thể gửi lại mã xác minh. Vui lòng thử lại.",
+        "passwordMismatch": "Mật khẩu không khớp",
+        "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+        "invalidCode": "Mã xác minh không hợp lệ hoặc đã hết hạn. Vui lòng thử lại."
+      }
+    }
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Đã có lỗi xảy ra",
+    "success": "Thành công",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "add": "Thêm",
+    "view": "Xem",
+    "close": "Đóng",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "page": "Trang",
+    "of": "của",
+    "total": "Tổng",
+    "items": "mục",
+    "noData": "Không có dữ liệu",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước",
+    "submit": "Gửi",
+    "reset": "Đặt lại"
+  },
+  "footer": {
+    "brand": "Heritage Reborn",
+    "tagline": "Khám phá kỳ quan văn hóa",
+    "about": "Về chúng tôi",
+    "contact": "Liên hệ",
+    "privacy": "Chính sách bảo mật",
+    "terms": "Điều khoản sử dụng",
+    "followUs": "Theo dõi chúng tôi",
+    "copyright": "© 2025 Heritage Vietnam. Tất cả quyền được bảo lưu."
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "message": "Xin lỗi, trang bạn đang tìm kiếm không tồn tại.",
+    "backToHome": "Về trang chủ"
+  },
+  "explore": {
+    "title": "Khám phá di sản",
+    "searchPlaceholder": "Tìm kiếm địa điểm...",
+    "loadingData": "Đang tải dữ liệu...",
+    "errorLoading": "Lỗi khi tải dữ liệu",
+    "searchResults": "Kết quả tìm kiếm cho",
+    "nearLocation": "gần",
+    "locationNotFound": "Không tìm thấy địa điểm.",
+    "searchError": "Lỗi khi tìm kiếm địa điểm.",
+    "invalidCoordinates": "Tọa độ không hợp lệ.",
+    "nearbyHeritages": "Di sản gần đây"
+  },
+  "about": {
+    "visionMission": "Tầm nhìn & Sứ mệnh",
+    "connectingPast": "Kết nối quá khứ với hiện tại",
+    "vision": "Tầm nhìn",
+    "mission": "Sứ mệnh",
+    "ourStory": "Câu chuyện của chúng tôi",
+    "developmentJourney": "Hành trình phát triển",
+    "journeyDescription": "Từ ý tưởng đến hiện thực, hành trình của chúng tôi là minh chứng cho niềm đam mê về di sản văn hóa và công nghệ.",
+    "coreValues": "Giá trị cốt lõi",
+    "valuesPursue": "Giá trị chúng tôi theo đuổi",
+    "valuesDescription": "Những nguyên tắc và giá trị dẫn dắt mọi hoạt động của chúng tôi trong hành trình bảo tồn di sản văn hóa.",
+    "team": "Đội ngũ",
+    "talentedPeople": "Con người tài năng",
+    "teamDescription": "Gặp gỡ những con người tài năng và nhiệt huyết đằng sau dự án Heritage.",
+    "joinUs": "Tham gia cùng chúng tôi",
+    "joinDescription": "Trở thành một phần của hành trình bảo tồn và quảng bá giá trị di sản văn hóa Việt Nam.",
+    "signUpNow": "Đăng ký ngay",
+    "exploreMap": "Khám phá bản đồ",
+    "contact": "Liên hệ",
+    "connectWithUs": "Kết nối với chúng tôi",
+    "contactDescription": "Chúng tôi luôn sẵn sàng lắng nghe ý kiến phản hồi và giải đáp thắc mắc của bạn. Liên hệ với chúng tôi qua các kênh sau:",
+    "missionText": "Dự án Heritage ra đời với sứ mệnh bảo tồn, phát huy và lan tỏa các giá trị văn hóa, lịch sử của dân tộc đến cộng đồng, đặc biệt là thế hệ trẻ thông qua nền tảng công nghệ hiện đại.",
+    "visionText": "Trở thành nền tảng hàng đầu trong việc bảo tồn và quảng bá giá trị di sản văn hóa Việt Nam, kết nối con người với lịch sử dân tộc thông qua công nghệ hiện đại.",
+    "missionDetailText": "Sử dụng công nghệ để bảo tồn, lan tỏa và giáo dục về di sản văn hóa Việt Nam, tạo ra những trải nghiệm tương tác và hấp dẫn cho người dùng.",
+    "coreValuesItems": {
+      "accuracy": {
+        "title": "Chính xác",
+        "description": "Cam kết cung cấp thông tin chính xác, đáng tin cậy và được nghiên cứu kỹ lưỡng về di sản văn hóa."
+      },
+      "preservation": {
+        "title": "Bảo tồn",
+        "description": "Ưu tiên việc bảo tồn và tôn trọng các giá trị di sản văn hóa trong mọi hoạt động."
+      },
+      "innovation": {
+        "title": "Đổi mới",
+        "description": "Liên tục đổi mới và ứng dụng công nghệ tiên tiến để tạo ra trải nghiệm học tập hấp dẫn."
+      },
+      "collaboration": {
+        "title": "Hợp tác",
+        "description": "Xây dựng mối quan hệ hợp tác với các chuyên gia, tổ chức và cộng đồng để phát triển nền tảng."
+      },
+      "accessibility": {
+        "title": "Dễ tiếp cận",
+        "description": "Cam kết tạo ra một nền tảng dễ tiếp cận cho tất cả mọi người, bất kể độ tuổi hay xuất thân."
+      },
+      "education": {
+        "title": "Giáo dục",
+        "description": "Tập trung vào giáo dục, truyền cảm hứng cho thế hệ trẻ về giá trị di sản văn hóa dân tộc."
+      }
+    },
+    "timeline": {
+      "item1": {
+        "year": "01/2025",
+        "title": "Nguồn gốc ý tưởng",
+        "description": "Ý tưởng về một nền tảng kết hợp công nghệ và di sản văn hóa được hình thành, với mục tiêu tạo ra trải nghiệm mới cho người dùng khi tìm hiểu về các di tích lịch sử."
+      },
+      "item2": {
+        "year": "02/2025",
+        "title": "Nghiên cứu và Phát triển",
+        "description": "Giai đoạn nghiên cứu chuyên sâu về các di tích lịch sử Việt Nam, đồng thời phát triển công nghệ tương tác để tạo ra trải nghiệm người dùng tốt nhất."
+      },
+      "item3": {
+        "year": "03/2025",
+        "title": "Phát hành Beta",
+        "description": "Phiên bản beta của nền tảng được ra mắt với các tính năng cơ bản, nhận được nhiều phản hồi tích cực từ cộng đồng."
+      },
+      "item4": {
+        "year": "04/2025",
+        "title": "Mở rộng và Phát triển",
+        "description": "Nền tảng được phát triển toàn diện với nhiều tính năng mới như trải nghiệm nhập vai, bản đồ tương tác, trợ lý ảo và cộng đồng người dùng ngày càng mở rộng."
+      }
+    },
+    "teamRoles": {
+      "founderLeader": "Nhà sáng lập & Trưởng nhóm",
+      "backendDev": "Lập trình viên Backend",
+      "frontendDev": "Lập trình viên Frontend"
+    },
+    "teamBios": {
+      "bio1": "Với hơn 3 năm kinh nghiệm phát triển website.",
+      "bio2": "Nhà nghiên cứu công nghệ với kinh nghiệm thiết kế cơ sở dữ liệu mạnh mẽ sử dụng công nghệ hiện đại.",
+      "bio3": "Nhà thiết kế với niềm đam mê tạo ra trải nghiệm người dùng trực quan và hấp dẫn."
+    },
+    "contactLabels": {
+      "email": "Email",
+      "phone": "Điện thoại",
+      "socialMedia": "Mạng xã hội"
+    }
+  }
+}
+

@@ -1,0 +1,437 @@
+{
+  "nav": {
+    "home": "Home",
+    "heritageSites": "Heritage Sites",
+    "explore": "Explore",
+    "about": "About",
+    "favorites": "Favorites",
+    "profile": "Profile",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "admin": "Administrator"
+  },
+  "home": {
+    "title": "Explore Vietnamese Heritage",
+    "subtitle": "Journey through Vietnam's rich culture and ancient history",
+    "popularHeritage": "Popular Heritage",
+    "viewAll": "View All",
+    "viewAllSites": "View All Heritage Sites",
+    "loadingError": "An error occurred while loading data",
+    "hero": {
+      "slide1Title": "Discover Vietnamese Cultural Heritage",
+      "slide1Subtitle": "A journey through centuries of history, culture and magnificent nature.",
+      "slide2Title": "Travel Back in Time",
+      "slide2Subtitle": "Experience the most important historical and cultural heritage sites.",
+      "slide3Title": "Connect with Vietnam's Past",
+      "slide3Subtitle": "Immerse yourself in the stories that shaped our nation."
+    },
+    "features": {
+      "title": "Key Features",
+      "knowledgeQuiz": {
+        "title": "Knowledge Quiz",
+        "description": "Challenge yourself with multiple-choice questions and learn more about cultural heritage."
+      },
+      "rolePlay": {
+        "title": "Role-Playing Experience",
+        "description": "Explore history through the perspective of historical figures in important events."
+      },
+      "mapExplore": {
+        "title": "Map Exploration",
+        "description": "Search and discover historical sites on the map with the help of Google Maps."
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Sign Up",
+        "description": "Create an account to access all features"
+      },
+      "step2": {
+        "title": "Search Heritage Sites",
+        "description": "Discover historical sites across Vietnam"
+      },
+      "step3": {
+        "title": "Interactive Experience",
+        "description": "Participate in interactive activities and knowledge tests"
+      },
+      "step4": {
+        "title": "Share & Review",
+        "description": "Share your experience and review heritage sites"
+      }
+    }
+  },
+  "heritage": {
+    "search": "Search heritage...",
+    "noResults": "No results found",
+    "loading": "Loading...",
+    "location": "Location",
+    "rating": "Rating",
+    "visits": "Visits",
+    "favorites": "Favorites",
+    "reviews": "Reviews",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "details": "Details",
+    "description": "Description",
+    "history": "History",
+    "gallery": "Gallery",
+    "nearestHeritages": "Heritages Near You",
+    "relatedHeritages": "Related Heritages",
+    "interactiveFeatures": "Interactive Features"
+  },
+  "heritageDetail": {
+    "overview": "Overview",
+    "history": "History",
+    "gallery": "Gallery",
+    "reviews": "Reviews",
+    "location": "Location",
+    "interactiveFeatures": "Interactive Features",
+    "relatedHeritages": "Related Heritage Sites",
+    "loginToExperience": "Login to Experience",
+    "loginToUseFeatures": "Login to use all interactive and personalized features.",
+    "loginNow": "Login Now",
+    "chatWithAI": "Chat with AI",
+    "takeKnowledgeTest": "Take Knowledge Test",
+    "viewLeaderboard": "View Leaderboard",
+    "joinCommunityChat": "Join Community Chat",
+    "errorOccurred": "An Error Occurred",
+    "unableToLoad": "Unable to load heritage information. Please try again later.",
+    "backToList": "Back to Heritage List",
+    "chatAbout": "Chat about",
+    "leaderboardTitle": "Leaderboard",
+    "leaderboardDescription": "See your ranking compared to others when exploring",
+    "knowledgeTestTitle": "Knowledge Test",
+    "knowledgeTestDescription": "Test your knowledge about"
+  },
+  "heritageInfo": {
+      "titlee": "Detailed Information",
+      "address": "Address",
+      "title": "Title",
+      "coordinates": "Coordinates"
+  },
+  "heritageFeatures": {
+    "leaderboard": "Leaderboard",
+    "knowledgeTest": "Knowledge Test",
+    "roleplay": "Role-Play Experience",
+    "chatroom": "Join Chatroom"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "history": "History",
+    "gallery": "Gallery",
+    "reviews": "Reviews",
+    "introduction": "Introduction",
+    "historicalEvents": "Historical Events"
+  },
+  "chat": {
+    "community": "Community",
+    "private": "Private",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "noMessages": "No messages yet",
+    "startConversation": "Start a conversation!",
+    "loadingMessages": "Loading messages...",
+    "allMessagesSeen": "You've seen all messages",
+    "selectUser": "Select a user to start chatting",
+    "hello": "Hello! I can help you learn about {{name}}. Ask me anything!",
+    "pleaseEnterMessage": "Please enter a message!",
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "knowledgeTest": {
+    "title": "Knowledge Test",
+    "startTest": "Start Test",
+    "question": "Question",
+    "of": "of",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "score": "Score",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "congratulations": "Congratulations!",
+    "yourScore": "Your Score",
+    "tryAgain": "Try Again",
+    "viewLeaderboard": "View Leaderboard"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "rank": "Rank",
+    "user": "User",
+    "score": "Score",
+    "time": "Time",
+    "noData": "No data yet",
+    "topPlayers": "Top Players",
+    "yourRank": "Your Rank"
+  },
+  "profile": {
+    "title": "Personal Information",
+    "subtitle": "Manage your personal information",
+    "editProfile": "Edit Profile",
+    "changePassword": "Change Password",
+    "personalInfo": "Personal Information",
+    "displayName": "Display Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "gender": "Gender",
+    "dateOfBirth": "Date of Birth",
+    "address": "Address",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "avatar": "Avatar",
+    "uploadAvatar": "Upload Avatar",
+    "genderOptions": {
+      "other": "Other",
+      "men": "Male",
+      "woman": "Female"
+    },
+    "placeholders": {
+      "displayName": "Enter display name",
+      "phone": "Enter phone number"
+    },
+    "errors": {
+      "displayNameRequired": "Display name cannot be empty",
+      "displayNameMinLength": "Display name must be at least 3 characters",
+      "phoneInvalid": "Please enter a valid phone number (10-11 digits)",
+      "checkInfo": "Please check the information entered"
+    },
+    "messages": {
+      "imageSizeExceeded": "Image size must not exceed 1MB",
+      "imageTypeInvalid": "Only JPEG, PNG or GIF image files are accepted",
+      "avatarUpdateInfo": "Avatar will be updated when you save changes",
+      "unableToReadImage": "Unable to read image file",
+      "updateSuccess": "Profile updated successfully!",
+      "updateFailed": "Update failed"
+    }
+  },
+  "favorites": {
+    "title": "Explore Your Favorite Heritage Sites",
+    "subtitle": "Save and track the historical and cultural landmarks you care about most",
+    "empty": "No Favorite Heritage Sites Yet",
+    "emptyDescription": "Explore historical sites and add them to your favorites to view later.",
+    "exploreHeritages": "Explore Heritage Sites",
+    "errorLoading": "An error occurred while loading favorites list",
+    "errorNoFavorites": "You don't have any favorites yet.",
+    "errorTryAgain": "Please try again later."
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPasswordLink": "Forgot password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginHere": "Login here",
+    "registerHere": "Register here",
+    "signUpNow": "Sign up now",
+    "loginNow": "Login now",
+    "loginSuccess": "Login successful!",
+    "registerSuccess": "Registration successful!",
+    "logoutSuccess": "Logout successful!",
+    "processing": "Processing...",
+    "login_page": {
+      "title": "Login to Heritage",
+      "subtitle": "Discover the past, enjoy the present",
+      "emailPlaceholder": "Enter email...",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Login"
+    },
+    "register_page": {
+      "title": "Create New Account",
+      "subtitle": "Quick and easy",
+      "emailPlaceholder": "Enter email...",
+      "phonePlaceholder": "Enter phone number...",
+      "phone": "Phone Number",
+      "passwordPlaceholder": "••••••••",
+      "signUpButton": "Sign Up",
+      "verifyEmailMessage": "Please check your email to verify your account.",
+      "errors": {
+        "invalidEmail": "Please enter a valid email address.",
+        "invalidPhone": "Please enter a valid phone number (10-15 digits).",
+        "passwordTooShort": "Password must be at least 8 characters long.",
+        "passwordMismatch": "Passwords do not match.",
+        "registrationFailed": "Registration failed. Please try again."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "titleReset": "Reset Password",
+      "titleSuccess": "Password Reset Successful",
+      "subtitle": "Enter your email to receive verification code",
+      "subtitleReset": "Enter verification code and your new password",
+      "subtitleSuccess": "Your password has been reset successfully",
+      "emailPlaceholder": "Enter your email...",
+      "sendCodeButton": "Send Verification Code",
+      "verificationCode": "Verification Code",
+      "verificationCodePlaceholder": "Enter verification code...",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password...",
+      "confirmPasswordPlaceholder": "Confirm new password...",
+      "resetButton": "Reset Password",
+      "resendCode": "Resend verification code",
+      "resendCodeCooldown": "Resend code ({time}s)",
+      "backToLogin": "Back to Login",
+      "codeSent": "Verification code has been sent to your email!",
+      "codeResent": "Verification code resent!",
+      "resetSuccess": "Password reset successful!",
+      "resetSuccessMessage": "Password reset successful!",
+      "redirectMessage": "You will be redirected to the login page in a few seconds...",
+      "emailSentMessage": "We have sent a verification code to <strong>{email}</strong>. Please check your inbox and enter the verification code below.",
+      "goToLogin": "Go to Login",
+      "errors": {
+        "sendFailed": "Unable to send recovery email. Please try again.",
+        "resendFailed": "Unable to resend verification code. Please try again.",
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters long",
+        "invalidCode": "Invalid or expired verification code. Please try again."
+      }
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "view": "View",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "page": "Page",
+    "of": "of",
+    "total": "Total",
+    "items": "items",
+    "noData": "No data",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset"
+  },
+  "footer": {
+    "brand": "Heritage Reborn",
+    "tagline": "Discover Cultural Wonders",
+    "about": "About Us",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "followUs": "Follow Us",
+    "copyright": "© 2025 Heritage Vietnam. All rights reserved."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "Sorry, the page you are looking for does not exist.",
+    "backToHome": "Back to Home"
+  },
+  "explore": {
+    "title": "Explore Heritage",
+    "searchPlaceholder": "Search for location...",
+    "loadingData": "Loading data...",
+    "errorLoading": "Error loading data",
+    "searchResults": "Search results for",
+    "nearLocation": "near",
+    "locationNotFound": "Location not found.",
+    "searchError": "Error searching for location.",
+    "invalidCoordinates": "Invalid coordinates.",
+    "nearbyHeritages": "Nearby Heritages"
+  },
+  "about": {
+    "visionMission": "Vision & Mission",
+    "connectingPast": "Connecting the Past with the Present",
+    "vision": "Vision",
+    "mission": "Mission",
+    "ourStory": "Our Story",
+    "developmentJourney": "Development Journey",
+    "journeyDescription": "From idea to reality, our journey is a testament to our passion for cultural heritage and technology.",
+    "coreValues": "Core Values",
+    "valuesPursue": "Values We Pursue",
+    "valuesDescription": "The principles and values that guide all our activities in the journey of cultural heritage preservation.",
+    "team": "Team",
+    "talentedPeople": "Talented People",
+    "teamDescription": "Meet the passionate and talented people behind the Heritage project.",
+    "joinUs": "Join Us",
+    "joinDescription": "Become part of the journey to preserve and promote the values of Vietnamese cultural heritage.",
+    "signUpNow": "Sign Up Now",
+    "exploreMap": "Explore Map",
+    "contact": "Contact",
+    "connectWithUs": "Connect With Us",
+    "contactDescription": "We are always ready to listen to your feedback and answer your questions. Contact us through the following channels:",
+    "missionText": "The Heritage project was born with the mission to preserve, promote and spread the cultural and historical values of the nation to the community, especially the younger generation through modern technology platforms.",
+    "visionText": "Become the leading platform for preserving and promoting the value of Vietnamese cultural heritage, connecting people with national history through modern technology.",
+    "missionDetailText": "Use technology to preserve, spread and educate about Vietnamese cultural heritage, creating interactive and engaging experiences for users.",
+    "coreValuesItems": {
+      "accuracy": {
+        "title": "Accuracy",
+        "description": "Committed to providing accurate, reliable and thoroughly researched information about cultural heritage."
+      },
+      "preservation": {
+        "title": "Preservation",
+        "description": "Prioritizing the preservation and respect for cultural heritage values in all activities."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "Continuously innovating and applying advanced technology to create engaging learning experiences."
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "Building collaborative relationships with experts, organizations and communities to develop the platform."
+      },
+      "accessibility": {
+        "title": "Accessibility",
+        "description": "Committed to creating a platform that is accessible to everyone, regardless of age or background."
+      },
+      "education": {
+        "title": "Education",
+        "description": "Focusing on education, inspiring the younger generation about the value of national cultural heritage."
+      }
+    },
+    "timeline": {
+      "item1": {
+        "year": "01/2025",
+        "title": "Origin of Idea",
+        "description": "The idea of a platform combining technology and cultural heritage was formed, with the goal of creating a new experience for users when learning about historical sites."
+      },
+      "item2": {
+        "year": "02/2025",
+        "title": "Research and Development",
+        "description": "In-depth research phase on Vietnamese historical sites, while developing interactive technologies to create the best user experience."
+      },
+      "item3": {
+        "year": "03/2025",
+        "title": "Beta Release",
+        "description": "The beta version of the platform was launched with basic features, receiving much positive feedback from the community."
+      },
+      "item4": {
+        "year": "04/2025",
+        "title": "Expansion and Growth",
+        "description": "The platform was comprehensively developed with many new features such as role-playing experience, interactive map, virtual assistant and an ever-expanding user community."
+      }
+    },
+    "teamRoles": {
+      "founderLeader": "Founder & Leader",
+      "backendDev": "Backend Developer",
+      "frontendDev": "Frontend Developer"
+    },
+    "teamBios": {
+      "bio1": "With over 3 years of experience in website development.",
+      "bio2": "Technology researcher with experience in designing robust databases using modern technologies.",
+      "bio3": "Designer with a passion for creating intuitive and engaging user experiences."
+    },
+    "contactLabels": {
+      "email": "Email",
+      "phone": "Phone",
+      "socialMedia": "Social Media"
+    }
+  }
+}
+
