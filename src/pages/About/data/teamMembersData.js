@@ -20,23 +20,13 @@ export const teamMembers = [
     }
   },
   {
-    name: 'Nguyen Duc Nhat',
-    role: 'Frontend Developer',
-    bio: 'Designer with a passion for creating intuitive and engaging user experiences.',
-    img: '/images/profile-nhat.jpg',
+    name: 'Le Quoc Nam',
+    role: 'Full-stack Developer',
+    bio: 'Passionate about building scalable web applications and working with cross-functional teams.',
+    img: '/images/profile-nam.jpg',
     social: {
-      facebook: 'https://www.facebook.com/duc.nhatt.nguyen',
-      linkedin: 'https://www.linkedin.com/in/ducnhatdev/'
-    }
-  },
-  {
-    name: 'Phung Minh Thien',
-    role: 'Frontend Developer',
-    bio: 'Designer with a passion for creating intuitive and engaging user experiences.',
-    img: '/images/profile-mtp.jpg',
-    social: {
-      facebook: 'https://www.facebook.com/phungminhthien.1510',
-      linkedin: 'https://www.linkedin.com'
+      facebook: 'https://www.facebook.com/profile.php?id=100064192314817',
+      linkedin: 'https://www.linkedin.com/in/lequocnam/'
     }
   },
 ]

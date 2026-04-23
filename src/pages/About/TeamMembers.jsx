@@ -9,12 +9,11 @@ const TeamMembers = () => {
   const translatedMembers = [
     { ...teamMembers[0], role: t('about.teamRoles.founderLeader'), bio: t('about.teamBios.bio1') },
     { ...teamMembers[1], role: t('about.teamRoles.backendDev'), bio: t('about.teamBios.bio2') },
-    { ...teamMembers[2], role: t('about.teamRoles.frontendDev'), bio: t('about.teamBios.bio3') },
-    { ...teamMembers[3], role: t('about.teamRoles.frontendDev'), bio: t('about.teamBios.bio3') }
+    { ...teamMembers[2], role: t('about.teamRoles.fullstackDev'), bio: t('about.teamBios.bio3') }
   ]
 
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16'>
+    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16 justify-items-center'>
       {translatedMembers.map((member, index) => (
         <div key={index} className='group text-center'>
           <div className='relative mb-6 overflow-hidden rounded-xl aspect-square text-left'>

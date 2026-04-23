@@ -420,12 +420,12 @@
     "teamRoles": {
       "founderLeader": "Nhà sáng lập & Trưởng nhóm",
       "backendDev": "Lập trình viên Backend",
-      "frontendDev": "Lập trình viên Frontend"
+      "fullstackDev": "Lập trình viên Full-stack"
     },
     "teamBios": {
       "bio1": "Với hơn 3 năm kinh nghiệm phát triển website.",
       "bio2": "Nhà nghiên cứu công nghệ với kinh nghiệm thiết kế cơ sở dữ liệu mạnh mẽ sử dụng công nghệ hiện đại.",
-      "bio3": "Nhà thiết kế với niềm đam mê tạo ra trải nghiệm người dùng trực quan và hấp dẫn."
+      "bio3": "Đam mê xây dựng các ứng dụng web có khả năng mở rộng và phối hợp hiệu quả với các nhóm đa chức năng."
     },
     "contactLabels": {
       "email": "Email",

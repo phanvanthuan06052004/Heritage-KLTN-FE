@@ -420,12 +420,12 @@
     "teamRoles": {
       "founderLeader": "Founder & Leader",
       "backendDev": "Backend Developer",
-      "frontendDev": "Frontend Developer"
+      "fullstackDev": "Full-stack Developer"
     },
     "teamBios": {
       "bio1": "With over 3 years of experience in website development.",
       "bio2": "Technology researcher with experience in designing robust databases using modern technologies.",
-      "bio3": "Designer with a passion for creating intuitive and engaging user experiences."
+      "bio3": "Passionate about building scalable web applications and working with cross-functional teams."
     },
     "contactLabels": {
       "email": "Email",
