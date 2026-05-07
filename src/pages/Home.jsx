@@ -11,6 +11,13 @@ const HowItWork = lazy(() => import("~/components/Home/HowItWork/HowItWork"));
 const PopularHeritage = lazy(
   () => import("~/components/Home/PopularHeritage/PopularHeritage"),
 );
+const MarqueeStrip = lazy(
+  () => import("~/components/Home/MarqueeStrip/MarqueeStrip"),
+);
+const DynastyBar = lazy(
+  () => import("~/components/Home/DynastyBar/DynastyBar"),
+);
+const OnThisDay = lazy(() => import("~/components/Home/OnThisDay/OnThisDay"));
 
 const Home = () => {
   return (
@@ -22,6 +29,19 @@ const Home = () => {
       >
         <HeroCarousel />
       </Suspense>
+
+      <Suspense fallback={null}>
+        <MarqueeStrip />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <DynastyBar />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <OnThisDay />
+      </Suspense>
+
       <div className="lcn-container">
         <Suspense
           fallback={

@@ -32,6 +32,9 @@
     --heritage-primary: 25 70% 47%;
     --heritage-light: 30 75% 93%;
     --heritage-dark: 25 80% 25%;
+
+    --gold: 43 74% 49%;
+    --text3: 215 16% 47%;
   }
   .dark {
     --background: 224 71% 4%;
@@ -319,5 +322,15 @@
   }
   100% {
     transform: translateX(100%);
+  }
+}
+
+/* ===== Marquee Strip ===== */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }

@@ -1,15 +1,26 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: "class",
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}", "*.{js,ts,jsx,tsx,mdx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "*.{js,ts,jsx,tsx,mdx}",
+  ],
   theme: {
     extend: {
       spacing: {
-        'navbar': '72px',
-        'navbar-mobile': '72px'
+        navbar: "72px",
+        "navbar-mobile": "72px",
       },
       fontFamily: {
-        sans: ['ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji']
+        sans: [
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Noto Color Emoji",
+        ],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -30,14 +41,16 @@ export default {
         sidebar: "hsl(var(--sidebar))",
         "sidebar-accent": "hsl(var(--sidebar-accent))",
         heritage: {
-          DEFAULT: 'hsl(var(--heritage-primary))',
-          light: 'hsl(var(--heritage-light))',
-          dark: 'hsl(var(--heritage-dark))',
+          DEFAULT: "hsl(var(--heritage-primary))",
+          light: "hsl(var(--heritage-light))",
+          dark: "hsl(var(--heritage-dark))",
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))'
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
+        gold: "hsl(var(--gold))",
+        text3: "hsl(var(--text3))",
       },
       keyframes: {
         "fade-in": {
@@ -81,4 +94,4 @@ export default {
     },
   },
   plugins: [],
-}
+};
