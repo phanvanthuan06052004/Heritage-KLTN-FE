@@ -2,9 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Button } from "~/components/common/ui/Button";
 import { Input } from "~/components/common/ui/Input";
-import { Loader2, MessageCircle, Send, X, Minimize2 } from "lucide-react";
+import {
+  Loader2,
+  MessageCircle,
+  Send,
+  X,
+  Minimize2,
+  Bot,
+  User,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { useQueryRAGMutation } from "~/store/apis/chatSlice";
+import { cn } from "~/lib/utils";
 
 const GlobalChatbot = () => {
   const location = useLocation();
@@ -14,15 +23,14 @@ const GlobalChatbot = () => {
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const [queryRAG] = useQueryRAGMutation();
 
-  // Check if current page is heritage detail page
   const isHeritageDetailPage =
     location.pathname.startsWith("/heritage/") &&
     !location.pathname.includes("/chat/heritage/");
 
-  // Auto close chatbot when navigating to heritage detail
   useEffect(() => {
     if (isHeritageDetailPage) {
       setIsOpen(false);
@@ -33,7 +41,12 @@ const GlobalChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Sample questions
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen, isMinimized]);
+
   const sampleQuestions = [
     "What are UNESCO World Heritage Sites in Vietnam?",
     "Tell me about Ha Long Bay",
@@ -41,14 +54,13 @@ const GlobalChatbot = () => {
     "What is special about Hoi An Ancient Town?",
   ];
 
-  // Initialize with welcome message
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const initMessage = {
         id: Date.now(),
         sender: "ai",
         content:
-          "Hello! How can I help you learn about Vietnamese Heritage today? Feel free to ask me anything!",
+          "Hello! I'm your Heritage Assistant. How can I help you learn about Vietnamese Heritage today? Feel free to ask me anything!",
         timestamp: new Date().toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
@@ -80,7 +92,6 @@ const GlobalChatbot = () => {
     setIsSending(true);
 
     try {
-      // Query RAG system for general questions
       const response = await queryRAG({
         question: question,
         topK: 5,
@@ -141,7 +152,6 @@ const GlobalChatbot = () => {
     setIsMinimized(!isMinimized);
   };
 
-  // Don't render on heritage detail pages
   if (isHeritageDetailPage) {
     return null;
   }
@@ -152,7 +162,7 @@ const GlobalChatbot = () => {
       {!isOpen && (
         <Button
           onClick={toggleChatbot}
-          className="fixed bottom-6 right-6 rounded-full w-14 h-14 bg-heritage text-white flex items-center justify-center shadow-lg hover:bg-heritage-dark z-50 transition-transform hover:scale-110"
+          className="fixed bottom-6 right-6 rounded-full w-14 h-14 bg-heritage text-white shadow-lg hover:bg-heritage-dark hover:scale-110 z-50 transition-all"
           aria-label="Open Heritage Assistant"
         >
           <MessageCircle className="w-6 h-6" />
@@ -162,101 +172,130 @@ const GlobalChatbot = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`fixed bottom-6 right-6 bg-white rounded-lg shadow-2xl z-50 border border-gray-200 transition-all duration-300 ${
-            isMinimized ? "w-[320px] h-[60px]" : "w-[380px] h-[550px]"
-          }`}
+          className={cn(
+            "fixed bottom-6 right-6 bg-card rounded-xl shadow-2xl z-50 border border-border transition-all duration-300",
+            isMinimized ? "w-[340px] h-[60px]" : "w-[380px] h-[580px]",
+          )}
         >
           {/* Header */}
-          <div className="flex justify-between items-center p-4 bg-gradient-to-r from-heritage to-heritage-dark text-white rounded-t-lg">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <div className="flex justify-between items-center p-4 bg-gradient-to-r from-heritage to-heritage-dark text-white rounded-t-xl">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <Bot className="w-5 h-5" />
               <h3 className="text-sm font-semibold">Heritage Assistant</h3>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-1 text-white hover:bg-white/20"
+            <div className="flex items-center gap-1">
+              <button
+                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 onClick={toggleMinimize}
+                aria-label={isMinimized ? "Expand" : "Minimize"}
               >
                 <Minimize2 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-1 text-white hover:bg-white/20"
+              </button>
+              <button
+                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 onClick={toggleChatbot}
+                aria-label="Close chatbot"
               >
                 <X className="w-4 h-4" />
-              </Button>
+              </button>
             </div>
           </div>
 
           {/* Messages */}
           {!isMinimized && (
             <>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 h-[400px] bg-gray-50">
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 h-[420px] bg-muted/30">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${
+                    className={cn(
+                      "flex",
                       message.sender === "user"
                         ? "justify-end"
-                        : "justify-start"
-                    }`}
+                        : "justify-start",
+                    )}
                   >
-                    <div
-                      className={`max-w-[75%] p-3 rounded-lg text-sm shadow-sm ${
-                        message.sender === "user"
-                          ? "bg-heritage text-white rounded-br-none"
-                          : "bg-white text-gray-800 border border-gray-200 rounded-bl-none"
-                      }`}
-                    >
-                      {message.content && (
-                        <p className="whitespace-pre-wrap break-words">
+                    <div className="flex items-start gap-2 max-w-[80%]">
+                      {message.sender === "ai" && (
+                        <div className="w-7 h-7 rounded-full bg-heritage flex items-center justify-center shrink-0 mt-1">
+                          <Bot className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <div
+                        className={cn(
+                          "p-3 rounded-xl text-sm shadow-sm",
+                          message.sender === "user"
+                            ? "bg-heritage text-white rounded-br-none"
+                            : "bg-card text-card-foreground border border-border rounded-bl-none",
+                        )}
+                      >
+                        <p className="whitespace-pre-wrap break-words leading-relaxed">
                           {message.content}
                         </p>
+                        <p
+                          className={cn(
+                            "text-xs mt-1.5",
+                            message.sender === "user"
+                              ? "text-white/70"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {message.timestamp}
+                        </p>
+                      </div>
+                      {message.sender === "user" && (
+                        <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0 mt-1">
+                          <User className="w-4 h-4 text-primary-foreground" />
+                        </div>
                       )}
-
-                      <p className="text-xs mt-1 opacity-70">
-                        {message.timestamp}
-                      </p>
                     </div>
                   </div>
                 ))}
 
-                {/* Sample Questions - Show only when no messages */}
+                {/* Sample Questions */}
                 {messages.length === 1 && (
-                  <div className="mt-2 space-y-2">
-                    <p className="text-xs text-gray-500 px-1">Try asking:</p>
-                    {sampleQuestions.map((question, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setInputText(question)}
-                        className="w-full text-left px-3 py-2 text-xs bg-white border border-gray-200 rounded-lg hover:border-heritage hover:bg-heritage-light/20 transition-colors"
-                      >
-                        {question}
-                      </button>
-                    ))}
+                  <div className="mt-4 space-y-2 px-1">
+                    <p className="text-xs text-muted-foreground font-medium">
+                      Try asking:
+                    </p>
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {sampleQuestions.map((question, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setInputText(question)}
+                          className="w-full text-left px-3 py-2 text-xs bg-card border border-border rounded-lg hover:border-heritage hover:bg-heritage-light/20 transition-colors text-muted-foreground hover:text-foreground"
+                        >
+                          {question}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
                 {/* Typing Indicator */}
                 {isSending && (
                   <div className="flex justify-start">
-                    <div className="max-w-[75%] p-3 rounded-lg bg-white border border-gray-200 shadow-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">Thinking</span>
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-heritage rounded-full animate-bounce"></div>
-                          <div
-                            className="w-2 h-2 bg-heritage rounded-full animate-bounce"
-                            style={{ animationDelay: "0.2s" }}
-                          ></div>
-                          <div
-                            className="w-2 h-2 bg-heritage rounded-full animate-bounce"
-                            style={{ animationDelay: "0.4s" }}
-                          ></div>
+                    <div className="flex items-start gap-2 max-w-[80%]">
+                      <div className="w-7 h-7 rounded-full bg-heritage flex items-center justify-center shrink-0 mt-1">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="p-3 rounded-xl bg-card border border-border shadow-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            Thinking
+                          </span>
+                          <div className="flex gap-1">
+                            <div className="w-2 h-2 bg-heritage rounded-full animate-bounce" />
+                            <div
+                              className="w-2 h-2 bg-heritage rounded-full animate-bounce"
+                              style={{ animationDelay: "0.2s" }}
+                            />
+                            <div
+                              className="w-2 h-2 bg-heritage rounded-full animate-bounce"
+                              style={{ animationDelay: "0.4s" }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -267,8 +306,9 @@ const GlobalChatbot = () => {
               </div>
 
               {/* Input */}
-              <div className="flex items-center p-3 border-t border-gray-200 bg-white rounded-b-lg gap-2">
+              <div className="flex items-center p-3 border-t border-border bg-card rounded-b-xl gap-2">
                 <Input
+                  ref={inputRef}
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -279,7 +319,9 @@ const GlobalChatbot = () => {
                 <Button
                   onClick={handleSendMessage}
                   disabled={isSending}
-                  className="p-2 bg-heritage hover:bg-heritage-dark"
+                  size="icon"
+                  className="bg-heritage hover:bg-heritage-dark shrink-0"
+                  aria-label="Send message"
                 >
                   {isSending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

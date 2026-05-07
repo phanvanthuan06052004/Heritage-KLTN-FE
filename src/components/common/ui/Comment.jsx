@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Loader2, Send, X, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Loader2,
+  Send,
+  X,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+} from "lucide-react";
 import { Button } from "./Button";
 import { toast } from "react-toastify";
 import {
@@ -7,6 +15,7 @@ import {
   useDeleteDiscussMutation,
   useGetDiscussByParentIdQuery,
 } from "~/store/apis/disscussSlice";
+import { Avatar } from "./Avatar";
 
 const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
   const [replyForm, setReplyForm] = useState({ content: "", isOpen: false });
@@ -15,6 +24,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
   const isOwnComment = currentUser?._id === comment.userId.toString();
   const hasReplies =
     comment.comment_right - comment.comment_left > 1 || showReplies;
+
   const { data: repliesData = { comments: [] }, isLoading: isLoadingReplies } =
     useGetDiscussByParentIdQuery(
       { heritageId, parentId: comment._id },
@@ -80,67 +90,100 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
 
   return (
     <div
-      className={`mt-4 ${depth > 0 ? "ml-6 border-l-2 border-gray-200 pl-4" : ""}`}
+      className={`mt-4 ${depth > 0 ? "ml-4 sm:ml-6 border-l-2 border-border pl-3 sm:pl-4" : ""}`}
     >
       <div className="flex items-start space-x-3">
+        {/* Avatar */}
         <div className="flex-shrink-0">
           {avatar ? (
             <img
               src={avatar}
               alt={comment.username}
-              className="w-8 h-8 rounded-full"
+              className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-              {comment.username[0].toUpperCase()}
+            <div className="w-8 h-8 rounded-full bg-heritage-light flex items-center justify-center text-heritage-dark text-sm font-medium">
+              {comment.username?.[0]?.toUpperCase() || "?"}
             </div>
           )}
         </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-gray-900 dark:text-gray-100">
+
+        <div className="flex-1 min-w-0">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-medium text-sm text-foreground truncate">
               {comment.username}
             </span>
-            {isOwnComment && (
-              <div className="flex space-x-2">
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-muted-foreground">
+                {comment.createdAt
+                  ? new Date(comment.createdAt).toLocaleDateString("vi-VN")
+                  : ""}
+              </span>
+              {isOwnComment && (
                 <button
                   onClick={handleDeleteComment}
-                  className="text-sm text-red-500 hover:underline"
+                  className="text-xs text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
                   disabled={isDeleting}
+                  aria-label="Delete comment"
                 >
-                  <Trash2 className="w-4 h-4 inline mr-1" />
-                  Xóa
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-          <p className="mt-1 text-gray-700 dark:text-gray-300">
+
+          {/* Content */}
+          <p className="mt-1 text-sm text-foreground/90 whitespace-pre-wrap break-words">
             {comment.content}
           </p>
-          <button
-            onClick={toggleReplyForm}
-            className="mt-2 text-sm text-primary hover:underline"
-          >
-            {replyForm.isOpen ? "Hủy" : "Trả lời"}
-          </button>
 
+          {/* Actions */}
+          <div className="flex items-center gap-3 mt-2">
+            <button
+              onClick={toggleReplyForm}
+              className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              aria-label={
+                replyForm.isOpen ? "Cancel reply" : "Reply to comment"
+              }
+            >
+              {replyForm.isOpen ? "Hủy" : "Trả lời"}
+            </button>
+
+            {hasReplies && (
+              <button
+                onClick={toggleReplies}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+                aria-label={showReplies ? "Hide replies" : "Show replies"}
+              >
+                {showReplies ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )}
+                {showReplies ? "Ẩn trả lời" : "Hiện trả lời"}
+              </button>
+            )}
+          </div>
+
+          {/* Reply Form */}
           {replyForm.isOpen && (
-            <form onSubmit={handleReplySubmit} className="mt-3">
+            <form
+              onSubmit={handleReplySubmit}
+              className="mt-3 animate-slide-down"
+            >
               <textarea
-                className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-200"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows="3"
                 placeholder="Write your reply..."
                 value={replyForm.content}
                 onChange={handleReplyChange}
                 disabled={isCreating}
+                aria-label="Reply content"
               />
               <div className="mt-2 flex space-x-2">
-                <Button type="submit" size="sm" disabled={isCreating}>
-                  {isCreating ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                  ) : (
-                    <Send className="w-4 h-4 mr-1" />
-                  )}
+                <Button type="submit" size="sm" isLoading={isCreating}>
+                  <Send className="w-3.5 h-3.5 mr-1" />
                   Post reply
                 </Button>
                 <Button
@@ -149,36 +192,26 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
                   size="sm"
                   onClick={toggleReplyForm}
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </form>
           )}
-
-          {hasReplies && (
-            <button
-              onClick={toggleReplies}
-              className="mt-2 text-sm text-primary hover:underline flex items-center"
-            >
-              {showReplies ? (
-                <ChevronUp className="w-4 h-4 mr-1" />
-              ) : (
-                <ChevronDown className="w-4 h-4 mr-1" />
-              )}
-              {showReplies ? "Ẩn trả lời" : "Hiện trả lời"}
-            </button>
-          )}
         </div>
       </div>
 
+      {/* Replies */}
       {showReplies && (
-        <div>
+        <div className="mt-2 animate-fade-in">
           {isLoadingReplies ? (
-            <div className="flex justify-center mt-4">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
             </div>
           ) : repliesData?.discussArray?.length === 0 ? (
-            <p className="mt-4 text-sm text-gray-500">No replies yet.</p>
+            <p className="ml-14 text-sm text-muted-foreground py-2">
+              <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
+              No replies yet.
+            </p>
           ) : (
             repliesData?.discussArray?.map((reply) => (
               <Comment

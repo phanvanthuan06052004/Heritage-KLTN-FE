@@ -1,176 +1,220 @@
-import { Eye, EyeOff, UserPlus } from 'lucide-react'
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { useTranslation } from 'react-i18next'
-import { Button } from '~/components/common/ui/Button'
-import { useSignUpMutation } from '~/store/apis/authSlice'
+import { Eye, EyeOff, UserPlus, Mail, Lock } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import { Button } from "~/components/common/ui/Button";
+import { useSignUpMutation } from "~/store/apis/authSlice";
 
 const Register = () => {
-  const { t } = useTranslation()
-  const [showPassword, setShowPassword] = useState(false)
+  const { t } = useTranslation();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [signUp] = useSignUpMutation()
-  const navigate = useNavigate()
+  const [signUp] = useSignUpMutation();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+    if (error) setError(null);
+  };
 
   const validateForm = () => {
-    const { email, password, confirmPassword } = formData
+    const { email, password, confirmPassword } = formData;
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return t('auth.register_page.errors.invalidEmail')
+      return t("auth.register_page.errors.invalidEmail");
     }
     if (!password || password.length < 8) {
-      return t('auth.register_page.errors.passwordTooShort')
+      return t("auth.register_page.errors.passwordTooShort");
     }
     if (password !== confirmPassword) {
-      return t('auth.register_page.errors.passwordMismatch')
+      return t("auth.register_page.errors.passwordMismatch");
     }
-    return null
-  }
+    return null;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
-    const validationError = validateForm()
+    const validationError = validateForm();
     if (validationError) {
-      setError(validationError)
-      toast.error(validationError)
-      setIsLoading(false)
-      return
+      setError(validationError);
+      toast.error(validationError);
+      setIsLoading(false);
+      return;
     }
 
     try {
       const response = await signUp({
         email: formData.email,
         password: formData.password,
-      }).unwrap()
+      }).unwrap();
 
-      // BE returns { data: { authToken } }
-      const { authToken } = response.data
+      const { authToken } = response.data;
 
-      toast.success(`${t('auth.registerSuccess')} ${t('auth.register_page.verifyEmailMessage')}`)
-      navigate('/authen-confirm', { state: { email: formData.email, authToken } })
+      toast.success(
+        `${t("auth.registerSuccess")} ${t("auth.register_page.verifyEmailMessage")}`,
+      );
+      navigate("/authen-confirm", {
+        state: { email: formData.email, authToken },
+      });
     } catch (err) {
-      const errorMessage = err?.data?.message || t('auth.register_page.errors.registrationFailed')
-      setError(errorMessage)
-      toast.error(errorMessage)
+      const errorMessage =
+        err?.data?.message || t("auth.register_page.errors.registrationFailed");
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className='flex items-center justify-center sm:px-4 py-12 mt-navbar-mobile sm:mt-navbar'>
-      <div className='max-w-md w-full animate-fade-up'>
-        <div className='border shadow-lg rounded-lg border-heritage-light/50 bg-card text-card-foreground'>
-          <div className='text-center p-6 space-y-1'>
-            <h3 className='text-xl sm:text-2xl text-heritage-dark font-bold tracking-tight'>{t('auth.register_page.title')}</h3>
-            <p className='text-sm text-muted-foreground'>{t('auth.register_page.subtitle')}</p>
+    <div className="flex items-center justify-center sm:px-4 py-12 min-h-screen mt-navbar-mobile sm:mt-navbar">
+      <div className="max-w-md w-full animate-fade-up">
+        <div className="rounded-xl shadow-lg border border-border bg-card overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-heritage-light/50 to-accent p-8 text-center space-y-1">
+            <div className="w-16 h-16 rounded-full bg-heritage text-white flex items-center justify-center mx-auto mb-3">
+              <UserPlus className="w-7 h-7" />
+            </div>
+            <h3 className="text-2xl text-heritage-dark font-bold tracking-tight">
+              {t("auth.register_page.title")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {t("auth.register_page.subtitle")}
+            </p>
           </div>
-          <div className='p-6 pt-0'>
-            <form onSubmit={handleSubmit} className='space-y-4'>
-              {error && <div className='text-red-500 text-sm text-center'>{error}</div>}
-              <div className='space-y-2'>
-                <label htmlFor='email' className='text-sm font-medium'>
-                  {t('auth.email')}
+
+          {/* Form */}
+          <div className="p-6 sm:p-8">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {error && (
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive text-center">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="email">
+                  {t("auth.email")}
                 </label>
-                <input
-                  type='email'
-                  id='email'
-                  name='email'
-                  required
-                  placeholder={t('auth.register_page.emailPlaceholder')}
-                  value={formData.email}
-                  onChange={handleChange}
-                  className='w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm'
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    placeholder={t("auth.register_page.emailPlaceholder")}
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full h-11 pl-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring focus:outline-none transition-colors"
+                  />
+                </div>
               </div>
 
-              <div className='space-y-2'>
-                <label className='text-sm font-semibold' htmlFor='password'>
-                  {t('auth.password')}
+              <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="password">
+                  {t("auth.password")}
                 </label>
-                <div className='relative'>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    id='password'
-                    name='password'
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
                     required
-                    placeholder={t('auth.register_page.passwordPlaceholder')}
+                    placeholder={t("auth.register_page.passwordPlaceholder")}
                     value={formData.password}
                     onChange={handleChange}
-                    className='w-full h-10 rounded-md border px-3 py-2 placeholder:text-muted-foreground focus:ring-heritage focus:border-none focus:ring-2 focus:outline-none text-sm'
+                    className="w-full h-11 pl-10 pr-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring focus:outline-none transition-colors"
                   />
                   <button
+                    type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className='absolute right-0 top-0 px-3 py-2 h-10'
-                    type='button'
-                    aria-label={t('auth.togglePasswordVisibility')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={t("auth.togglePasswordVisibility")}
                   >
                     {showPassword ? (
-                      <EyeOff size={16} className='text-muted-foreground' />
+                      <EyeOff className="w-4 h-4" />
                     ) : (
-                      <Eye size={16} className='text-muted-foreground' />
+                      <Eye className="w-4 h-4" />
                     )}
                   </button>
                 </div>
               </div>
-              <div className='space-y-2'>
-                <label htmlFor='confirmPassword' className='text-sm font-medium'>
-                  {t('auth.confirmPassword')}
+
+              <div className="space-y-2">
+                <label
+                  className="text-sm font-medium"
+                  htmlFor="confirmPassword"
+                >
+                  {t("auth.confirmPassword")}
                 </label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id='confirmPassword'
-                  name='confirmPassword'
-                  required
-                  placeholder={t('auth.register_page.passwordPlaceholder')}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className='w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm'
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    required
+                    placeholder={t(
+                      "auth.register_page.confirmPasswordPlaceholder",
+                    )}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full h-11 pl-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring focus:outline-none transition-colors"
+                  />
+                </div>
               </div>
-              <Button type='submit' disabled={isLoading} className='w-full'>
+
+              <Button
+                type="submit"
+                className="w-full h-11"
+                disabled={isLoading}
+              >
                 {isLoading ? (
-                  <div className='flex items-center'>
-                    <div className='animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full' />
-                    {t('auth.processing')}
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                    {t("auth.processing")}
                   </div>
                 ) : (
                   <>
-                    <UserPlus size={16} />
-                    <span>{t('auth.register_page.signUpButton')}</span>
+                    <UserPlus className="w-4 h-4" />
+                    <span>{t("auth.register_page.signUpButton")}</span>
                   </>
                 )}
               </Button>
             </form>
-          </div>
-          <div className='text-center pt-0 p-6 text-sm'>
-            <span>{t('auth.alreadyHaveAccount')} </span>
-            <Link to='/login' className='text-heritage font-medium hover:underline'>
-              {t('auth.loginNow')}
-            </Link>
+
+            <div className="mt-6 text-center text-sm">
+              <span className="text-muted-foreground">
+                {t("auth.alreadyHaveAccount")}{" "}
+              </span>
+              <Link
+                to="/login"
+                className="text-heritage font-medium hover:underline"
+              >
+                {t("auth.loginNow")}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

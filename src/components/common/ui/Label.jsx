@@ -1,7 +1,17 @@
-const Label = ({ children, ...props }) => (
-    <label className="block text-sm font-medium text-gray-700" {...props}>
-        {children}
-    </label>
-)
+import { cn } from "~/lib/utils";
 
-export { Label }
+const Label = ({ children, className, required, ...props }) => (
+  <label
+    className={cn("block text-sm font-medium text-foreground", className)}
+    {...props}
+  >
+    {children}
+    {required && (
+      <span className="ml-1 text-destructive" aria-hidden="true">
+        *
+      </span>
+    )}
+  </label>
+);
+
+export { Label };

@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense } from "react";
+import React, { useEffect, Suspense, Component } from "react";
 import AppRoutes from "./routes";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "./store/slices/authSlice";
@@ -6,6 +6,62 @@ import ToastProvider from "./components/ToastProvider/ToastProvider";
 import { useFavoriteInitializer } from "./hooks/useFavoriteInitializer";
 import LoadingScreen from "./components/common/LoadingScreen";
 import GlobalChatbot from "./components/GlobalChatbot/GlobalChatbot";
+
+// Error Boundary Component
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Application Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+          <div className="text-center max-w-md space-y-6">
+            <div className="w-20 h-20 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
+              <svg
+                className="w-10 h-10 text-destructive"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">
+              Something went wrong
+            </h1>
+            <p className="text-muted-foreground">
+              An unexpected error occurred. Please try refreshing the page.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-heritage text-white h-10 px-6 py-2 text-sm font-medium transition-colors hover:bg-heritage-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const App = () => {
   const dispatch = useDispatch();
@@ -26,19 +82,17 @@ const App = () => {
               setCredentials({
                 user: parsedUser,
                 accessToken: parsedToken.value,
-              })
+              }),
             );
           } else {
             localStorage.removeItem("userInfo");
             localStorage.removeItem("accessToken");
-            // Optionally, redirect the user to the login page
           }
         }
       } catch (error) {
         console.error("Error parsing auth data:", error);
         localStorage.removeItem("userInfo");
         localStorage.removeItem("accessToken");
-        // Optionally, redirect the user to the login page
       }
     };
 
@@ -49,11 +103,13 @@ const App = () => {
   useFavoriteInitializer();
 
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <AppRoutes />
-      <ToastProvider />
-      <GlobalChatbot />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingScreen />}>
+        <AppRoutes />
+        <ToastProvider />
+        <GlobalChatbot />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 
