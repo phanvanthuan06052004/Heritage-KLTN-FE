@@ -6,11 +6,14 @@ import { Link, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import { useTranslation } from "react-i18next"
 import { Button } from "~/components/common/ui/Button"
-import { useForgotPasswordMutation, useResetPasswordMutation } from "~/store/apis/authSlice"
+import { useDispatch } from 'react-redux'
+import { useForgotPasswordMutation, useVerifyForgotPasswordOtpMutation, useResetPasswordMutation } from "~/store/apis/authSlice"
+import { setCredentials } from '~/store/slices/authSlice'
 
 const ForgotPassword = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [email, setEmail] = useState("")
   const [verificationCode, setVerificationCode] = useState("")
   const [newPassword, setNewPassword] = useState("")
@@ -24,7 +27,9 @@ const ForgotPassword = () => {
 
   // Use the mutation hooks
   const [forgotPassword, { isLoading: isRequestingCode }] = useForgotPasswordMutation()
+  const [verifyForgotOtp, { isLoading: isVerifyingOtp }] = useVerifyForgotPasswordOtpMutation()
   const [resetPassword, { isLoading: isResetting }] = useResetPasswordMutation()
+  const [resetToken, setResetToken] = useState('')
 
   // Handle cooldown timer for resend button
   useEffect(() => {
@@ -37,18 +42,19 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError(null) // Reset error state
+    setError(null)
 
     try {
-      // Call the forgot password API with email
       const response = await forgotPassword({ email }).unwrap()
 
-      // Show success message
-      toast.success(response.message || t('auth.forgotPassword.codeSent'))
+      // BE returns { data: { resetToken } }
+      const { resetToken } = response.data
+      setResetToken(resetToken)
+
+      toast.success(response.data.message || t('auth.forgotPassword.codeSent'))
       setIsSubmitted(true)
-      setCooldown(60) // Start cooldown timer
+      setCooldown(60)
     } catch (err) {
-      // Handle error
       const errorMessage = err?.data?.message || t('auth.forgotPassword.errors.sendFailed')
       setError(errorMessage)
       toast.error(errorMessage)
@@ -74,36 +80,40 @@ const ForgotPassword = () => {
     e.preventDefault()
     setError(null)
 
-    // Validate passwords match
     if (newPassword !== confirmPassword) {
       setError(t('auth.forgotPassword.errors.passwordMismatch'))
       return
     }
 
-    // Validate password strength
-    if (newPassword.length < 8) {
+    if (newPassword.length < 6) {
       setError(t('auth.forgotPassword.errors.passwordTooShort'))
       return
     }
 
     try {
-      // Call the reset password API with email, code, and new password
-      const response = await resetPassword({
-        email,
-        code: verificationCode,
+      // Step 1: Verify OTP
+      const verifyResponse = await verifyForgotOtp({
+        token: resetToken,
+        otpCode: verificationCode,
+      }).unwrap()
+
+      const verifiedResetToken = verifyResponse.data.resetToken
+
+      // Step 2: Reset password
+      const resetResponse = await resetPassword({
+        token: verifiedResetToken,
         newPassword,
       }).unwrap()
 
-      // Show success message
-      toast.success(response.message || t('auth.forgotPassword.resetSuccess'))
+      // BE returns { data: { accessToken, refreshToken, sessionId, user } }
+      const { accessToken, refreshToken, sessionId, user } = resetResponse.data
+
+      dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }))
+      toast.success(t('auth.forgotPassword.resetSuccess'))
       setIsResetComplete(true)
 
-      // Redirect to login page after 3 seconds
-      setTimeout(() => {
-        navigate("/login")
-      }, 3000)
+      setTimeout(() => navigate("/"), 3000)
     } catch (err) {
-      // Handle error
       const errorMessage = err?.data?.message || t('auth.forgotPassword.errors.invalidCode')
       setError(errorMessage)
       toast.error(errorMessage)

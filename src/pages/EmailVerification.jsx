@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
 import { Button } from '~/components/common/ui/Button'
-import { useSendVerificationEmailMutation, useVerifyEmailMutation } from '~/store/apis/mailSlice'
+import { useVerifyOtpMutation, useResendOtpMutation } from '~/store/apis/authSlice'
+import { setCredentials } from '~/store/slices/authSlice'
 
 const AuthenConfirm = () => {
   const [code, setCode] = useState('')
@@ -15,8 +17,10 @@ const AuthenConfirm = () => {
   const navigate = useNavigate()
   const email = location.state?.email || ''
 
-  const [verifyEmail] = useVerifyEmailMutation()
-  const [sendVerificationEmail] = useSendVerificationEmailMutation()
+  const [verifyOtp] = useVerifyOtpMutation()
+  const [resendOtp] = useResendOtpMutation()
+  const authToken = location.state?.authToken
+  const dispatch = useDispatch()
 
   useEffect(() => {
     let timer
@@ -33,22 +37,30 @@ const AuthenConfirm = () => {
     setError(null)
     setIsLoading(true)
 
-    if (!/^\d{8}$/.test(code)) {
-      setError('Verification code must be 8 digits.')
-      toast.error('Verification code must be 8 digits.')
+    if (!/^\d{6}$/.test(code)) {
+      setError('OTP must be 6 digits.')
+      toast.error('OTP must be 6 digits.')
       setIsLoading(false)
       return
     }
 
     try {
-      await verifyEmail({ email, code }).unwrap()
-      toast.success('Email verification successful! Please login.')
-      navigate('/login')
+      const response = await verifyOtp({
+        token: authToken,
+        otpCode: code
+      }).unwrap()
+
+      // BE returns { data: { accessToken, refreshToken, sessionId, user } }
+      const { accessToken, refreshToken, sessionId, user } = response.data
+
+      dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }))
+      toast.success('Email verification successful! Logged in.')
+      navigate('/')
     } catch (err) {
       const errorMessage = err?.data?.message || 'Verification failed. Please try again.'
       setError(errorMessage)
       toast.error(errorMessage)
-      console.error('Verify email error:', err)
+      console.error('Verify OTP error:', err)
     } finally {
       setIsLoading(false)
     }
@@ -62,21 +74,21 @@ const AuthenConfirm = () => {
     setIsLoading(true)
 
     try {
-      await sendVerificationEmail({ email }).unwrap()
-      setResendMessage('A new verification code has been sent.')
-      toast.success('A new verification code has been sent to your email.')
+      await resendOtp({ token: authToken }).unwrap()
+      setResendMessage('A new OTP has been sent.')
+      toast.success('A new OTP has been sent to your email.')
       setResendCooldown(60)
     } catch (err) {
-      const errorMessage = err?.data?.message || 'Failed to resend code. Please try again.'
+      const errorMessage = err?.data?.message || 'Failed to resend OTP. Please try again.'
       setError(errorMessage)
       toast.error(errorMessage)
-      console.error('Resend code error:', err)
+      console.error('Resend OTP error:', err)
     } finally {
       setIsLoading(false)
     }
   }
 
-  if (!email) {
+  if (!email || !authToken) {
     navigate('/register')
     return null
   }
@@ -88,7 +100,7 @@ const AuthenConfirm = () => {
           <div className='text-center p-6 space-y-1'>
             <h3 className='text-xl sm:text-2xl text-heritage-dark font-bold tracking-tight'>Email Verification</h3>
             <p className='text-sm text-muted-foreground'>
-              Enter the 8-digit code sent to <strong>{email}</strong>
+              Enter the 6-digit OTP sent to <strong>{email}</strong>
             </p>
           </div>
           <div className='p-6 pt-0'>
@@ -104,7 +116,7 @@ const AuthenConfirm = () => {
                   id='code'
                   name='code'
                   required
-                  placeholder='Enter 8-digit code...'
+                   placeholder='Enter 6-digit OTP...'
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   maxLength={8}

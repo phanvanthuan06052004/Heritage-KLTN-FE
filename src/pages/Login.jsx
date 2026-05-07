@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/common/ui/Button'
-import { useLoginMutation } from '~/store/apis/authSlice'
+import { useSignInMutation } from '~/store/apis/authSlice'
 import { setCredentials } from '~/store/slices/authSlice'
 
 const Login = () => {
@@ -19,31 +19,27 @@ const Login = () => {
   const [error, setError] = useState(null) // State to handle errors
   const dispatch = useDispatch()
 
-  // Use the login mutation hook
-  const [login] = useLoginMutation()
+  // Use the signin mutation hook
+  const [signIn] = useSignInMutation()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null) // Reset error state
+    setError(null)
 
     try {
-      // Call the login API with form data
-      const response = await login({
+      const response = await signIn({
         email: formData.email,
         password: formData.password
       }).unwrap()
 
-      const { userInfo, accessToken } = response
-      console.log('response', response)
+      // BE returns { data: { accessToken, refreshToken, sessionId, user } }
+      const { accessToken, refreshToken, sessionId, user } = response.data
 
       toast.success(t('auth.loginSuccess'))
-      dispatch(setCredentials({ user: userInfo, accessToken }))
-
-      // Example: Redirect to a dashboard or home page
+      dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }))
       window.location.href = '/'
     } catch (err) {
-      // Handle error
       const errorMessage = err?.data?.message || t('common.error')
       setError(errorMessage)
       toast.error(errorMessage)
@@ -108,6 +104,7 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className='absolute right-0 top-0 px-3 py-2 h-10'
                     type='button'
+                    aria-label={t('auth.togglePasswordVisibility')}
                   >
                     {showPassword ? (
                       <EyeOff size={16} className='text-muted-foreground' />

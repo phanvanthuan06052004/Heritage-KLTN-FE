@@ -5,9 +5,17 @@ const initialState = {
     const storedUserInfo = localStorage.getItem('userInfo')
     return storedUserInfo ? JSON.parse(storedUserInfo)?.user : null
   })(),
-  token: (() => {
-    const storedToken = localStorage.getItem('token')
-    return storedToken ? JSON.parse(storedToken).token : null
+  accessToken: (() => {
+    const storedAccessToken = localStorage.getItem('accessToken')
+    return storedAccessToken ? JSON.parse(storedAccessToken).token : null
+  })(),
+  refreshToken: (() => {
+    const storedRefreshToken = localStorage.getItem('refreshToken')
+    return storedRefreshToken ? JSON.parse(storedRefreshToken).token : null
+  })(),
+  sessionId: (() => {
+    const storedSessionId = localStorage.getItem('sessionId')
+    return storedSessionId ? JSON.parse(storedSessionId).sessionId : null
   })(),
 }
 
@@ -16,30 +24,30 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setCredentials: (state, action) => {
-      const { user, accessToken } = action.payload
+      const { user, accessToken, refreshToken, sessionId } = action.payload
       state.userInfo = user
-      state.token = accessToken
+      state.accessToken = accessToken
+      state.refreshToken = refreshToken
+      state.sessionId = sessionId
 
-      // Set localStorage
       const expires = new Date().getTime() + 30 * 24 * 60 * 60 * 1000 // 30 days
-      localStorage.setItem(
-        'userInfo',
-        JSON.stringify({
-          user,
-          expires,
-        })
-      )
-      localStorage.setItem(
-        'token',
-        JSON.stringify({
-          token: accessToken,
-          expires,
-        })
-      )
+      localStorage.setItem('userInfo', JSON.stringify({ user, expires }))
+      localStorage.setItem('accessToken', JSON.stringify({ token: accessToken, expires }))
+      localStorage.setItem('refreshToken', JSON.stringify({ token: refreshToken, expires }))
+      localStorage.setItem('sessionId', JSON.stringify({ sessionId, expires }))
+    },
+    setAccessToken: (state, action) => {
+      const { accessToken } = action.payload
+      state.accessToken = accessToken
+      const storedAccessToken = localStorage.getItem('accessToken')
+      if (storedAccessToken) {
+        const parsed = JSON.parse(storedAccessToken)
+        parsed.token = accessToken
+        localStorage.setItem('accessToken', JSON.stringify(parsed))
+      }
     },
     setUser: (state, action) => {
       state.userInfo = action.payload
-      // Cập nhật localStorage
       const storedUserInfo = localStorage.getItem('userInfo')
       if (storedUserInfo) {
         const parsedUserInfo = JSON.parse(storedUserInfo)
@@ -47,19 +55,25 @@ const authSlice = createSlice({
         localStorage.setItem('userInfo', JSON.stringify(parsedUserInfo))
       }
     },
-    // eslint-disable-next-line no-unused-vars
-    logOut: (state, action) => {
+    logOut: (state) => {
       state.userInfo = null
-      state.token = null
+      state.accessToken = null
+      state.refreshToken = null
+      state.sessionId = null
       localStorage.removeItem('userInfo')
-      localStorage.removeItem('token')
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('sessionId')
     },
   },
 })
 
-export const { setCredentials, setUser, logOut } = authSlice.actions
+export const { setCredentials, setAccessToken, setUser, logOut } = authSlice.actions
 
 export default authSlice.reducer
 
 export const selectCurrentUser = (state) => state.auth.userInfo
-export const selectCurrentToken = (state) => state.auth.token
+export const selectCurrentAccessToken = (state) => state.auth.accessToken
+export const selectCurrentRefreshToken = (state) => state.auth.refreshToken
+export const selectCurrentSessionId = (state) => state.auth.sessionId
+export const selectCurrentToken = (state) => state.auth.accessToken // Backward compatible

@@ -4,21 +4,20 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/common/ui/Button'
-import { useRegisterMutation } from '~/store/apis/authSlice'
+import { useSignUpMutation } from '~/store/apis/authSlice'
 
 const Register = () => {
   const { t } = useTranslation()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const [register] = useRegisterMutation()
+  const [signUp] = useSignUpMutation()
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -30,12 +29,9 @@ const Register = () => {
   }
 
   const validateForm = () => {
-    const { email, phone, password, confirmPassword } = formData
+    const { email, password, confirmPassword } = formData
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return t('auth.register_page.errors.invalidEmail')
-    }
-    if (!phone || !/^\+?\d{10,15}$/.test(phone)) {
-      return t('auth.register_page.errors.invalidPhone')
     }
     if (!password || password.length < 8) {
       return t('auth.register_page.errors.passwordTooShort')
@@ -60,15 +56,16 @@ const Register = () => {
     }
 
     try {
-      // Call the register API
-      await register({
+      const response = await signUp({
         email: formData.email,
-        phone: formData.phone,
         password: formData.password,
       }).unwrap()
 
+      // BE returns { data: { authToken } }
+      const { authToken } = response.data
+
       toast.success(`${t('auth.registerSuccess')} ${t('auth.register_page.verifyEmailMessage')}`)
-      navigate('/authen-confirm', { state: { email: formData.email } })
+      navigate('/authen-confirm', { state: { email: formData.email, authToken } })
     } catch (err) {
       const errorMessage = err?.data?.message || t('auth.register_page.errors.registrationFailed')
       setError(errorMessage)
@@ -104,21 +101,7 @@ const Register = () => {
                   className='w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm'
                 />
               </div>
-              <div className='space-y-2'>
-                <label htmlFor='phone' className='text-sm font-medium'>
-                  {t('auth.register_page.phone')}
-                </label>
-                <input
-                  type='tel'
-                  id='phone'
-                  name='phone'
-                  required
-                  placeholder={t('auth.register_page.phonePlaceholder')}
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className='w-full h-10 px-3 py-2 rounded-md border focus:ring-2 focus:ring-heritage focus:outline-none focus:border-none placeholder:text-muted-foreground text-sm'
-                />
-              </div>
+
               <div className='space-y-2'>
                 <label className='text-sm font-semibold' htmlFor='password'>
                   {t('auth.password')}
@@ -138,6 +121,7 @@ const Register = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className='absolute right-0 top-0 px-3 py-2 h-10'
                     type='button'
+                    aria-label={t('auth.togglePasswordVisibility')}
                   >
                     {showPassword ? (
                       <EyeOff size={16} className='text-muted-foreground' />
