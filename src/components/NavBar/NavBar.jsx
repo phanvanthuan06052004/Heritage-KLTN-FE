@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Landmark, Menu, X } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { cn } from '~/lib/utils'
@@ -35,10 +35,10 @@ const NavBar = () => {
   }, [location.pathname])
 
   const navbarClasses = cn(
-    'fixed top-0 inset-x-0 z-50 transition-all duration-300 backdrop-blur-md h-16',
+    'fixed top-0 inset-x-0 z-50 h-[76px] transition-all duration-300',
     {
-      'bg-white/80 shadow-sm': isScrolled,
-      'bg-transparent': !isScrolled
+      'border-b border-museum-gold/15 bg-museum-black/82 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-2xl': isScrolled,
+      'bg-museum-black/24 backdrop-blur-md': !isScrolled
     }
   )
 
@@ -53,20 +53,29 @@ const NavBar = () => {
   return (
     <>
       <header className={navbarClasses}>
-        <div className='lcn-container-x flex justify-between py-4'>
+        <div className='lcn-container-x flex h-full items-center justify-between gap-4'>
           {/* Logo */}
-          <Link to='/' className='flex items-center gap-2'>
-            <img src='/favicon.svg' alt='logo' className='w-6 h-6' />
-            <span className='text-heritage tracking-tight text-xl sm:text-2xl font-medium'>Heritage</span>
+          <Link to='/' className='flex min-w-[210px] items-center gap-3 text-museum-ivory'>
+            <span className='flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-museum-gold/30 bg-museum-gold text-museum-black shadow-museum-gold'>
+              <Landmark className='h-5 w-5' />
+            </span>
+            <span className='min-w-0'>
+              <span className='block font-display text-xl font-semibold leading-none sm:text-2xl'>
+                Heritage Reborn
+              </span>
+              <span className='hidden text-[0.62rem] uppercase text-museum-muted sm:block'>
+                Digital Museum
+              </span>
+            </span>
           </Link>
           {/* Navigation*/}
           <NavLinks navLinks={navLinks} />
           {/* Search AuthButton */}
-          <div className='flex justify-between items-center space-x-4'>
+          <div className='flex items-center justify-end gap-3'>
             {/* Search Bar */}
-            <SearchBar />
+            <SearchBar className='hidden md:flex' />
             {/* Sub Right Side */}
-            <div className='hidden sm:flex gap-3'>
+            <div className='hidden lg:flex gap-3'>
               {
                 !isAuthenticated ? (
                   <AuthButton />
@@ -77,14 +86,14 @@ const NavBar = () => {
             </div>
             <Button 
               onClick={() => setShowMobileMenu(!showMobileMenu)} 
-              className='sm:hidden'
+              className='rounded-full border border-museum-gold/20 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold/10 lg:hidden'
               aria-label='Toggle-Menu'
               size='icon'
               variant='ghost'
             >
               {
-                showMobileMenu ? (<X className='w-5 h-5 text-muted-foreground' />) : 
-                  <Menu className='w-5 h-5 text-muted-foreground' />
+                showMobileMenu ? (<X className='w-5 h-5' />) : 
+                  <Menu className='w-5 h-5' />
               }
             </Button>
              {/* Language Switcher */}

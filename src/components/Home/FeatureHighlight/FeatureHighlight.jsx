@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react'
-import { Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import Title from '~/components/common/Title'
+import MotionReveal from '~/components/common/MotionReveal'
+import MuseumSectionHeader from '~/components/common/MuseumSectionHeader'
 import { featuredData } from './featuredData'
 
 const FeatureItem = lazy(() => import('./FeatureItem'))
@@ -30,11 +30,17 @@ const FeatureHighlight = () => {
   
   return (
     <section>
-      <Title icon={Sparkles} title={t('home.features.title')} />
+      <MotionReveal>
+        <MuseumSectionHeader
+          eyebrow={t('home.features.eyebrow')}
+          title={t('home.features.title')}
+          description={t('home.features.sectionDescription')}
+        />
+      </MotionReveal>
       <div className='grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10'>
         {translatedFeatures?.map((item) => (
           <div key={item._id} className='h-full'>
-            <Suspense fallback={<div className='animate-pulse bg-gray-200 rounded-lg h-[300px] w-full' />}>
+            <Suspense fallback={<div className='animate-pulse bg-museum-ivory/10 rounded-[2rem] h-[330px] w-full' />}>
               <FeatureItem item={item} className='h-full'/>
             </Suspense>
           </div>   

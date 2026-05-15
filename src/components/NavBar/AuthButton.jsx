@@ -9,13 +9,20 @@ const AuthButton = () => {
   return (
     <>
       <Link to="/login">
-        <Button variant="ghost" size="sm">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-full text-museum-ivory hover:bg-museum-ivory/10 hover:text-museum-gold-light"
+        >
           <LogIn size={18} />
           <span>{t("auth.login")}</span>
         </Button>
       </Link>
       <Link to="/register">
-        <Button size="sm">
+        <Button
+          size="sm"
+          className="rounded-full bg-museum-gold px-4 text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
+        >
           <UserPlus size={18} />
           <span>{t("auth.register")}</span>
         </Button>

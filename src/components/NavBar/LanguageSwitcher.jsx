@@ -52,9 +52,9 @@ const LanguageSwitcher = () => {
       <button
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-200",
-          "bg-background border-input hover:bg-accent hover:text-accent-foreground",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+          "flex items-center gap-2 rounded-full border px-3 py-2 transition-all duration-200",
+          "border-museum-gold/20 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold/10",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light",
         )}
         aria-label="Change language"
         aria-expanded={open}
@@ -73,7 +73,7 @@ const LanguageSwitcher = () => {
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute right-0 mt-2 w-44 bg-card border border-border shadow-lg rounded-xl p-1.5 z-50 animate-slide-down"
+          className="absolute right-0 mt-2 w-44 rounded-2xl border border-museum-gold/20 bg-museum-black/95 p-1.5 text-museum-ivory shadow-museum-card backdrop-blur-xl z-50 animate-slide-down"
           role="listbox"
           aria-label="Select language"
         >
@@ -84,12 +84,12 @@ const LanguageSwitcher = () => {
               role="option"
               aria-selected={lang === l.code}
               className={cn(
-                "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm transition-colors",
+                "hover:bg-museum-ivory/10 hover:text-museum-gold-light",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light",
                 lang === l.code
-                  ? "bg-heritage-light text-heritage-dark font-medium"
-                  : "text-foreground",
+                  ? "bg-museum-gold/15 text-museum-gold-light font-medium"
+                  : "text-museum-ivory",
               )}
             >
               <img

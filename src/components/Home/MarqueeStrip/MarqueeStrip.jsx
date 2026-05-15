@@ -1,5 +1,7 @@
+import { useLanguage } from "~/hooks/useLanguage";
+
 const figures = [
-  { name: "Hai Bà Trưng", year: "40 SCN" },
+  { name: "Hai Bà Trưng", year: "40 SCN", yearEn: "40 CE" },
   { name: "Lý Thường Kiệt", year: "1076" },
   { name: "Nguyễn Huệ", year: "1789" },
   { name: "Trần Hưng Đạo", year: "1288" },
@@ -8,7 +10,7 @@ const figures = [
   { name: "Hồ Chí Minh", year: "1945" },
   { name: "Nguyễn Du", year: "1820" },
   { name: "Phan Đình Phùng", year: "1895" },
-  { name: "Trưng Vương", year: "43 SCN" },
+  { name: "Trưng Vương", year: "43 SCN", yearEn: "43 CE" },
   { name: "Bà Triệu", year: "248" },
   { name: "Đinh Tiên Hoàng", year: "968" },
   { name: "Lý Công Uẩn", year: "1010" },
@@ -20,36 +22,37 @@ const figures = [
 ];
 
 const MarqueeStrip = () => {
+  const { language } = useLanguage();
   const doubledItems = [...figures, ...figures];
 
   return (
-    <div className="relative w-full border-y border-border/40 bg-gradient-to-r from-card/80 via-card to-card/80 py-3 overflow-hidden">
+    <div className="relative w-full overflow-hidden border-y border-museum-gold/15 bg-museum-black/55 py-4">
       {/* Edge fade overlays */}
-      <div className="absolute inset-y-0 left-0 w-16 sm:w-24 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 sm:w-24 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-16 sm:w-24 z-10 bg-gradient-to-r from-museum-black to-transparent pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-16 sm:w-24 z-10 bg-gradient-to-l from-museum-black to-transparent pointer-events-none" />
 
       {/* Decorative top accent line */}
-      <div className="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      <div className="absolute bottom-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+      <div className="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
+      <div className="absolute bottom-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
 
       <div className="marquee-container w-full overflow-hidden">
         <div className="marquee-track inline-flex items-center will-change-transform">
           {doubledItems.map((fig, idx) => (
             <span
               key={`${fig.name}-${idx}`}
-              className="inline-flex items-center gap-2.5 mx-5 sm:mx-8 text-text3/80 select-none"
+              className="inline-flex items-center gap-2.5 mx-5 sm:mx-8 text-museum-muted select-none"
               style={{
                 fontSize: "0.78rem",
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
               }}
             >
-              <span className="font-semibold text-text3/90 transition-colors duration-300 hover:text-gold">
+              <span className="font-semibold text-museum-ivory/80 transition-colors duration-300 hover:text-museum-gold-light">
                 {fig.name}
               </span>
-              <span className="w-1 h-1 rounded-full bg-gold/30" />
-              <span className="font-mono text-[0.65rem] text-text3/50 tracking-wider">
-                {fig.year}
+              <span className="w-1 h-1 rounded-full bg-museum-gold/50" />
+              <span className="font-mono text-[0.65rem] text-museum-gold/70 tracking-wider">
+                {language === "en" && fig.yearEn ? fig.yearEn : fig.year}
               </span>
             </span>
           ))}

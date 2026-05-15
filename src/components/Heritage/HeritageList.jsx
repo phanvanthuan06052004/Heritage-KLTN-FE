@@ -24,7 +24,7 @@ const EmptyState = () => (
   </div>
 );
 
-const HeritageList = ({ heritages, className }) => {
+const HeritageList = ({ heritages, className, cardVariant }) => {
   if (!heritages?.length) {
     return <EmptyState />;
   }
@@ -40,7 +40,7 @@ const HeritageList = ({ heritages, className }) => {
       {heritages.map((item) => (
         <li key={item._id}>
           <Suspense fallback={<HeritageSkeletonCard />}>
-            <HeritageCard item={item} />
+            <HeritageCard item={item} variant={cardVariant} />
           </Suspense>
         </li>
       ))}

@@ -19,6 +19,22 @@
     "viewAllSites": "View All Heritage Sites",
     "loadingError": "An error occurred while loading data",
     "hero": {
+      "eyebrow": "Digital Heritage Museum",
+      "title": "Awaken Vietnam’s Living Memory",
+      "subtitle": "Explore heritage sites, dynasties, historical figures, and stories through vivid interactive experiences.",
+      "primaryCta": "Start Exploring",
+      "mapCta": "Open Heritage Map",
+      "stats": {
+        "years": "years of history",
+        "dynasties": "dynasties",
+        "interactive": "living experience"
+      },
+      "artifact": {
+        "archive": "Annam Archive",
+        "dynastyLabel": "Dynasty",
+        "dynastyValue": "Tran Dynasty",
+        "milestoneLabel": "Milestone"
+      },
       "slide1Title": "Discover Vietnamese Cultural Heritage",
       "slide1Subtitle": "A journey through centuries of history, culture and magnificent nature.",
       "slide2Title": "Travel Back in Time",
@@ -26,8 +42,61 @@
       "slide3Title": "Connect with Vietnam's Past",
       "slide3Subtitle": "Immerse yourself in the stories that shaped our nation."
     },
+    "dynasty": {
+      "eyebrow": "Dynasty River",
+      "title": "Vietnam’s River of Dynasties",
+      "description": "Move through layers of time, from the Hồng Bàng legends to the imperial memory of Huế, like a flowing river of national memory.",
+      "viewing": "Viewing",
+      "durationPrefix": "Lasted about",
+      "years": "years",
+      "rulersPrefix": "Notable figures",
+      "bc": "BC",
+      "defaultTheme": "Historical imprint",
+      "themes": {
+        "0": "Origins of Văn Lang civilization",
+        "1": "Cổ Loa Citadel and the legendary crossbow",
+        "2": "Trials of keeping the realm",
+        "3": "Spirit of independence",
+        "4": "Undercurrents of resistance",
+        "5": "Vạn Xuân self-rule",
+        "6": "Prelude to Bạch Đằng",
+        "7": "Opening independence",
+        "8": "Đại Cồ Việt",
+        "9": "Consolidating the nation",
+        "10": "Thăng Long in bloom",
+        "11": "The Đông A spirit",
+        "12": "Reform and upheaval",
+        "13": "Lam Sơn uprising",
+        "14": "Confucian scholarship at its height",
+        "15": "The rapid Tây Sơn movement",
+        "16": "Imperial Huế"
+      }
+    },
+    "onThisDay": {
+      "label": "Today in History",
+      "exact": "Happening today",
+      "upcoming": "Upcoming event",
+      "daysUntil": "{{count}} days until this milestone",
+      "months": {
+        "0": "January",
+        "1": "February",
+        "2": "March",
+        "3": "April",
+        "4": "May",
+        "5": "June",
+        "6": "July",
+        "7": "August",
+        "8": "September",
+        "9": "October",
+        "10": "November",
+        "11": "December"
+      }
+    },
     "features": {
+      "eyebrow": "Interactive Wings",
       "title": "Key Features",
+      "sectionDescription": "Each feature becomes an interactive gallery where learners observe, challenge themselves, and converse with history.",
+      "cardCta": "Explore Now",
       "knowledgeQuiz": {
         "title": "Knowledge Quiz",
         "description": "Challenge yourself with multiple-choice questions and learn more about cultural heritage."
@@ -41,8 +110,63 @@
         "description": "Search and discover historical sites on the map with the help of Google Maps."
       }
     },
+    "popular": {
+      "eyebrow": "Featured Collection",
+      "description": "Representative entry points for learners to begin exploring Vietnam’s heritage.",
+      "errorTitle": "The collection data is not connected yet",
+      "errorDescription": "A curated sample collection is shown for the interface preview. Real API data will take priority as soon as it is available.",
+      "emptyTitle": "The gallery is waiting for data",
+      "emptyDescription": "Here are sample artifacts for the Home experience while the backend has no records yet.",
+      "cardCta": "View Artifact"
+    },
+    "mockPopular": {
+      "mock-van-mieu": {
+        "name": "Temple of Literature",
+        "location": "Dong Da, Hanoi",
+        "province": "Hanoi",
+        "dynasty": "Ly Dynasty",
+        "description": "A landmark of scholarship in Thăng Long, preserving Vietnam’s respect for learning and teachers."
+      },
+      "mock-co-do-hue": {
+        "name": "Complex of Hue Monuments",
+        "location": "Hue City",
+        "province": "Hue",
+        "dynasty": "Nguyen Dynasty",
+        "description": "An imperial heritage landscape along the Perfume River, blending architecture, ritual, and Nguyễn aesthetics."
+      },
+      "mock-hoi-an": {
+        "name": "Hoi An Ancient Town",
+        "location": "Hoi An, Quang Nam",
+        "province": "Quang Nam",
+        "dynasty": "Trading Port",
+        "description": "A living museum of East Asian commerce, where timber houses, lanterns, and maritime memory meet."
+      },
+      "mock-thanh-nha-ho": {
+        "name": "Ho Citadel",
+        "location": "Vinh Loc, Thanh Hoa",
+        "province": "Thanh Hoa",
+        "dynasty": "Ho Dynasty",
+        "description": "A monumental stone citadel reflecting defensive thinking and reform during a turbulent period."
+      },
+      "mock-my-son": {
+        "name": "My Son Sanctuary",
+        "location": "Duy Xuyen, Quang Nam",
+        "province": "Quang Nam",
+        "dynasty": "Champa",
+        "description": "A valley of Cham temple towers, preserving ancient fired-brick techniques and spiritual traditions."
+      },
+      "mock-den-hung": {
+        "name": "Hung Kings Temple Complex",
+        "location": "Viet Tri, Phu Tho",
+        "province": "Phu Tho",
+        "dynasty": "Hong Bang",
+        "description": "A source-landscape tied to the worship of the Hùng Kings and the founding memory of the Vietnamese people."
+      }
+    },
     "howItWorks": {
+      "eyebrow": "Visitor Journey",
       "title": "How It Works",
+      "sectionDescription": "A learning journey designed like a museum path: begin, discover, interact, and share.",
       "step1": {
         "title": "Sign Up",
         "description": "Create an account to access all features"
@@ -316,7 +440,8 @@
     "next": "Next",
     "previous": "Previous",
     "submit": "Submit",
-    "reset": "Reset"
+    "reset": "Reset",
+    "tryAgain": "Try Again"
   },
   "footer": {
     "brand": "Heritage Reborn",

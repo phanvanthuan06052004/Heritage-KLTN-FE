@@ -35,6 +35,20 @@
 
     --gold: 43 74% 49%;
     --text3: 215 16% 47%;
+
+    --museum-black: 11, 10, 7;
+    --museum-charcoal: 20, 16, 11;
+    --museum-espresso: 27, 19, 12;
+    --museum-gold: 216, 162, 74;
+    --museum-gold-light: 242, 198, 109;
+    --museum-terracotta: 165, 82, 45;
+    --museum-terracotta-light: 199, 106, 53;
+    --museum-jade: 47, 107, 85;
+    --museum-jade-light: 111, 174, 141;
+    --museum-ivory: 247, 239, 226;
+    --museum-parchment: 232, 221, 200;
+    --museum-seal: 143, 29, 29;
+    --museum-muted: 169, 157, 138;
   }
   .dark {
     --background: 224 71% 4%;
@@ -179,6 +193,40 @@
   .badge-info {
     @apply badge bg-blue-100 text-blue-800;
   }
+
+  .museum-shell {
+    color: rgb(var(--museum-ivory));
+    background:
+      radial-gradient(circle at 16% 8%, rgba(var(--museum-gold), 0.18), transparent 28rem),
+      radial-gradient(circle at 80% 18%, rgba(var(--museum-jade), 0.14), transparent 24rem),
+      linear-gradient(180deg, rgb(var(--museum-black)) 0%, rgb(var(--museum-charcoal)) 44%, rgb(var(--museum-espresso)) 100%);
+  }
+
+  .museum-card {
+    border: 1px solid rgba(var(--museum-gold), 0.2);
+    background: linear-gradient(145deg, rgba(247, 239, 226, 0.09), rgba(216, 162, 74, 0.04));
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  }
+
+  .museum-paper {
+    color: rgb(var(--museum-espresso));
+    border: 1px solid rgba(var(--museum-gold), 0.36);
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.42), transparent 16rem),
+      linear-gradient(135deg, rgba(var(--museum-ivory), 0.98), rgba(var(--museum-parchment), 0.96));
+  }
+
+  .museum-pattern {
+    background-image:
+      radial-gradient(circle at center, rgba(var(--museum-gold), 0.18) 0 1px, transparent 1px),
+      linear-gradient(45deg, rgba(var(--museum-gold), 0.08) 25%, transparent 25%, transparent 75%, rgba(var(--museum-gold), 0.08) 75%);
+    background-size: 28px 28px, 34px 34px;
+  }
+
+  .museum-focus {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2;
+    outline-color: rgb(var(--museum-gold-light));
+  }
 }
 
 @layer utilities {
@@ -207,6 +255,32 @@
   }
   .animate-slide-in-right {
     animation: slideInRight 0.3s ease-out;
+  }
+
+  .text-museum-gradient {
+    background: linear-gradient(90deg, rgb(var(--museum-ivory)), rgb(var(--museum-gold-light)) 48%, rgb(var(--museum-parchment)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .museum-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--museum-gold), 0.55) transparent;
+  }
+
+  .museum-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .museum-scrollbar::-webkit-scrollbar-track {
+    background: rgba(var(--museum-ivory), 0.08);
+    border-radius: 999px;
+  }
+
+  .museum-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, rgba(var(--museum-gold), 0.45), rgba(var(--museum-terracotta), 0.65));
+    border-radius: 999px;
   }
 }
 
@@ -332,5 +406,38 @@
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+@keyframes museumPulse {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes museumFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-1deg);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) rotate(1deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

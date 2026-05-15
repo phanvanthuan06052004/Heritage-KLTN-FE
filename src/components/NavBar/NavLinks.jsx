@@ -8,7 +8,7 @@ const NavLinks = ({ navLinks }) => {
 
   return (
     <nav
-      className="hidden sm:flex items-center gap-1"
+      className="hidden lg:flex items-center gap-1"
       aria-label="Main navigation"
     >
       {navLinks.map((link) => {
@@ -18,11 +18,11 @@ const NavLinks = ({ navLinks }) => {
             key={link.to}
             to={link.to}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+              "group relative flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition-all duration-300",
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light",
               isActive
-                ? "text-heritage bg-heritage-light/50"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                ? "bg-museum-gold/15 text-museum-gold-light shadow-[inset_0_0_0_1px_rgba(216,162,74,0.26)]"
+                : "text-museum-muted hover:bg-museum-ivory/8 hover:text-museum-ivory",
             )}
             aria-current={isActive ? "page" : undefined}
           >

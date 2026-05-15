@@ -1,82 +1,123 @@
-import { ArrowRight, Landmark, MoveRight } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import { ArrowRight, Landmark } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-import Title from '~/components/common/Title'
-import HeritageList from '~/components/Heritage/HeritageList'
-import HeritageSkeleton from '~/components/Heritage/HeritageSkeleton'
-import { Button } from '~/components/common/ui/Button'
-import { useGetHeritagesQuery } from '~/store/apis/heritageApi'
-import { useLanguage, useLanguageChange } from '~/hooks/useLanguage'
+import HeritageList from "~/components/Heritage/HeritageList";
+import MotionReveal from "~/components/common/MotionReveal";
+import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
+import {
+  MuseumEmptyState,
+  MuseumErrorState,
+  MuseumSkeletonGrid,
+} from "~/components/common/MuseumStates";
+import { useGetHeritagesQuery } from "~/store/apis/heritageApi";
+import { useLanguage, useLanguageChange } from "~/hooks/useLanguage";
+import { mockPopularHeritages } from "./mockPopularHeritages";
 
 const PopularHeritage = () => {
-  const { t } = useTranslation()
-  const { language } = useLanguage()
-  const [randomHeritages, setRandomHeritages] = useState([])
-  
-  // Fetch tất cả di tích
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const [randomHeritages, setRandomHeritages] = useState([]);
+
   const { data: response, isLoading, error, refetch } = useGetHeritagesQuery({
     page: 1,
     limit: 10,
-    language
-  })
+    language,
+  });
 
-  // Refetch when language changes
   useLanguageChange(() => {
-    refetch()
-  })
+    refetch();
+  });
 
   useEffect(() => {
     if (response?.heritages) {
-      // Logic để random di tích
-      const shuffleArray = (array) => {
-        const newArray = [...array]
-        for (let i = newArray.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
-        }
-        return newArray
-      }
-
-      // Random và lấy 6 di tích
-      const shuffledHeritages = shuffleArray(response.heritages)
-      const selectedHeritages = shuffledHeritages.slice(0, 6)
-      
-      setRandomHeritages(selectedHeritages)
+      const shuffledHeritages = [...response.heritages].sort(
+        () => Math.random() - 0.5,
+      );
+      setRandomHeritages(shuffledHeritages.slice(0, 6));
     }
-  }, [response])
+  }, [response]);
+
+  const displayHeritages = useMemo(
+    () => (randomHeritages.length ? randomHeritages : mockPopularHeritages),
+    [randomHeritages],
+  );
+
+  const localizedMockHeritages = useMemo(
+    () =>
+      mockPopularHeritages.map((item) => ({
+        ...item,
+        name: t(`home.mockPopular.${item._id}.name`, { defaultValue: item.name }),
+        description: t(`home.mockPopular.${item._id}.description`, {
+          defaultValue: item.description,
+        }),
+        dynasty: t(`home.mockPopular.${item._id}.dynasty`, {
+          defaultValue: item.dynasty,
+        }),
+        province: t(`home.mockPopular.${item._id}.province`, {
+          defaultValue: item.province,
+        }),
+        location: t(`home.mockPopular.${item._id}.location`, {
+          defaultValue: item.location,
+        }),
+      })),
+    [t],
+  );
 
   return (
     <section>
-      <div className='flex justify-between mb-10'>
-        <Title icon={Landmark} title={t('home.popularHeritage')} />
-        <Link to='/heritages' className='hidden sm:flex text-heritage items-center gap-2 hover:underline'>
-          <span>{t('home.viewAll')}</span>
-          <ArrowRight size={16} />
+      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+        <MotionReveal>
+          <MuseumSectionHeader
+            eyebrow={t("home.popular.eyebrow")}
+            title={t("home.popularHeritage")}
+            description={t("home.popular.description")}
+            className="mb-0"
+          />
+        </MotionReveal>
+        <Link
+          to="/heritages"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-museum-gold-light transition hover:text-museum-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+        >
+          {t("home.viewAll")}
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
-      {
-        isLoading ? (
-          <HeritageSkeleton count={6} />
-        ) : error ? (
-          <div className='text-center py-12 text-destructive'>
-            {t('home.loadingError')}
-          </div>
-        ) : (
-          <>
-            <HeritageList heritages={randomHeritages} />
-            <Link to='/heritages' className='sm:hidden w-full'>
-              <Button className='w-full mt-8'>
-                {t('home.viewAllSites')}
-                <MoveRight className='ml-2' size={16} />
-              </Button>
-            </Link>
-          </>
-        )
-      }
-    </section>
-  )
-}
 
-export default PopularHeritage
+      <div className="mt-10">
+        {isLoading ? (
+          <MuseumSkeletonGrid count={6} />
+        ) : error ? (
+          <div className="space-y-8">
+            <MuseumErrorState
+              title={t("home.popular.errorTitle")}
+              description={t("home.popular.errorDescription")}
+              onRetry={refetch}
+            />
+            <HeritageList
+              heritages={localizedMockHeritages}
+              cardVariant="museum"
+            />
+          </div>
+        ) : randomHeritages.length ? (
+          <HeritageList heritages={displayHeritages} cardVariant="museum" />
+        ) : (
+          <div className="space-y-8">
+            <MuseumEmptyState
+              title={t("home.popular.emptyTitle")}
+              description={t("home.popular.emptyDescription")}
+              icon={Landmark}
+            />
+            <HeritageList
+              heritages={localizedMockHeritages}
+              cardVariant="museum"
+            />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default PopularHeritage;

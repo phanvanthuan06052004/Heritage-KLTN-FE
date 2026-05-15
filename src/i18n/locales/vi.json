@@ -19,6 +19,22 @@
     "viewAllSites": "Xem tất cả di sản",
     "loadingError": "Đã xảy ra lỗi khi tải dữ liệu",
     "hero": {
+      "eyebrow": "Bảo tàng di sản số",
+      "title": "Khơi Dậy Ký Ức Việt Nam",
+      "subtitle": "Khám phá di sản, triều đại, nhân vật và câu chuyện lịch sử qua trải nghiệm tương tác sống động.",
+      "primaryCta": "Bắt đầu khám phá",
+      "mapCta": "Mở bản đồ di sản",
+      "stats": {
+        "years": "năm lịch sử",
+        "dynasties": "triều đại",
+        "interactive": "trải nghiệm sống động"
+      },
+      "artifact": {
+        "archive": "An Nam lưu trữ",
+        "dynastyLabel": "Triều đại",
+        "dynastyValue": "Nhà Trần",
+        "milestoneLabel": "Dấu mốc"
+      },
       "slide1Title": "Khám Phá Di Sản Văn Hóa Việt Nam",
       "slide1Subtitle": "Hành trình qua nhiều thế kỷ lịch sử, văn hóa và thiên nhiên hùng vĩ.",
       "slide2Title": "Du Hành Ngược Thời Gian",
@@ -26,8 +42,61 @@
       "slide3Title": "Kết Nối Với Quá Khứ Việt Nam",
       "slide3Subtitle": "Đắm chìm trong những câu chuyện đã định hình đất nước chúng ta."
     },
+    "dynasty": {
+      "eyebrow": "Dòng triều đại",
+      "title": "Dòng chảy triều đại Việt Nam",
+      "description": "Lướt qua các lớp thời gian, từ huyền sử Hồng Bàng đến dấu ấn kinh đô Huế, như một dòng sông ký ức đang chuyển động.",
+      "viewing": "Đang xem",
+      "durationPrefix": "Kéo dài khoảng",
+      "years": "năm",
+      "rulersPrefix": "Nhân vật tiêu biểu",
+      "bc": "TCN",
+      "defaultTheme": "Dấu ấn lịch sử",
+      "themes": {
+        "0": "Khai nguyên văn minh Văn Lang",
+        "1": "Thành Cổ Loa và nỏ thần",
+        "2": "Thử thách giữ cõi",
+        "3": "Khí phách độc lập",
+        "4": "Mạch ngầm khởi nghĩa",
+        "5": "Vạn Xuân tự chủ",
+        "6": "Tiền đề Bạch Đằng",
+        "7": "Mở nền độc lập",
+        "8": "Đại Cồ Việt",
+        "9": "Củng cố quốc gia",
+        "10": "Thăng Long rực rỡ",
+        "11": "Hào khí Đông A",
+        "12": "Cải cách và biến động",
+        "13": "Lam Sơn tụ nghĩa",
+        "14": "Đỉnh cao Nho học",
+        "15": "Tây Sơn thần tốc",
+        "16": "Kinh đô Huế"
+      }
+    },
+    "onThisDay": {
+      "label": "Hôm nay trong lịch sử",
+      "exact": "Đang diễn ra",
+      "upcoming": "Sự kiện sắp tới",
+      "daysUntil": "Còn {{count}} ngày để đến dấu mốc này",
+      "months": {
+        "0": "Tháng 1",
+        "1": "Tháng 2",
+        "2": "Tháng 3",
+        "3": "Tháng 4",
+        "4": "Tháng 5",
+        "5": "Tháng 6",
+        "6": "Tháng 7",
+        "7": "Tháng 8",
+        "8": "Tháng 9",
+        "9": "Tháng 10",
+        "10": "Tháng 11",
+        "11": "Tháng 12"
+      }
+    },
     "features": {
+      "eyebrow": "Không gian tương tác",
       "title": "Tính năng nổi bật",
+      "sectionDescription": "Mỗi tính năng là một phòng trưng bày tương tác, nơi người học vừa quan sát, vừa thử thách, vừa đối thoại với lịch sử.",
+      "cardCta": "Khám phá ngay",
       "knowledgeQuiz": {
         "title": "Trắc nghiệm kiến thức",
         "description": "Thử thách bản thân với các câu hỏi trắc nghiệm và tìm hiểu thêm về di sản văn hóa."
@@ -41,8 +110,63 @@
         "description": "Tìm kiếm và khám phá các di tích lịch sử trên bản đồ với sự hỗ trợ của Google Maps."
       }
     },
+    "popular": {
+      "eyebrow": "Bộ sưu tập nổi bật",
+      "description": "Những điểm chạm tiêu biểu để người học bắt đầu hành trình khám phá di sản Việt Nam.",
+      "errorTitle": "Chưa kết nối được kho dữ liệu",
+      "errorDescription": "Tạm thời hiển thị bộ sưu tập mẫu để trải nghiệm giao diện. Khi API sẵn sàng, dữ liệu thật sẽ tự động được ưu tiên.",
+      "emptyTitle": "Kho trưng bày đang chờ dữ liệu",
+      "emptyDescription": "Dưới đây là một số hiện vật mẫu phù hợp với trải nghiệm Home trong lúc backend chưa có dữ liệu.",
+      "cardCta": "Xem hiện vật"
+    },
+    "mockPopular": {
+      "mock-van-mieu": {
+        "name": "Văn Miếu - Quốc Tử Giám",
+        "location": "Đống Đa, Hà Nội",
+        "province": "Hà Nội",
+        "dynasty": "Nhà Lý",
+        "description": "Không gian khoa bảng tiêu biểu của Thăng Long, nơi lưu giữ tinh thần hiếu học và truyền thống tôn sư trọng đạo."
+      },
+      "mock-co-do-hue": {
+        "name": "Quần thể Cố đô Huế",
+        "location": "Thành phố Huế",
+        "province": "Huế",
+        "dynasty": "Nhà Nguyễn",
+        "description": "Di sản cung đình bên dòng Hương, kết tinh kiến trúc, nghi lễ và mỹ học triều Nguyễn."
+      },
+      "mock-hoi-an": {
+        "name": "Phố cổ Hội An",
+        "location": "Hội An, Quảng Nam",
+        "province": "Quảng Nam",
+        "dynasty": "Thương cảng",
+        "description": "Một bảo tàng sống của giao thương Đông Á, nơi kiến trúc gỗ, đèn lồng và ký ức biển gặp nhau."
+      },
+      "mock-thanh-nha-ho": {
+        "name": "Thành Nhà Hồ",
+        "location": "Vĩnh Lộc, Thanh Hóa",
+        "province": "Thanh Hóa",
+        "dynasty": "Nhà Hồ",
+        "description": "Công trình thành đá quy mô lớn, phản ánh tư duy phòng thủ và cải cách trong một giai đoạn biến động."
+      },
+      "mock-my-son": {
+        "name": "Thánh địa Mỹ Sơn",
+        "location": "Duy Xuyên, Quảng Nam",
+        "province": "Quảng Nam",
+        "dynasty": "Champa",
+        "description": "Quần thể đền tháp Chăm Pa giữa thung lũng, lưu dấu kỹ thuật gạch nung và tín ngưỡng cổ."
+      },
+      "mock-den-hung": {
+        "name": "Khu di tích Đền Hùng",
+        "location": "Việt Trì, Phú Thọ",
+        "province": "Phú Thọ",
+        "dynasty": "Hồng Bàng",
+        "description": "Không gian nguồn cội gắn với tín ngưỡng thờ cúng Hùng Vương và ký ức dựng nước của người Việt."
+      }
+    },
     "howItWorks": {
+      "eyebrow": "Hành trình trải nghiệm",
       "title": "Cách thức hoạt động",
+      "sectionDescription": "Một hành trình học tập được thiết kế như lối đi qua bảo tàng: bắt đầu, khám phá, tương tác và chia sẻ.",
       "step1": {
         "title": "Đăng ký",
         "description": "Tạo tài khoản để truy cập tất cả các tính năng"
@@ -316,7 +440,8 @@
     "next": "Tiếp theo",
     "previous": "Trước",
     "submit": "Gửi",
-    "reset": "Đặt lại"
+    "reset": "Đặt lại",
+    "tryAgain": "Thử lại"
   },
   "footer": {
     "brand": "Heritage Reborn",

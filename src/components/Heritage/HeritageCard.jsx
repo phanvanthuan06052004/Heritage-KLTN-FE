@@ -1,7 +1,9 @@
-import { Heart, MapPin, ImageOff } from "lucide-react";
+import { ArrowRight, Heart, ImageOff, MapPin } from "lucide-react";
+import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { cn } from "~/lib/utils";
@@ -22,11 +24,15 @@ const CONFIG = {
   fallbackImage: "/images/placeholder.webp",
 };
 
+const MotionArticle = motion.article;
+
 const HeritageCard = ({
   item,
   isFavorited: propIsFavorited,
   onFavoriteChange,
+  variant = "default",
 }) => {
+  const { t } = useTranslation();
   const {
     _id,
     name = "",
@@ -34,6 +40,8 @@ const HeritageCard = ({
     description = "",
     images = [],
     nameSlug = "",
+    dynasty,
+    province,
   } = item || {};
 
   const dispatch = useDispatch();
@@ -117,6 +125,99 @@ const HeritageCard = ({
   if (!item) return null;
 
   const isLoading = isAdding || isRemoving;
+
+  if (variant === "museum") {
+    return (
+      <Link
+        to={`/heritage/${nameSlug}`}
+        className="group block h-full rounded-[2rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+        aria-label={`View details: ${name}`}
+      >
+        <MotionArticle
+          className="museum-card flex h-full flex-col overflow-hidden rounded-[2rem] bg-museum-ivory/7 transition duration-300 hover:-translate-y-1 hover:border-museum-gold/45 hover:shadow-museum-gold"
+          initial={{ opacity: 0, y: 38, scale: 0.96 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: false, amount: 0.22, margin: "0px 0px -8% 0px" }}
+          transition={{ duration: 0.62, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="relative overflow-hidden">
+            {imgError ? (
+              <div className="aspect-[4/3] w-full bg-museum-ivory/10 flex items-center justify-center">
+                <ImageOff className="h-10 w-10 text-museum-muted" />
+              </div>
+            ) : (
+              <img
+                src={imgSrc}
+                alt={name}
+                className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                loading="lazy"
+                width="600"
+                height="450"
+                onError={handleImageError}
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-museum-black via-museum-black/18 to-transparent" />
+            {(dynasty || province) && (
+              <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                {dynasty && (
+                  <span className="rounded-full bg-museum-seal px-3 py-1 text-xs font-semibold text-museum-ivory">
+                    {dynasty}
+                  </span>
+                )}
+                {province && (
+                  <span className="rounded-full bg-museum-black/70 px-3 py-1 text-xs font-semibold text-museum-gold-light backdrop-blur">
+                    {province}
+                  </span>
+                )}
+              </div>
+            )}
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleFavoriteClick}
+                disabled={isLoading}
+                className="absolute right-4 top-4 rounded-full bg-museum-black/70 text-museum-ivory backdrop-blur hover:bg-museum-gold hover:text-museum-black"
+                aria-label={
+                  isFavorited ? "Remove from favorites" : "Add to favorites"
+                }
+                aria-live="polite"
+              >
+                <Heart
+                  size={20}
+                  className={cn(
+                    "transition-all",
+                    isFavorited && "fill-museum-seal text-museum-seal scale-110",
+                    isLoading && "opacity-50",
+                  )}
+                />
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col p-5">
+            <h3 className="font-display text-2xl font-semibold leading-tight text-museum-ivory transition group-hover:text-museum-gold-light">
+              {name}
+            </h3>
+            {location && (
+              <p className="mt-3 flex items-center gap-2 text-sm text-museum-muted">
+                <MapPin className="h-4 w-4 shrink-0 text-museum-gold-light" />
+                <span className="truncate">{location}</span>
+              </p>
+            )}
+            {description && (
+              <p className="mt-4 line-clamp-3 text-sm leading-7 text-museum-muted">
+                {description}
+              </p>
+            )}
+            <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-museum-gold-light">
+              {t("home.popular.cardCta")}
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+            </span>
+          </div>
+        </MotionArticle>
+      </Link>
+    );
+  }
 
   return (
     <Link

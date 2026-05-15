@@ -21,7 +21,7 @@ const OnThisDay = lazy(() => import("~/components/Home/OnThisDay/OnThisDay"));
 
 const Home = () => {
   return (
-    <>
+    <div className="museum-shell overflow-hidden">
       <Suspense
         fallback={
           <LoadingScreen fullScreen={false} message="Loading hero..." />
@@ -42,7 +42,7 @@ const Home = () => {
         <OnThisDay />
       </Suspense>
 
-      <div className="lcn-container">
+      <div className="lcn-container space-y-20 py-16 sm:space-y-24 sm:py-20">
         <Suspense
           fallback={
             <LoadingScreen fullScreen={false} message="Loading features..." />
@@ -53,7 +53,7 @@ const Home = () => {
           <HowItWork />
         </Suspense>
       </div>
-    </>
+    </div>
   );
 };
 

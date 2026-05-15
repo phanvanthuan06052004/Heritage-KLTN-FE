@@ -21,6 +21,7 @@ export default {
           "Segoe UI Emoji",
           "Noto Color Emoji",
         ],
+        display: ["Georgia", "Cambria", "Times New Roman", "serif"],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -51,6 +52,21 @@ export default {
         },
         gold: "hsl(var(--gold))",
         text3: "hsl(var(--text3))",
+        museum: {
+          black: "#0B0A07",
+          charcoal: "#14100B",
+          espresso: "#1B130C",
+          gold: "#D8A24A",
+          "gold-light": "#F2C66D",
+          terracotta: "#A5522D",
+          "terracotta-light": "#C76A35",
+          jade: "#2F6B55",
+          "jade-light": "#6FAE8D",
+          ivory: "#F7EFE2",
+          parchment: "#E8DDC8",
+          seal: "#8F1D1D",
+          muted: "#A99D8A",
+        },
       },
       keyframes: {
         "fade-in": {
@@ -77,6 +93,14 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-3px)" },
         },
+        "museum-float": {
+          "0%, 100%": { transform: "translateY(0) rotate(-1deg)" },
+          "50%": { transform: "translateY(-14px) rotate(1deg)" },
+        },
+        "museum-glow": {
+          "0%, 100%": { opacity: 0.45, transform: "scale(1)" },
+          "50%": { opacity: 0.8, transform: "scale(1.06)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.4s ease-in-out",
@@ -85,11 +109,15 @@ export default {
         "slide-in-left": "slide-in-left 0.3s ease-out",
         "pulse-dot": "pulse-dot 1.5s infinite",
         "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "museum-float": "museum-float 7s ease-in-out infinite",
+        "museum-glow": "museum-glow 5s ease-in-out infinite",
       },
       boxShadow: {
         message: "0 2px 5px rgba(0, 0, 0, 0.05)",
         "message-hover": "0 4px 8px rgba(0, 0, 0, 0.1)",
         sidebar: "0 0 20px rgba(0, 0, 0, 0.1)",
+        "museum-gold": "0 22px 70px rgba(216, 162, 74, 0.22)",
+        "museum-card": "0 24px 80px rgba(0, 0, 0, 0.32)",
       },
     },
   },

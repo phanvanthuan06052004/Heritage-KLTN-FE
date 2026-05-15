@@ -12,7 +12,7 @@ const SocialIcon = ({ name, url, iconPath }) => (
       height='20'
       viewBox='0 0 24 24'
       fill='currentColor'
-      className='opacity-65 group-hover:opacity-100 group-focus:opacity-100 group-hover:fill-heritage transition-all duration-200'
+      className='opacity-75 transition-all duration-200 group-hover:scale-110 group-hover:text-museum-gold-light group-hover:opacity-100 group-focus:opacity-100'
     >
       <title>{name}</title>
       <path d={iconPath} />

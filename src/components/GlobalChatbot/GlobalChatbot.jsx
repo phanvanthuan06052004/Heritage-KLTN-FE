@@ -233,6 +233,30 @@ const GlobalChatbot = () => {
                         <p className="whitespace-pre-wrap break-words leading-relaxed">
                           {message.content}
                         </p>
+                        {message.sources?.length > 0 && (
+                          <div className="mt-2 border-t border-border pt-2">
+                            <p className="mb-1 text-xs font-medium text-muted-foreground">
+                              Sources
+                            </p>
+                            <div className="space-y-1">
+                              {message.sources.slice(0, 3).map((source) => (
+                                <div
+                                  key={source.slug || source.title}
+                                  className="rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground"
+                                >
+                                  <span className="font-medium text-foreground">
+                                    {source.title}
+                                  </span>
+                                  {source.slug && (
+                                    <span className="block truncate">
+                                      {source.slug}
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <p
                           className={cn(
                             "text-xs mt-1.5",

@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Home,
   Shield,
+  Database,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { cn } from "~/lib/utils";
@@ -61,6 +62,11 @@ const AdminLayout = () => {
       name: "Knowledge Test",
       path: "/admin/knowledge-tests",
       icon: BookOpen,
+    },
+    {
+      name: "Knowledge Base",
+      path: "/admin/knowledge-base",
+      icon: Database,
     },
     {
       name: "Settings",

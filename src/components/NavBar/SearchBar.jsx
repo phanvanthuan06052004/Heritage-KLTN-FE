@@ -2,13 +2,14 @@ import { useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search, X, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
 
 import { setHeritagesSearchQuery } from "~/store/slices/paginationSlice";
 import { selectHeritagesSearchQuery } from "~/store/selectors/paginationSelectors";
-import useDebounce from "~/hooks/useDebounce";
 
-const SearchBar = () => {
+const SearchBar = ({ className }) => {
+  const { t } = useTranslation();
   const [isSearching, setIsSearching] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const inputRef = useRef(null);
@@ -16,9 +17,6 @@ const SearchBar = () => {
   const searchQuery = useSelector(selectHeritagesSearchQuery);
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Debounce search for better UX
-  const debouncedSearch = useDebounce(searchValue, 300);
 
   const handleClear = useCallback(() => {
     setSearchValue("");
@@ -52,27 +50,29 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="relative flex items-center">
+    <div className={cn("relative flex items-center", className)}>
       <input
         ref={inputRef}
         aria-label="Search heritage sites"
-        placeholder="Search..."
+        placeholder={t("heritage.search")}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         value={searchValue}
         className={cn(
-          "border border-input rounded-full bg-background",
-          "w-[120px] sm:w-[180px] lg:w-[220px]",
-          "pr-8 sm:pr-10 pl-4 py-2 text-sm",
-          "focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none",
-          "transition-all placeholder:text-muted-foreground",
+          "h-11 rounded-full border border-museum-gold/20 bg-museum-ivory/8",
+          "w-full min-w-0 sm:w-[220px] lg:w-[280px]",
+          "pr-10 pl-11 text-sm text-museum-ivory shadow-inner",
+          "placeholder:text-museum-muted/80",
+          "focus:border-museum-gold/60 focus:ring-2 focus:ring-museum-gold/20 focus:outline-none",
+          "transition-all duration-300",
         )}
       />
+      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-museum-gold-light/80" />
       {searchValue && (
         <button
           aria-label="Clear search"
           onClick={handleClear}
-          className="absolute top-1/2 right-9 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all"
+          className="absolute top-1/2 right-10 -translate-y-1/2 text-museum-muted hover:text-museum-ivory transition-all"
         >
           <X className="w-4 h-4" />
         </button>
@@ -82,13 +82,18 @@ const SearchBar = () => {
         onClick={handleSearch}
         className={cn(
           "absolute top-1/2 right-3 -translate-y-1/2",
-          "text-muted-foreground hover:text-foreground transition-all",
+          "text-museum-muted hover:text-museum-gold-light transition-all",
         )}
       >
         {isSearching ? (
           <Loader2 className="animate-spin w-4 h-4" />
         ) : (
-          <Search className="w-4 h-4" />
+          <>
+            <Search className="h-4 w-4 sm:hidden" />
+            <span className="hidden rounded-full border border-museum-gold/20 px-1.5 py-0.5 text-[0.62rem] font-semibold sm:inline">
+              Enter
+            </span>
+          </>
         )}
       </button>
     </div>

@@ -1,89 +1,145 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { heroSlides } from './heroSlides'
-import Slide from './Slide'
-import ArrowButton from './ArrowButton'
+import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "motion/react";
+import { BookOpen, Map, ShieldCheck, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+const MotionDiv = motion.div;
 
 const HeroCarousel = () => {
-  const { t } = useTranslation()
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
-  const timeoutRef = useRef(null)
-  
-  // Translate slides
-  const translatedSlides = useMemo(() => heroSlides.map((slide, index) => ({
-    ...slide,
-    title: t(`home.hero.slide${index + 1}Title`),
-    subTitle: t(`home.hero.slide${index + 1}Subtitle`)
-  })), [t])
-  
-  const slidesLength = translatedSlides.length
-  // Auto play Carousel
-  useEffect(() => {
-    if (isPaused) return
-    const intervalId = setInterval(() => {
-      setActiveIndex(prev => (prev + 1) % translatedSlides.length)
-    }, 4000)
-    return () => clearInterval(intervalId)
-  }, [isPaused, translatedSlides.length])
-
-  const handleSlideChange = (newIndex) => {
-    if (activeIndex === newIndex) return
-    setActiveIndex(newIndex)
-    setIsPaused(true)
-
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    
-    timeoutRef.current = setTimeout(() => { setIsPaused(false) }, 4000)
-  }
-
-  // Cleanup when component unmount
-  useEffect(() => {
-    return (() => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    })
-  }, [])
-
-  if (!slidesLength) return (
-    <div className='pt-navbar-mobile sm:pt-navbar'>
-      <div className='h-[calc(100vh-theme(spacing.navbar-mobile))] sm:h-[calc(100vh-theme(spacing.navbar))] bg-muted flex items-center justify-center'>
-        <h4 className='text-muted-foreground'>Chưa có slider nào</h4>
-      </div>
-    </div>
-  )
+  const { t } = useTranslation();
+  const prefersReducedMotion = useReducedMotion();
+  const stats = [
+    { value: "4.000+", label: t("home.hero.stats.years") },
+    { value: "17", label: t("home.hero.stats.dynasties") },
+    { value: "3D", label: t("home.hero.stats.interactive") },
+  ];
+  const motionProps = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 28 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+      };
 
   return (
-    <section className='relative w-full pt-navbar-mobile sm:pt-navbar' aria-label='Carousel di sản văn hóa'>
-      <div className='relative w-full h-[calc(100vh-theme(spacing.navbar-mobile))] sm:h-[calc(100vh-theme(spacing.navbar))] overflow-hidden'>
-        {
-          translatedSlides.map((slide, index) => (
-            <Slide key={slide._id} slide={slide} index={index} activeIndex={activeIndex} />
-          ))
-        }
-        <ArrowButton
-          direction='left'
-          onClick={() => handleSlideChange((activeIndex - 1 + slidesLength) % slidesLength)}
-        />
-        <ArrowButton
-          direction='right'
-          onClick={() => handleSlideChange((activeIndex + 1) % slidesLength)}
-        />
-        {/* Dot */}
-        <div className='absolute bottom-8 z-30 left-0 right-0 flex justify-center gap-2'>
-          {
-            translatedSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handleSlideChange(index)}
-                className={`h-2 rounded-full transition-all duration-500 ${activeIndex === index ? 
-                  'bg-primary-foreground w-10' : 'bg-primary-foreground/50 w-2 hover:bg-primary-foreground/80'}`} 
-              />
-            ))
-          }
-        </div>
+    <section
+      className="relative min-h-[760px] overflow-hidden pt-navbar-mobile text-museum-ivory sm:pt-navbar lg:min-h-[820px]"
+      aria-label="Heritage Reborn hero"
+    >
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url(https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1920&auto=format&fit=crop)",
+        }}
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,10,7,0.96)_0%,rgba(11,10,7,0.78)_46%,rgba(11,10,7,0.42)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_34%,rgba(216,162,74,0.28),transparent_28rem),radial-gradient(circle_at_16%_72%,rgba(47,107,85,0.22),transparent_22rem)]" />
+      <div className="museum-pattern absolute inset-0 opacity-[0.10]" />
+
+      <div className="lcn-container-x relative grid min-h-[calc(760px-theme(spacing.navbar-mobile))] items-center gap-10 py-16 sm:min-h-[calc(820px-theme(spacing.navbar))] lg:grid-cols-[1.08fr_0.92fr]">
+        <MotionDiv className="max-w-4xl" {...motionProps}>
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-museum-gold/30 bg-museum-gold/10 px-4 py-2 text-xs font-semibold uppercase text-museum-gold-light backdrop-blur">
+            <Sparkles className="h-4 w-4" />
+            {t("home.hero.eyebrow")}
+          </span>
+          <h1 className="text-balance font-display text-5xl font-semibold leading-[0.98] text-museum-gradient sm:text-6xl lg:text-7xl xl:text-8xl">
+            {t("home.hero.title")}
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-museum-parchment/86 sm:text-lg">
+            {t("home.hero.subtitle")}
+          </p>
+
+          <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+            <Link
+              to="/heritages"
+              className="inline-flex h-13 items-center justify-center gap-3 rounded-full bg-museum-gold px-7 py-4 text-sm font-semibold text-museum-black shadow-museum-gold transition hover:-translate-y-0.5 hover:bg-museum-gold-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+            >
+              <BookOpen className="h-5 w-5" />
+              {t("home.hero.primaryCta")}
+            </Link>
+            <Link
+              to="/explore"
+              className="inline-flex h-13 items-center justify-center gap-3 rounded-full border border-museum-gold/35 bg-museum-ivory/8 px-7 py-4 text-sm font-semibold text-museum-ivory backdrop-blur transition hover:-translate-y-0.5 hover:bg-museum-ivory/14 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+            >
+              <Map className="h-5 w-5" />
+              {t("home.hero.mapCta")}
+            </Link>
+          </div>
+
+          <div className="mt-12 grid max-w-2xl grid-cols-3 gap-3">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-museum-gold/15 bg-museum-ivory/7 p-4 backdrop-blur"
+              >
+                <div className="font-display text-2xl font-semibold text-museum-gold-light">
+                  {stat.value}
+                </div>
+                <div className="mt-1 text-xs uppercase text-museum-muted">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </MotionDiv>
+
+        <MotionDiv
+          className="relative mx-auto hidden w-full max-w-[520px] lg:block"
+          initial={prefersReducedMotion ? false : { opacity: 0, x: 44, rotate: 2 }}
+          animate={prefersReducedMotion ? undefined : { opacity: 1, x: 0, rotate: 0 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+        >
+          <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-museum-gold/18 blur-3xl animate-museum-glow" />
+          <div className="relative animate-museum-float rounded-[2rem] border border-museum-gold/25 bg-museum-black/52 p-6 shadow-museum-card backdrop-blur-xl">
+            <div className="museum-paper relative overflow-hidden rounded-[1.5rem] p-7 shadow-museum-gold">
+              <div className="museum-pattern absolute inset-0 opacity-[0.12]" />
+              <div className="relative">
+                <div className="mb-5 flex items-center justify-between">
+                  <span className="rounded-full bg-museum-seal px-3 py-1 text-xs font-semibold uppercase text-museum-ivory">
+                    {t("home.hero.artifact.archive")}
+                  </span>
+                  <ShieldCheck className="h-6 w-6 text-museum-jade" />
+                </div>
+                <div className="mx-auto flex aspect-square max-w-[280px] items-center justify-center rounded-full border-[14px] border-double border-museum-gold bg-[radial-gradient(circle,rgba(216,162,74,0.32),rgba(165,82,45,0.16)_58%,transparent_59%)]">
+                  <div className="flex h-36 w-36 items-center justify-center rounded-full border border-museum-terracotta/50 bg-museum-gold/15">
+                    <LandmarkMark />
+                  </div>
+                </div>
+                <div className="mt-7 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl bg-museum-black/8 p-4">
+                    <div className="text-xs uppercase text-museum-terracotta">
+                      {t("home.hero.artifact.dynastyLabel")}
+                    </div>
+                    <div className="mt-1 font-display text-xl font-semibold">
+                      {t("home.hero.artifact.dynastyValue")}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-museum-black/8 p-4">
+                    <div className="text-xs uppercase text-museum-terracotta">
+                      {t("home.hero.artifact.milestoneLabel")}
+                    </div>
+                    <div className="mt-1 font-display text-xl font-semibold">
+                      1288
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </MotionDiv>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default HeroCarousel
+const LandmarkMark = () => (
+  <svg viewBox="0 0 96 96" className="h-20 w-20 text-museum-seal" aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M48 10 12 28v8h72v-8L48 10Zm-25 32v30h10V42H23Zm20 0v30h10V42H43Zm20 0v30h10V42H63ZM16 78v8h64v-8H16Z"
+    />
+  </svg>
+);
+
+export default HeroCarousel;
