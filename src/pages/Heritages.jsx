@@ -7,8 +7,12 @@ import {
   useLazyGetHeritagesQuery,
 } from "~/store/apis/heritageApi";
 import HeritageList from "~/components/Heritage/HeritageList";
-import HeritageSkeleton from "~/components/Heritage/HeritageSkeleton";
 import { Pagination } from "~/components/common/Pagination";
+import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
+import {
+  MuseumEmptyState,
+  MuseumSkeletonGrid,
+} from "~/components/common/MuseumStates";
 import { setHeritagesPage } from "~/store/slices/paginationSlice";
 import {
   selectHeritagesCurrentPage,
@@ -17,7 +21,6 @@ import {
 } from "~/store/selectors/paginationSelectors";
 import { useLanguage, useLanguageChange } from "~/hooks/useLanguage";
 import { Button } from "~/components/common/ui/Button";
-import { cn } from "~/lib/utils";
 
 const Heritages = () => {
   const dispatch = useDispatch();
@@ -126,22 +129,22 @@ const Heritages = () => {
 
   // Error state
   const renderErrorState = () => (
-    <div className="col-span-full text-center py-16 flex flex-col items-center gap-4">
-      <div className="p-4 rounded-full bg-destructive/10">
-        <AlertTriangle className="w-10 h-10 text-destructive" />
+    <div className="col-span-full flex flex-col items-center gap-4 rounded-[2rem] border border-museum-gold/20 bg-museum-ivory/5 px-6 py-16 text-center text-museum-ivory">
+      <div className="rounded-full bg-museum-seal/25 p-4">
+        <AlertTriangle className="h-10 w-10 text-museum-gold-light" />
       </div>
       <div>
-        <p className="text-lg font-medium text-foreground">
+        <p className="text-lg font-medium text-museum-ivory">
           Failed to load heritage sites
         </p>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-sm text-museum-muted">
           {error?.data?.message || "Please try again later"}
         </p>
       </div>
       <Button
         onClick={() => trigger(queryParams)}
         variant="outline"
-        className="mt-2"
+        className="mt-2 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
       >
         <RefreshCw className="w-4 h-4 mr-2" />
         Try again
@@ -150,20 +153,22 @@ const Heritages = () => {
   );
 
   return (
-    <section className="pt-navbar-mobile sm:pt-navbar">
-      <div className="lcn-container min-h-screen">
+    <section className="museum-shell min-h-screen overflow-hidden pt-navbar-mobile sm:pt-navbar">
+      <div className="lcn-container relative min-h-screen">
+        <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
+
         {/* Header */}
-        <div className="text-center animate-fade-up mb-8">
-          <h1 className="text-3xl sm:text-4xl font-semibold text-heritage-dark mb-3">
-            {t("home.title")}
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-            {t("home.subtitle")}
-          </p>
+        <div className="animate-fade-up">
+          <MuseumSectionHeader
+            eyebrow={t("home.popular.eyebrow")}
+            title={t("home.title")}
+            description={t("home.subtitle")}
+            align="center"
+          />
 
           {/* Search indicator */}
           {searchQuery && (
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-heritage-light/50 rounded-full text-sm text-heritage-dark">
+            <div className="mx-auto -mt-4 mb-8 inline-flex items-center gap-2 rounded-full border border-museum-gold/25 bg-museum-gold/10 px-4 py-2 text-sm text-museum-gold-light">
               <Search className="w-4 h-4" />
               <span>
                 Results for: <strong>"{searchQuery}"</strong>
@@ -175,12 +180,17 @@ const Heritages = () => {
         {/* Content */}
         <div>
           {isLoading ? (
-            <HeritageSkeleton count={itemsPerPage} />
+            <MuseumSkeletonGrid count={itemsPerPage} />
           ) : error ? (
             renderErrorState()
+          ) : !heritages.length ? (
+            <MuseumEmptyState
+              title="No heritage sites found"
+              description="Try adjusting your search or filters."
+            />
           ) : (
             <>
-              <HeritageList heritages={heritages} />
+              <HeritageList heritages={heritages} cardVariant="museum" />
               {totalPages > 1 && (
                 <Pagination
                   currentPage={currentPage}
@@ -188,6 +198,7 @@ const Heritages = () => {
                   paginationButtons={paginationButtons}
                   handlePageChange={handlePageChange}
                   isLoading={isFetching}
+                  variant="museum"
                 />
               )}
             </>

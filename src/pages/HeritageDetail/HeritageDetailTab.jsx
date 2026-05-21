@@ -86,7 +86,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
     { skip: !data?._id, refetchOnMountOrArgChange: false }
   )
 
-  const comments = commentData?.comments || []
+  const comments = useMemo(() => commentData?.comments || [], [commentData?.comments])
   console.log('Fetched comments:', comments)
 
   const hasComments = comments.length > 0
@@ -105,7 +105,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
 
   const handleWriteReview = () => setShowWriteReview(true)
 
-  const handleReviewSubmit = useCallback((reviewData) => {
+  const handleReviewSubmit = useCallback(() => {
     setShowWriteReview(false) // Đóng modal sau khi submit thành công
   }, [])
 
@@ -134,7 +134,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
   }
 
   return (
-    <Tabs defaultValue="overview">
+    <Tabs defaultValue="overview" variant="museum">
       <TabsList>
         <TabsTrigger value="overview">{t("tabs.overview")}</TabsTrigger>
         <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
@@ -143,33 +143,33 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
       </TabsList>
 
       <TabsContent value="overview" className="space-y-6">
-        <h3 className="lcn-heritage-detail-title">{t("tabs.introduction")}</h3>
+        <h3 className="font-display text-2xl font-semibold text-museum-gold-light">{t("tabs.introduction")}</h3>
         <div
-          className="space-y-4 text-justify leading-relaxed [&_a]:text-heritage [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-heritage/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc"
+          className="space-y-4 text-justify leading-8 text-museum-parchment [&_a]:text-museum-gold-light [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-museum-gold/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc"
           dangerouslySetInnerHTML={{ __html: overviewHtml }}
         />
-        <p className="text-justify">
+        <p className="text-justify leading-8 text-museum-parchment">
           When visiting {data?.name}, visitors will be able to admire unique architectural works, learn about the
           formation and development history of the site, as well as discover interesting stories related to this heritage.
         </p>
       </TabsContent>
 
       <TabsContent value="history" className="space-y-6">
-        <h3 className="lcn-heritage-detail-title">{t("tabs.historicalEvents")}</h3>
+        <h3 className="font-display text-2xl font-semibold text-museum-gold-light">{t("tabs.historicalEvents")}</h3>
         <Suspense fallback={<div>Loading...</div>}>
           <HistoryTab historicalEvents={data?.additionalInfo?.historicalEvents} />
         </Suspense>
       </TabsContent>
 
       <TabsContent value="gallery" className="space-y-6">
-        <h3 className="lcn-heritage-detail-title">{t("tabs.gallery")}</h3>
+        <h3 className="font-display text-2xl font-semibold text-museum-gold-light">{t("tabs.gallery")}</h3>
         <Suspense fallback={<div>Loading...</div>}>
           <GalleryTab images={data?.images} name={data?.name} />
         </Suspense>
       </TabsContent>
 
       <TabsContent value="review" className="space-y-6">
-        <h3 className="lcn-heritage-detail-title">{t("tabs.reviews")}</h3>
+        <h3 className="font-display text-2xl font-semibold text-museum-gold-light">{t("tabs.reviews")}</h3>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <div className="text-3xl font-bold mr-2">{averageRating.toFixed(1)}</div>
@@ -183,11 +183,11 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
                   />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">{data?.stats?.totalReviews || comments.length} reviews</span>
+              <span className="text-sm text-museum-muted">{data?.stats?.totalReviews || comments.length} reviews</span>
             </div>
           </div>
           {isAuthenticated && (
-            <Button onClick={handleWriteReview} className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Button onClick={handleWriteReview} className="rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light">
               Write Review
             </Button>
           )}
@@ -196,12 +196,12 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
         {isCommentsLoading ? (
           <div className="text-center py-4">
             <Loader2 className="w-6 h-6 animate-spin mx-auto" />
-            <p className="text-sm text-muted-foreground">Loading reviews...</p>
+            <p className="text-sm text-museum-muted">Loading reviews...</p>
           </div>
         ) : hasComments ? (
           <div className="space-y-6">
             {comments.map((comment) => (
-              <div key={comment._id} className="border-b pb-6">
+              <div key={comment._id} className="border-b border-museum-gold/15 pb-6">
                 <div className="flex justify-between mb-2">
                   <div className="flex items-center gap-3">
                     <Avatar 
@@ -211,7 +211,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
                     />
                     <div>
                       <div className="font-medium">{comment.user?.displayName || comment.user?.id || 'Anonymous'}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-museum-muted">
                         {new Date(comment.createdAt).toLocaleDateString('en-US', {
                           day: '2-digit',
                           month: '2-digit',
@@ -230,7 +230,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
                     ))}
                     {/* Like button */}
                     <button
-                      className={`ml-2 flex items-center gap-1 px-2 py-1 rounded-full border ${comment.likes?.includes(currentUser?._id) ? 'bg-blue-100 text-blue-600 border-blue-300' : 'bg-gray-100 text-gray-500 border-gray-200'} hover:bg-blue-200 transition`}
+                      className={`ml-2 flex items-center gap-1 rounded-full border px-2 py-1 transition ${comment.likes?.includes(currentUser?._id) ? 'border-museum-gold bg-museum-gold text-museum-black' : 'border-museum-gold/20 bg-museum-ivory/8 text-museum-muted'} hover:bg-museum-gold/20`}
                       onClick={() => handleLike(comment._id)}
                       disabled={!isAuthenticated}
                     >
@@ -240,14 +240,14 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
                     {/* 3 dots menu for owner */}
                     {currentUser?._id === comment.user?.id && (
                       <div className="relative ml-2">
-                        <button onClick={() => setOpenMenuId(openMenuId === comment._id ? null : comment._id)} className="p-1 rounded-full hover:bg-gray-200">
+                        <button onClick={() => setOpenMenuId(openMenuId === comment._id ? null : comment._id)} className="p-1 rounded-full hover:bg-museum-ivory/10">
                           <MoreVertical size={18} />
                         </button>
                         {openMenuId === comment._id && (
-                          <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow z-10">
+                          <div className="absolute right-0 z-10 mt-2 w-28 rounded-xl border border-museum-gold/20 bg-museum-black p-1 shadow-museum-card">
                             <button
                               onClick={() => { setOpenMenuId(null); openDeleteModal(comment._id) }}
-                              className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-gray-100 w-full"
+                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-museum-gold-light hover:bg-museum-ivory/10"
                             >
                               <Trash2 size={16} /> Delete
                             </button>
@@ -274,13 +274,13 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 border border-dashed rounded-lg">
-            <Star size={40} className="mx-auto text-muted-foreground mb-4 opacity-50" />
-            <p className="text-muted-foreground">No reviews yet for this heritage site.</p>
+          <div className="rounded-[2rem] border border-dashed border-museum-gold/25 py-12 text-center">
+            <Star size={40} className="mx-auto mb-4 text-museum-gold-light opacity-70" />
+            <p className="text-museum-muted">No reviews yet for this heritage site.</p>
             {!isAuthenticated && (
               <div className="mt-4">
                 <p className="text-sm mb-3">Login to write a review about your experience</p>
-                <Button onClick={() => navigate('/login')}>Login</Button>
+                <Button onClick={() => navigate('/login')} className="rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light">Login</Button>
               </div>
             )}
           </div>

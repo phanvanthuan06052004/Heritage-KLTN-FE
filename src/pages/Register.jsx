@@ -81,37 +81,37 @@ const Register = () => {
   };
 
   return (
-    <div className="flex items-center justify-center sm:px-4 py-12 min-h-screen mt-navbar-mobile sm:mt-navbar">
-      <div className="max-w-md w-full animate-fade-up">
-        <div className="rounded-xl shadow-lg border border-border bg-card overflow-hidden">
+    <section className="museum-shell flex min-h-screen items-center justify-center px-4 py-12 pt-navbar-mobile sm:pt-navbar">
+      <div className="w-full max-w-md animate-fade-up">
+        <div className="museum-card overflow-hidden rounded-[2rem]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-heritage-light/50 to-accent p-8 text-center space-y-1">
-            <div className="w-16 h-16 rounded-full bg-heritage text-white flex items-center justify-center mx-auto mb-3">
+          <div className="museum-paper p-8 text-center space-y-1">
+            <div className="w-16 h-16 rounded-full bg-museum-gold text-museum-black flex items-center justify-center mx-auto mb-3 shadow-museum-gold">
               <UserPlus className="w-7 h-7" />
             </div>
-            <h3 className="text-2xl text-heritage-dark font-bold tracking-tight">
+            <h3 className="font-display text-3xl text-museum-espresso font-semibold tracking-tight">
               {t("auth.register_page.title")}
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-museum-terracotta">
               {t("auth.register_page.subtitle")}
             </p>
           </div>
 
           {/* Form */}
-          <div className="p-6 sm:p-8">
+          <div className="p-6 text-museum-ivory sm:p-8">
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive text-center">
+                <div className="rounded-2xl border border-museum-seal/35 bg-museum-seal/20 p-3 text-center text-sm text-museum-gold-light">
                   {error}
                 </div>
               )}
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="email">
+                <label className="text-sm font-medium text-museum-gold-light" htmlFor="email">
                   {t("auth.email")}
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                   <input
                     type="email"
                     id="email"
@@ -120,17 +120,17 @@ const Register = () => {
                     placeholder={t("auth.register_page.emailPlaceholder")}
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full h-11 pl-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring focus:outline-none transition-colors"
+                    className="w-full h-11 pl-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="password">
+                <label className="text-sm font-medium text-museum-gold-light" htmlFor="password">
                   {t("auth.password")}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                   <input
                     type={showPassword ? "text" : "password"}
                     id="password"
@@ -139,12 +139,12 @@ const Register = () => {
                     placeholder={t("auth.register_page.passwordPlaceholder")}
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full h-11 pl-10 pr-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring focus:outline-none transition-colors"
+                    className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-muted hover:text-museum-black transition-colors"
                     aria-label={t("auth.togglePasswordVisibility")}
                   >
                     {showPassword ? (
@@ -158,13 +158,13 @@ const Register = () => {
 
               <div className="space-y-2">
                 <label
-                  className="text-sm font-medium"
+                  className="text-sm font-medium text-museum-gold-light"
                   htmlFor="confirmPassword"
                 >
                   {t("auth.confirmPassword")}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                   <input
                     type={showPassword ? "text" : "password"}
                     id="confirmPassword"
@@ -175,14 +175,14 @@ const Register = () => {
                     )}
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full h-11 pl-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring focus:outline-none transition-colors"
+                    className="w-full h-11 pl-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-11"
+                className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -200,12 +200,12 @@ const Register = () => {
             </form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">
+              <span className="text-museum-muted">
                 {t("auth.alreadyHaveAccount")}{" "}
               </span>
               <Link
                 to="/login"
-                className="text-heritage font-medium hover:underline"
+                className="text-museum-gold-light font-medium hover:text-museum-ivory hover:underline"
               >
                 {t("auth.loginNow")}
               </Link>
@@ -213,7 +213,7 @@ const Register = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

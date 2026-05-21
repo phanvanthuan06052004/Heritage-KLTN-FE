@@ -102,7 +102,7 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                 currentMarker.remove()
             }
 
-            const newMarker = new mapboxgl.Marker({ color: 'blue', draggable: true })
+            const newMarker = new mapboxgl.Marker({ color: '#D8A24A', draggable: true })
                 .setLngLat([lng, lat])
                 .addTo(map.current)
 
@@ -136,7 +136,7 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                 return
             }
 
-            const marker = new mapboxgl.Marker({ color: 'hsl(var(--heritage-primary))' })
+            const marker = new mapboxgl.Marker({ color: '#D8A24A' })
                 .setLngLat([lng, lat])
                 .setPopup(new mapboxgl.Popup().setHTML(`<h3 class="font-medium">${title}</h3>`))
                 .addTo(map.current)
@@ -226,7 +226,7 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                 </div>
             `
 
-            const newMarker = new mapboxgl.Marker({ color: 'red', draggable: true })
+            const newMarker = new mapboxgl.Marker({ color: '#8F1D1D', draggable: true })
                 .setLngLat([lng, lat])
                 .setPopup(new mapboxgl.Popup().setHTML(popupContent))
                 .addTo(map.current)
@@ -292,21 +292,22 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
     }, [updateCenter, updateInitialMarkers])
 
     return (
-        <div className="w-full h-full relative" role="region" aria-label="Heritage map">
-            <div className="absolute top-4 left-4 z-10 w-80">
+        <div className="w-full h-full relative bg-museum-black" role="region" aria-label="Heritage map">
+            <div className="absolute left-4 top-4 z-10 w-[calc(100%-2rem)] max-w-md">
                 <form onSubmit={handleSearch} className="flex flex-col gap-2">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 rounded-2xl border border-museum-gold/25 bg-museum-black/82 p-2 shadow-museum-card backdrop-blur-xl">
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={handleInputChange}
                             placeholder="Search locations in Vietnam..."
-                            className="flex-1 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="min-w-0 flex-1 rounded-xl border border-museum-gold/20 bg-museum-ivory px-4 py-2.5 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none focus:ring-2 focus:ring-museum-gold-light"
                             aria-label="Search location"
                         />
                         <Button
                             type="submit"
                             aria-label="Search"
+                            className="rounded-xl bg-museum-gold px-5 text-museum-black hover:bg-museum-gold-light"
                         >
                             Search
                         </Button>
@@ -315,7 +316,7 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                         <select
                             size={Math.min(suggestions.length, 5)}
                             onChange={handleSuggestionSelect}
-                            className="w-full p-2 rounded border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-2xl border border-museum-gold/25 bg-museum-black/95 p-2 text-sm text-museum-ivory shadow-museum-card backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-museum-gold-light"
                             aria-label="Suggestions for location"
                         >
                             {suggestions.map((suggestion, index) => (
@@ -326,12 +327,12 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                         </select>
                     )}
                 </form>
-                {searchError && <div className="mt-2 text-red-500 text-sm">{searchError}</div>}
+                {searchError && <div className="mt-2 rounded-xl border border-museum-seal/35 bg-museum-seal/90 px-3 py-2 text-sm text-museum-ivory shadow-lg">{searchError}</div>}
             </div>
             <div ref={mapContainer} className="w-full h-full" />
-            <div className="absolute bottom-4 left-4 bg-white p-2 rounded shadow-md text-sm flex flex-col gap-2 w-[300px] sm:w-[600px]">
+            <div className="absolute bottom-4 left-4 right-4 max-w-2xl rounded-2xl border border-museum-gold/25 bg-museum-black/86 p-3 text-sm text-museum-ivory shadow-museum-card backdrop-blur-xl sm:right-auto sm:w-[600px]">
                 {currentCoordinates && (
-                    <div>
+                    <div className="mb-3 rounded-xl border border-museum-gold/15 bg-museum-ivory/8 px-3 py-2 text-museum-muted">
                         Selected point coordinates:
                         <br />
                         Lat: {currentCoordinates.lat.toFixed(6)}, Lng: {currentCoordinates.lng.toFixed(6)}
@@ -339,20 +340,20 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                 )}
                 <div className="flex gap-2 items-center">
                     <div className="flex-1">
-                        <label className="block font-medium">Address:</label>
+                        <label className="mb-1 block font-medium text-museum-gold-light">Address:</label>
                         <input
                             type="text"
                             value={currentAddress}
                             readOnly
                             placeholder="No location selected"
-                            className="w-full p-2 rounded border border-gray-300 bg-gray-100"
+                            className="w-full rounded-xl border border-museum-gold/20 bg-museum-ivory px-4 py-2.5 text-sm text-museum-black placeholder:text-museum-muted"
                             aria-label="Current address"
                         />
                     </div>
                     <Button
                         onClick={handleSelectCoordinates}
                         aria-label="Select coordinates"
-                        className='mt-5'
+                        className='mt-6 rounded-xl bg-museum-gold px-5 text-museum-black hover:bg-museum-gold-light'
                     >
                         Select
                     </Button>

@@ -227,6 +227,38 @@
     @apply focus-visible:outline-2 focus-visible:outline-offset-2;
     outline-color: rgb(var(--museum-gold-light));
   }
+
+  .museum-map .mapboxgl-ctrl-group {
+    overflow: hidden;
+    border: 1px solid rgba(var(--museum-gold), 0.28);
+    background: rgba(var(--museum-black), 0.86);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  }
+
+  .museum-map .mapboxgl-ctrl-group button {
+    color: rgb(var(--museum-ivory));
+  }
+
+  .museum-map .mapboxgl-ctrl button .mapboxgl-ctrl-icon {
+    filter: invert(93%) sepia(19%) saturate(640%) hue-rotate(343deg) brightness(103%) contrast(91%);
+  }
+
+  .museum-map .mapboxgl-ctrl-group button:hover {
+    background-color: rgba(var(--museum-gold), 0.18);
+  }
+
+  .museum-map .mapboxgl-popup-content {
+    border: 1px solid rgba(var(--museum-gold), 0.28);
+    border-radius: 1rem;
+    background: rgba(var(--museum-black), 0.94);
+    color: rgb(var(--museum-ivory));
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
+  }
+
+  .museum-map .mapboxgl-popup-tip {
+    border-top-color: rgba(var(--museum-black), 0.94);
+    border-bottom-color: rgba(var(--museum-black), 0.94);
+  }
 }
 
 @layer utilities {

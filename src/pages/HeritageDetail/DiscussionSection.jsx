@@ -54,24 +54,24 @@ const DiscussionSection = ({ heritageId }) => {
 
   return (
     <div className=" mx-auto py-8">
-      <h2 className="text-primary text-2xl font-semibold flex items-center mb-2">
+      <h2 className="mb-4 flex items-center font-display text-2xl font-semibold text-museum-gold-light">
         <MessageSquare className="w-5 h-5 mr-2" />
         Q&A
       </h2>
-      <div className="bg-gray-100 dark:bg-gray-900 rounded-lg shadow-lg p-6">
+      <div className="museum-card rounded-[2rem] p-6 text-museum-ivory">
         {/* Comments List */}
         {isLoadingComments ? (
           <div className="flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <Loader2 className="w-6 h-6 animate-spin text-museum-gold-light" />
           </div>
         ) : commentsError ? (
-          <p className="text-center text-gray-500">
+          <p className="text-center text-museum-muted">
             Unable to load comments. Please try again.
           </p>
         ) : !topLevelComments ||
           !topLevelComments.discussArray ||
           topLevelComments.discussArray.length === 0 ? (
-          <p className="mb-6 text-center text-gray-500">
+          <p className="mb-6 text-center text-museum-muted">
             No comments yet. Be the first to comment!
           </p>
         ) : (
@@ -94,7 +94,7 @@ const DiscussionSection = ({ heritageId }) => {
           className="mt-5 flex flex-col items-end"
         >
           <textarea
-            className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-200"
+            className="min-h-28 w-full rounded-2xl border border-museum-gold/20 bg-museum-ivory px-4 py-3 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none focus:ring-2 focus:ring-museum-gold-light"
             placeholder={
               currentUser
                 ? "Share your thoughts..."
@@ -106,7 +106,7 @@ const DiscussionSection = ({ heritageId }) => {
           />
           <Button
             type="submit"
-            className="mt-3"
+            className="mt-3 rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light"
             disabled={!currentUser || isCreating}
           >
             {isCreating ? (

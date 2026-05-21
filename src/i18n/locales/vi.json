@@ -461,6 +461,8 @@
   },
   "explore": {
     "title": "Khám phá di sản",
+    "subtitle": "Tìm trên bản đồ và khám phá các di sản gần mọi địa điểm tại Việt Nam.",
+    "exploreMap": "Khám phá bản đồ",
     "searchPlaceholder": "Tìm kiếm địa điểm...",
     "loadingData": "Đang tải dữ liệu...",
     "errorLoading": "Lỗi khi tải dữ liệu",
@@ -469,7 +471,9 @@
     "locationNotFound": "Không tìm thấy địa điểm.",
     "searchError": "Lỗi khi tìm kiếm địa điểm.",
     "invalidCoordinates": "Tọa độ không hợp lệ.",
-    "nearbyHeritages": "Di sản gần đây"
+    "nearbyHeritages": "Di sản gần đây",
+    "noNearbyHeritages": "Không tìm thấy di sản gần đây",
+    "tryAnotherLocation": "Hãy thử tìm kiếm hoặc chọn một vị trí khác trên bản đồ."
   },
   "about": {
     "visionMission": "Tầm nhìn & Sứ mệnh",

@@ -1,6 +1,6 @@
 const GalleryTab = ({ images = [], name = 'Di tích' }) => {
   if (!images || images.length === 0) {
-    return <div className='col-span-3 text-center text-muted-foreground py-8'>Chưa có hình ảnh cho di tích này.</div>
+    return <div className='col-span-3 py-8 text-center text-museum-muted'>Chưa có hình ảnh cho di tích này.</div>
   }
 
   return (
@@ -8,7 +8,7 @@ const GalleryTab = ({ images = [], name = 'Di tích' }) => {
       {images.map((image, index) => (
         <div
           key={index}
-          className='overflow-hidden rounded-md flex items-center justify-center bg-gray-100'
+          className='flex items-center justify-center overflow-hidden rounded-2xl border border-museum-gold/15 bg-museum-ivory/8'
           style={{ width: '264px', height: '168px', maxWidth: '100%' }}
         >
           <img

@@ -21,19 +21,20 @@ const HeritageHeader = ({ data }) => {
   }
 
   return (
-    <div className='relative overflow-hidden h-[44vh] sm:h-[50vh]'>
+    <div className='relative h-[52vh] min-h-[470px] overflow-hidden border-b border-museum-gold/20 sm:h-[58vh]'>
       <div className='absolute inset-0'>
         <img
-          src={data?.images[0] || 'https://placehold.co/600x400?text=Di+t%C3%ADch+L%E1%BB%8Bch+s%E1%BB%AD&font=roboto'} 
+          src={data?.images[0] || 'https://placehold.co/600x400?text=Di+t%C3%ADch+L%E1%BB%8Bch+s%E1%BB%AD&font=roboto'}
           alt={data?.name}
           loading='lazy'
           className='aspect-video w-full h-full object-cover'
         />
-        <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent'></div>
+        <div className='absolute inset-0 bg-[linear-gradient(90deg,rgba(11,10,7,0.92)_0%,rgba(11,10,7,0.66)_48%,rgba(11,10,7,0.38)_100%)]'></div>
+        <div className='absolute inset-0 bg-[radial-gradient(circle_at_28%_72%,rgba(216,162,74,0.28),transparent_22rem),radial-gradient(circle_at_78%_18%,rgba(47,107,85,0.18),transparent_24rem)]'></div>
       </div>
-      <div className='absolute bottom-0 inset-x-0 lcn-container-x py-8'>
+      <div className='absolute inset-x-0 bottom-0 lcn-container-x py-10'>
         <Link to='/heritages'>
-          <Button variant='ghost' size='sm' className='mb-4 text-primary-foreground hover:bg-primary-foreground/30'>
+          <Button variant='ghost' size='sm' className='mb-5 rounded-full text-museum-ivory hover:bg-museum-ivory/12 hover:text-museum-gold-light'>
             <ArrowLeft size={16} />
             <span>Back to heritage list</span>
           </Button>
@@ -43,28 +44,28 @@ const HeritageHeader = ({ data }) => {
             <div className='flex items-center space-x-2 mb-2'>
               {hasCoordinates && (
                 <>
-                  <span className='px-2 py-1 bg-heritage/90 text-white text-xs rounded-full'>
+                  <span className='rounded-full bg-museum-gold px-3 py-1 text-xs font-semibold text-museum-black'>
                     {data.coordinates.latitude}
                   </span>
-                  <span className='px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full'>
+                  <span className='rounded-full border border-museum-gold/25 bg-museum-ivory/10 px-3 py-1 text-xs font-semibold text-museum-ivory backdrop-blur-sm'>
                     {data.coordinates.longitude}
                   </span>
                 </>
               )}
             </div>
-            <h1 className='text-3xl sm:text-4xl font-medium text-white'>
+            <h1 className='font-display text-4xl font-semibold text-museum-ivory sm:text-5xl lg:text-6xl'>
               {data?.name}
             </h1>
-            <div className='flex items-center mt-2 text-white'>
-              <Star size={20} className='fill-yellow-400 text-yellow-400 mr-1'/>
+            <div className='mt-3 flex items-center text-museum-ivory'>
+              <Star size={20} className='mr-1 fill-museum-gold-light text-museum-gold-light'/>
               <span className='font-medium'>{data?.stats?.averageRating || 0.0}</span>
-              <span className='text-white/80 text-sm ml-1'>({data?.stats?.totalReviews || 0})</span>
+              <span className='ml-1 text-sm text-museum-muted'>({data?.stats?.totalReviews || 0})</span>
             </div>
           </div>
           <div>
-            <Button 
+            <Button
               variant='outline'
-              className='backdrop-blur-sm hover:bg-white/30 text-white bg-white/20 border'
+              className='rounded-full border-museum-gold/35 bg-museum-ivory/10 text-museum-ivory backdrop-blur-sm hover:bg-museum-gold hover:text-museum-black'
               onClick={handleShare}
             >
               <Share size={16} />

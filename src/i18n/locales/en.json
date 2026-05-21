@@ -461,6 +461,8 @@
   },
   "explore": {
     "title": "Explore Heritage",
+    "subtitle": "Search the map and discover heritage sites near any location in Vietnam.",
+    "exploreMap": "Explore Map",
     "searchPlaceholder": "Search for location...",
     "loadingData": "Loading data...",
     "errorLoading": "Error loading data",
@@ -469,7 +471,9 @@
     "locationNotFound": "Location not found.",
     "searchError": "Error searching for location.",
     "invalidCoordinates": "Invalid coordinates.",
-    "nearbyHeritages": "Nearby Heritages"
+    "nearbyHeritages": "Nearby Heritages",
+    "noNearbyHeritages": "No nearby heritage sites found",
+    "tryAnotherLocation": "Try searching or selecting another location on the map."
   },
   "about": {
     "visionMission": "Vision & Mission",

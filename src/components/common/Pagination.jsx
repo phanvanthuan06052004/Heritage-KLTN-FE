@@ -7,8 +7,11 @@ export const Pagination = ({
   paginationButtons,
   handlePageChange,
   isLoading,
+  variant = "default",
 }) => {
   if (totalPages <= 1) return null;
+
+  const isMuseum = variant === "museum";
 
   return (
     <nav className="mt-8 flex justify-center gap-1.5" aria-label="Pagination">
@@ -18,9 +21,13 @@ export const Pagination = ({
         disabled={currentPage === 1 || isLoading}
         className={cn(
           "inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors",
-          "border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          isMuseum
+            ? "border-museum-gold/25 bg-museum-ivory/8 text-museum-ivory hover:border-museum-gold/50 hover:bg-museum-gold/15 hover:text-museum-gold-light"
+            : "border-input bg-background hover:bg-accent hover:text-accent-foreground",
           "disabled:opacity-50 disabled:pointer-events-none",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+          isMuseum
+            ? "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+            : "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         )}
         aria-label="Previous page"
       >
@@ -34,7 +41,10 @@ export const Pagination = ({
           page === "..." ? (
             <span
               key={`ellipsis-${index}`}
-              className="inline-flex items-center justify-center w-10 h-10 text-sm text-muted-foreground select-none"
+              className={cn(
+                "inline-flex items-center justify-center w-10 h-10 text-sm select-none",
+                isMuseum ? "text-museum-muted" : "text-muted-foreground",
+              )}
               aria-hidden="true"
             >
               ...
@@ -46,10 +56,16 @@ export const Pagination = ({
               disabled={isLoading}
               className={cn(
                 "inline-flex items-center justify-center w-10 h-10 text-sm font-medium rounded-md border transition-colors",
-                currentPage === page
-                  ? "bg-heritage text-white border-heritage hover:bg-heritage-dark"
-                  : "border-input bg-background hover:bg-accent hover:text-accent-foreground",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                isMuseum
+                  ? currentPage === page
+                    ? "border-museum-gold bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
+                    : "border-museum-gold/25 bg-museum-ivory/8 text-museum-ivory hover:border-museum-gold/50 hover:bg-museum-gold/15 hover:text-museum-gold-light"
+                  : currentPage === page
+                    ? "bg-heritage text-white border-heritage hover:bg-heritage-dark"
+                    : "border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                isMuseum
+                  ? "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+                  : "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 "disabled:opacity-50 disabled:pointer-events-none",
               )}
               aria-label={`Page ${page}`}
@@ -67,9 +83,13 @@ export const Pagination = ({
         disabled={currentPage === totalPages || isLoading}
         className={cn(
           "inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors",
-          "border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          isMuseum
+            ? "border-museum-gold/25 bg-museum-ivory/8 text-museum-ivory hover:border-museum-gold/50 hover:bg-museum-gold/15 hover:text-museum-gold-light"
+            : "border-input bg-background hover:bg-accent hover:text-accent-foreground",
           "disabled:opacity-50 disabled:pointer-events-none",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+          isMuseum
+            ? "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+            : "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         )}
         aria-label="Next page"
       >
