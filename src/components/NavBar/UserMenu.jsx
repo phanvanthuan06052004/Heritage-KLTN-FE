@@ -63,7 +63,12 @@ const UserMenu = ({ userMenuLinks }) => {
     <div className="flex items-center gap-1">
       {/* Favorites */}
       <Link to="/favorites">
-        <Button variant="ghost" size="icon" aria-label="Favorites">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full border border-museum-gold/20 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold/10 hover:text-museum-gold-light focus-visible:outline-museum-gold-light"
+          aria-label="Favorites"
+        >
           <Heart size={18} />
         </Button>
       </Link>

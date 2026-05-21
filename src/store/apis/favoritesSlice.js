@@ -1,5 +1,6 @@
 import { BASE_URL } from '~/constants/fe.constant'
 import { apiSlice } from './apiSlice'
+import { normalizeHeritage } from './heritageApi'
 
 // Helper function to get current language
 const getCurrentLanguage = () => {
@@ -16,23 +17,55 @@ export const favoriteSlice = apiSlice.injectEndpoints({
         params.append('language', language || getCurrentLanguage())
         return `${BASE_URL}/favorites/user/${userId}?${params.toString()}`
       },
-      transformResponse: (response) => {
-        if (response && response.items) {
-          const favoriteMap = response.items.reduce((map, item) => {
-            map[item._id] = true
-            return map
-          }, {})
-          return {
-            ...response,
-            favoriteMap,
-          }
+      transformResponse: (response, _meta, arg) => {
+        const payload = response?.data || response || {}
+        const rawItems = Array.isArray(payload?.items) ? payload.items : []
+        const language = arg?.language || getCurrentLanguage()
+        const items = rawItems
+          .map((item) => {
+            if (!item) return null
+
+            const heritage = item.heritage || item
+            const normalized = normalizeHeritage(heritage, {
+              media: heritage.media || [],
+              locations: heritage.locations || [],
+              translations: heritage.translations || [],
+              timelines: heritage.timelines || [],
+              language,
+            })
+
+            if (!normalized?._id) return null
+
+            return {
+              ...normalized,
+              favoriteAddedAt: item.favoriteAddedAt || item.addedAt || null,
+            }
+          })
+          .filter(Boolean)
+
+        const favoriteMap = items.reduce((map, item) => {
+          map[item._id] = true
+          return map
+        }, {})
+
+        return {
+          ...payload,
+          items,
+          favoriteMap,
+          pagination: payload.pagination || {
+            page: 1,
+            limit: items.length,
+            totalItems: items.length,
+            totalPages: items.length ? 1 : 0,
+          },
         }
-        return response
       },
       providesTags: (result) =>
-        result
+        result?.items
           ? [
-            ...result.items.map(({ _id }) => ({ type: 'Favorites', id: _id })),
+            ...result.items
+              .filter(({ _id }) => Boolean(_id))
+              .map(({ _id }) => ({ type: 'Favorites', id: _id })),
             { type: 'Favorites', id: 'LIST' },
           ]
           : [{ type: 'Favorites', id: 'LIST' }],
@@ -40,7 +73,7 @@ export const favoriteSlice = apiSlice.injectEndpoints({
 
     addToFavorites: builder.mutation({
       query: ({ userId, heritageId }) => ({
-        url: `${BASE_URL}/favorites/add-to-favorites`,
+        url: `${BASE_URL}/favorites`,
         method: 'POST',
         body: { userId, heritageId },
       }),

@@ -75,7 +75,7 @@ const applyTranslation = (heritage, translations = [], language) => {
   }
 }
 
-const normalizeHeritage = (
+export const normalizeHeritage = (
   heritage,
   { media = [], locations = [], timelines = [], translations = [], language } = {},
 ) => {

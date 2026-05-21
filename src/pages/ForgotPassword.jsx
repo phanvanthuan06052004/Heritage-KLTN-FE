@@ -39,8 +39,7 @@ const ForgotPassword = () => {
 
   const [forgotPassword, { isLoading: isRequestingCode }] =
     useForgotPasswordMutation();
-  const [verifyForgotOtp, { isLoading: isVerifyingOtp }] =
-    useVerifyForgotPasswordOtpMutation();
+  const [verifyForgotOtp] = useVerifyForgotPasswordOtpMutation();
   const [resetPassword, { isLoading: isResetting }] =
     useResetPasswordMutation();
   const [resetToken, setResetToken] = useState("");
@@ -59,10 +58,10 @@ const ForgotPassword = () => {
 
     try {
       const response = await forgotPassword({ email }).unwrap();
-      const { resetToken } = response.data;
+      const { resetToken, message } = response;
       setResetToken(resetToken);
 
-      toast.success(response.data.message || t("auth.forgotPassword.codeSent"));
+      toast.success(message || t("auth.forgotPassword.codeSent"));
       setIsSubmitted(true);
       setCooldown(60);
     } catch (err) {
@@ -109,14 +108,14 @@ const ForgotPassword = () => {
         otpCode: verificationCode,
       }).unwrap();
 
-      const verifiedResetToken = verifyResponse.data.resetToken;
+      const verifiedResetToken = verifyResponse.resetToken;
 
       const resetResponse = await resetPassword({
         token: verifiedResetToken,
         newPassword,
       }).unwrap();
 
-      const { accessToken, refreshToken, sessionId, user } = resetResponse.data;
+      const { accessToken, refreshToken, sessionId, user } = resetResponse;
 
       dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }));
       toast.success(t("auth.forgotPassword.resetSuccess"));

@@ -18,7 +18,7 @@ const AuthButton = () => {
           <span>{t("auth.login")}</span>
         </Button>
       </Link>
-      <Link to="/register">
+      {/* <Link to="/register">
         <Button
           size="sm"
           className="rounded-full bg-museum-gold px-4 text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
@@ -26,7 +26,7 @@ const AuthButton = () => {
           <UserPlus size={18} />
           <span>{t("auth.register")}</span>
         </Button>
-      </Link>
+      </Link> */}
     </>
   );
 };

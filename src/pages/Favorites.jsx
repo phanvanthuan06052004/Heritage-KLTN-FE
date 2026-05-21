@@ -1,4 +1,4 @@
-import { Heart, HeartOff } from "lucide-react";
+import { Heart, HeartOff, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
@@ -8,9 +8,10 @@ import { selectCurrentUser } from "~/store/slices/authSlice";
 import { useGetFavoritesByUserIdQuery } from "~/store/apis/favoritesSlice";
 import HeritageCard from "~/components/Heritage/HeritageCard";
 import { Button } from "~/components/common/ui/Button";
-import HeritageSkeleton from "~/components/Heritage/HeritageSkeleton";
 import { usePagination } from "~/hooks/usePagination";
 import { Pagination } from "~/components/common/Pagination";
+import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
+import { MuseumSkeletonGrid } from "~/components/common/MuseumStates";
 import { setFavoritesPage } from "~/store/slices/paginationSlice";
 import {
   selectFavoritesCurrentPage,
@@ -82,28 +83,27 @@ const Favorites = () => {
   const hasFavorites = favoriteItems.length > 0;
 
   return (
-    <div className="pt-navbar-mobile sm:pt-navbar">
-      <div className="lcn-container min-h-screen">
+    <section className="museum-shell min-h-screen overflow-hidden pt-navbar-mobile sm:pt-navbar">
+      <div className="lcn-container relative min-h-screen">
+        <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
+
         {/* Header */}
-        <div className="text-center animate-fade-up mb-8">
-          <div className="w-16 h-16 rounded-full bg-heritage-light flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-heritage" />
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-semibold text-heritage-dark mb-3">
-            {t("favorites.title")}
-          </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-            {t("favorites.subtitle")}
-          </p>
+        <div className="animate-fade-up">
+          <MuseumSectionHeader
+            eyebrow={t("nav.favorites")}
+            title={t("favorites.title")}
+            description={t("favorites.subtitle")}
+            align="center"
+          />
         </div>
 
         {/* Error state */}
         {favoritesError && (
-          <div className="text-center py-8 px-4 bg-destructive/5 rounded-lg border border-destructive/10 mb-6">
-            <p className="font-medium text-destructive">
+          <div className="mb-6 rounded-3xl border border-museum-seal/35 bg-museum-seal/10 px-6 py-8 text-center text-museum-ivory">
+            <p className="font-medium text-museum-gold-light">
               {t("favorites.errorLoading")}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="mt-1 text-sm text-museum-muted">
               {favoritesError.status === 404
                 ? t("favorites.errorNoFavorites")
                 : favoritesError.data?.message || t("favorites.errorTryAgain")}
@@ -112,8 +112,9 @@ const Favorites = () => {
               variant="outline"
               size="sm"
               onClick={refetch}
-              className="mt-3"
+              className="mt-4 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
             >
+              <RefreshCw className="h-4 w-4" />
               Try again
             </Button>
           </div>
@@ -121,7 +122,7 @@ const Favorites = () => {
 
         {/* Content */}
         {isLoading ? (
-          <HeritageSkeleton count={itemsPerPage} />
+          <MuseumSkeletonGrid count={itemsPerPage} />
         ) : hasFavorites ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -130,6 +131,7 @@ const Favorites = () => {
                   key={item._id}
                   item={item}
                   isFavorited={true}
+                  variant="museum"
                   onFavoriteChange={(newState) => {
                     if (!newState && favoriteItems.length <= 1) {
                       if (currentPage > 1 && currentPage === totalPages) {
@@ -149,30 +151,34 @@ const Favorites = () => {
                 paginationButtons={paginationButtons}
                 handlePageChange={handlePageChange}
                 isLoading={isLoading}
+                variant="museum"
               />
             )}
           </>
         ) : (
-          <div className="text-center py-16 flex flex-col items-center gap-4">
-            <div className="p-5 rounded-full bg-muted">
-              <HeartOff className="w-12 h-12 text-muted-foreground" />
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-museum-gold/20 bg-museum-ivory/5 px-6 py-16 text-center text-museum-ivory">
+            <div className="rounded-2xl bg-museum-gold/10 p-5 text-museum-gold-light">
+              <HeartOff className="w-12 h-12" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-medium text-foreground">
+              <h2 className="font-display text-2xl font-semibold text-museum-ivory">
                 {t("favorites.empty")}
               </h2>
-              <p className="text-muted-foreground max-w-md text-sm">
+              <p className="max-w-md text-sm leading-6 text-museum-muted">
                 {t("favorites.emptyDescription")}
               </p>
             </div>
-            <Button onClick={() => navigate("/heritages")} className="mt-2">
+            <Button
+              onClick={() => navigate("/heritages")}
+              className="mt-2 rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light"
+            >
               <Heart className="w-4 h-4 mr-2" />
               {t("favorites.exploreHeritages")}
             </Button>
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

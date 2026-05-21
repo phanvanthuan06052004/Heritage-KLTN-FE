@@ -54,7 +54,7 @@ const AuthenConfirm = () => {
         otpCode: code,
       }).unwrap();
 
-      const { accessToken, refreshToken, sessionId, user } = response.data;
+      const { accessToken, refreshToken, sessionId, user } = response;
 
       dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }));
       toast.success("Email verification successful! Logged in.");

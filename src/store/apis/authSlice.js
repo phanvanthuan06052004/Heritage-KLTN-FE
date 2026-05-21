@@ -1,5 +1,7 @@
 import { apiSlice } from './apiSlice'
 
+const unwrapData = (response) => response?.data ?? response
+
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     signUp: builder.mutation({
@@ -8,6 +10,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     signIn: builder.mutation({
       query: (data) => ({
@@ -15,6 +18,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     verifyOtp: builder.mutation({
       query: (data) => ({
@@ -22,6 +26,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     resendOtp: builder.mutation({
       query: (data) => ({
@@ -29,6 +34,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     forgotPassword: builder.mutation({
       query: (data) => ({
@@ -36,6 +42,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     verifyForgotPasswordOtp: builder.mutation({
       query: (data) => ({
@@ -43,6 +50,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     resetPassword: builder.mutation({
       query: (data) => ({
@@ -50,6 +58,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     changePassword: builder.mutation({
       query: (data) => ({
@@ -57,6 +66,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     refreshToken: builder.mutation({
       query: (data) => ({
@@ -64,12 +74,14 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     logout: builder.mutation({
       query: () => ({
         url: '/auth/logout',
         method: 'POST',
       }),
+      transformResponse: unwrapData,
     }),
     metaMaskChallenge: builder.mutation({
       query: (data) => ({
@@ -77,6 +89,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     metaMaskSignIn: builder.mutation({
       query: (data) => ({
@@ -84,6 +97,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     linkWallet: builder.mutation({
       query: (data) => ({
@@ -91,6 +105,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
     verifyLinkWallet: builder.mutation({
       query: (data) => ({
@@ -98,6 +113,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
   }),
 })

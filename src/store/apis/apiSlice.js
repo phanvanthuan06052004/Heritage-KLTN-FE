@@ -1,6 +1,6 @@
 import { fetchBaseQuery, createApi } from '@reduxjs/toolkit/query/react'
 import { BASE_URL } from '~/constants/fe.constant'
-import { logOut, setCredentials, setAccessToken } from '../slices/authSlice'
+import { logOut, setAccessToken } from '../slices/authSlice'
 
 const AUTH_URLS = [
   '/auth/signup',
@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
     const authState = getState().auth
 
     const token = authState.accessToken
-    const userId = authState.userInfo?._id
+    const userId = authState.userInfo?._id || authState.userInfo?.id
 
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
@@ -63,10 +63,13 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
           )
           // console.log(refreshResult)
           window.isRefreshing = false
-          if (refreshResult?.data) {
+          const newAccessToken =
+            refreshResult?.data?.data?.accessToken || refreshResult?.data?.accessToken
+
+          if (newAccessToken) {
             // BE returns { data: { accessToken } }
             api.dispatch(
-              setAccessToken({ accessToken: refreshResult.data.accessToken })
+              setAccessToken({ accessToken: newAccessToken })
             )
             // Retry the original query with the new token
             return await baseQuery(args, api, extraOptions)

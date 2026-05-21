@@ -3,13 +3,14 @@ import { useGetUserProfileQuery, useUpdateUserProfileMutation, useUploadAvatarMu
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/common/ui/Button'
-import Title from '~/components/common/Title'
-import { Camera, Check, Loader2, X } from 'lucide-react'
+import { Camera, Check, Loader2, UserRound, X } from 'lucide-react'
 import { toDateInputFormat } from '~/utils/dateHelpers'
 import { useDispatch } from 'react-redux'
 import { setUser } from '~/store/slices/authSlice'
 
 const DEFAULT_AVATAR = '/images/avatar-default.jpg'
+const fieldBaseClass =
+  'w-full rounded-xl border border-museum-gold/20 bg-museum-black/45 px-4 py-3 text-sm text-museum-ivory transition-colors placeholder:text-museum-muted/70 focus:border-museum-gold-light focus:outline-none focus:ring-2 focus:ring-museum-gold/25 disabled:cursor-not-allowed disabled:opacity-70'
 
 const UserProfile = () => {
   const { t } = useTranslation()
@@ -87,9 +88,7 @@ const UserProfile = () => {
   const validateForm = () => {
     const newErrors = {}
 
-    if (!formData.displayname.trim()) {
-      newErrors.displayname = t('profile.errors.displayNameRequired')
-    } else if (formData.displayname.length < 3) {
+    if (formData.displayname.trim() && formData.displayname.length < 3) {
       newErrors.displayname = t('profile.errors.displayNameMinLength')
     }
 
@@ -173,37 +172,50 @@ const UserProfile = () => {
 
   if (!user) {
     return (
-      <div className='flex items-center justify-center min-h-[60vh]'>
-        <Loader2 className='h-8 w-8 animate-spin text-heritage' />
-      </div>
+      <section className='museum-shell flex min-h-screen items-center justify-center pt-navbar-mobile sm:pt-navbar'>
+        <Loader2 className='h-8 w-8 animate-spin text-museum-gold-light' />
+      </section>
     )
   }
 
   return (
-    <div className='w-full lcn-container-x animate-fade-in pt-navbar-mobile sm:pt-navbar'>
-      <div className='rounded-xl overflow-hidden'>
-        {/* Header */}
-        <div className='relative bg-gradient-to-r from-heritage-light to-accent p-6 sm:p-8 flex flex-col sm:flex-row justify-between'>
-          <div>
-            <Title title={t('profile.title')} />
-            <p className='text-muted-foreground mt-2'>{t('profile.subtitle')}</p>
+    <section className='museum-shell min-h-screen overflow-hidden pt-navbar-mobile sm:pt-navbar '>
+      <div className='lcn-container-x relative animate-fade-in pb-14 mt-10'>
+        <div className='pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent' />
+        <div className='overflow-hidden rounded-3xl border border-museum-gold/20 bg-museum-ivory/5 shadow-museum-card backdrop-blur-xl'>
+          {/* Header */}
+          <div className='relative flex flex-col justify-between gap-5 border-b border-museum-gold/15 bg-museum-black/35 p-6 sm:flex-row sm:p-8'>
+            <div>
+              <span className='mb-4 inline-flex items-center gap-2 rounded-full border border-museum-gold/30 bg-museum-gold/10 px-4 py-1.5 text-xs font-semibold uppercase text-museum-gold-light'>
+                <span className='h-1.5 w-1.5 rounded-full bg-museum-gold-light' />
+                {t('nav.profile')}
+              </span>
+              <h1 className='font-display text-3xl font-semibold leading-tight text-museum-ivory sm:text-4xl'>
+                {t('profile.title')}
+              </h1>
+              <p className='mt-3 text-sm leading-7 text-museum-muted sm:text-base'>{t('profile.subtitle')}</p>
+            </div>
+            <div className='sm:self-start'>
+              {!isEditing && (
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className='rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light'
+                >
+                  {t('profile.edit')}
+                </Button>
+              )}
+            </div>
           </div>
-          <div className='mt-4 sm:mt-0'>
-            {!isEditing && (
-              <Button onClick={() => setIsEditing(true)}>{t('profile.edit')}</Button>
-            )}
-          </div>
-        </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className='p-6 sm:p-8 space-y-8'>
-          <div className='flex flex-col sm:flex-row items-center gap-6 pb-6 border-b'>
+        <form onSubmit={handleSubmit} className='space-y-8 p-6 text-museum-ivory sm:p-8'>
+          <div className='flex flex-col items-center gap-6 border-b border-museum-gold/15 pb-7 sm:flex-row'>
             <div className='relative group'>
-              <div className='w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-sm'>
+              <div className='h-24 w-24 overflow-hidden rounded-full border-4 border-museum-gold/35 bg-museum-black/40 shadow-museum-gold sm:h-32 sm:w-32'>
                 {avatarPreview ? (
                   <img
                     src={avatarPreview}
-                    alt={formData.displayname || 'User'}
+                    alt={formData.displayname || user.email || 'User'}
                     loading='lazy'
                     className='w-full h-full object-cover'
                     onError={(e) => {
@@ -213,14 +225,14 @@ const UserProfile = () => {
                     }}
                   />
                 ) : (
-                  <div className='w-full h-full bg-gray-300 flex items-center justify-center text-white text-2xl font-bold'>
+                  <div className='flex h-full w-full items-center justify-center bg-museum-gold/10 text-2xl font-bold text-museum-gold-light'>
                     {formData.displayname
                       ? formData.displayname
                         .split(' ')
                         .slice(0, 2)
                         .map((word) => word[0].toUpperCase())
                         .join('')
-                      : 'NA'}
+                      : <UserRound className='h-10 w-10' />}
                   </div>
                 )}
               </div>
@@ -241,20 +253,22 @@ const UserProfile = () => {
                 </label>
               )}
               {isAvatarChanged && isEditing && (
-                <div className='absolute -top-2 -right-2 bg-heritage text-white rounded-full w-6 h-6 flex items-center justify-center'>
+                <div className='absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-museum-gold text-museum-black'>
                   <Check size={14} />
                 </div>
               )}
             </div>
-            <h3 className='text-xl font-semibold'>{user.displayname || 'User'}</h3>
+            <h3 className='font-display text-2xl font-semibold text-museum-ivory'>
+              {user.displayname || user.email || 'User'}
+            </h3>
           </div>
 
           {/* Personal Info */}
           <div className='space-y-6'>
-            <h3 className='text-lg font-medium text-heritage-dark'>{t('profile.personalInfo')}</h3>
+            <h3 className='font-display text-2xl font-semibold text-museum-gold-light'>{t('profile.personalInfo')}</h3>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <div className='space-y-2'>
-                <label htmlFor='displayname' className='block text-sm font-medium text-foreground'>
+                <label htmlFor='displayname' className='block text-sm font-medium text-museum-gold-light'>
                   {t('profile.displayName')}
                 </label>
                 <input
@@ -264,8 +278,7 @@ const UserProfile = () => {
                   value={formData.displayname}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className={`w-full pl-4 px-3 py-2 bg-background border ${errors.displayname ? 'border-destructive' : ''
-                    } rounded-md disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring transition-colors`}
+                  className={`${fieldBaseClass} ${errors.displayname ? 'border-museum-seal' : ''}`}
                   placeholder={t('profile.placeholders.displayName')}
                   aria-required='true'
                   aria-invalid={!!errors.displayname}
@@ -278,7 +291,7 @@ const UserProfile = () => {
                 )}
               </div>
               <div className='space-y-2'>
-                <label htmlFor='gender' className='block text-sm font-medium text-foreground'>
+                <label htmlFor='gender' className='block text-sm font-medium text-museum-gold-light'>
                   {t('profile.gender')}
                 </label>
                 <select
@@ -287,7 +300,7 @@ const UserProfile = () => {
                   value={formData.gender}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className='w-full px-3 py-2 bg-background border rounded-md disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring transition-colors'
+                  className={fieldBaseClass}
                   aria-label='Select gender'
                 >
                   <option value='other'>{t('profile.genderOptions.other')}</option>
@@ -296,7 +309,7 @@ const UserProfile = () => {
                 </select>
               </div>
               <div className='space-y-2'>
-                <label htmlFor='phone' className='block text-sm font-medium text-foreground'>
+                <label htmlFor='phone' className='block text-sm font-medium text-museum-gold-light'>
                   {t('profile.phone')}
                 </label>
                 <input
@@ -306,8 +319,7 @@ const UserProfile = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className={`w-full pl-4 px-3 py-2 bg-background border ${errors.phone ? 'border-destructive' : 'border-input'
-                    } rounded-md focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-70 disabled:cursor-not-allowed transition-colors`}
+                  className={`${fieldBaseClass} ${errors.phone ? 'border-museum-seal' : ''}`}
                   placeholder={t('profile.placeholders.phone')}
                   aria-invalid={!!errors.phone}
                   aria-describedby={errors.phone ? 'phone-error' : undefined}
@@ -319,7 +331,7 @@ const UserProfile = () => {
                 )}
               </div>
               <div className='space-y-2'>
-                <label htmlFor='dateOfBirth' className='block text-sm font-medium text-foreground'>
+                <label htmlFor='dateOfBirth' className='block text-sm font-medium text-museum-gold-light'>
                   {t('profile.dateOfBirth')}
                 </label>
                 <input
@@ -330,22 +342,27 @@ const UserProfile = () => {
                   onChange={handleChange}
                   disabled={!isEditing}
                   aria-label='Select date of birth'
-                  className='w-full pl-4 px-3 py-2 bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-70 disabled:cursor-not-allowed transition-colors'
+                  className={fieldBaseClass}
                 />
               </div>
             </div>
           </div>
 
           {isEditing && (
-            <div className='flex justify-end gap-4 pt-4 border-t border-border'>
-              <Button type='button' onClick={handleCancel} variant='outline' className='flex items-center gap-2'>
+            <div className='flex justify-end gap-4 border-t border-museum-gold/15 pt-4'>
+              <Button
+                type='button'
+                onClick={handleCancel}
+                variant='outline'
+                className='flex items-center gap-2 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-ivory/15'
+              >
                 <X size={16} />
                 <span>{t('profile.cancel')}</span>
               </Button>
               <Button
                 type='submit'
                 disabled={isUpdating || isUploadingAvatar}
-                className='flex items-center gap-2'
+                className='flex items-center gap-2 rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light'
               >
                 {(isUpdating || isUploadingAvatar) ? (
                   <>
@@ -362,8 +379,9 @@ const UserProfile = () => {
             </div>
           )}
         </form>
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
 

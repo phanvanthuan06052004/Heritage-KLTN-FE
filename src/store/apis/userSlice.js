@@ -44,20 +44,22 @@ export const userSlice = apiSlice.injectEndpoints({
     // CLIENT: Lấy profile của user đang login
     getUserProfile: builder.query({
       query: () => ({
-        url: `${BASE_URL}/users/profile`,
+        url: `${BASE_URL}/users/me`,
         method: 'GET',
       }),
+      transformResponse: (response) => response?.data || response,
       providesTags: ['User'],
     }),
 
     // CLIENT: Update profile (không phải theo id mà là user đang login)
     updateUserProfile: builder.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/users/profile`,
+        url: `${BASE_URL}/users/me`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: ['User'],
     }),
 
     // CLIENT: Upload avatar
@@ -67,7 +69,8 @@ export const userSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: ['User'],
     }),
 
     // CLIENT: Lấy tất cả active users

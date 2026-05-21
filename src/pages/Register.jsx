@@ -62,7 +62,7 @@ const Register = () => {
         password: formData.password,
       }).unwrap();
 
-      const { authToken } = response.data;
+      const { authToken } = response;
 
       toast.success(
         `${t("auth.registerSuccess")} ${t("auth.register_page.verifyEmailMessage")}`,
