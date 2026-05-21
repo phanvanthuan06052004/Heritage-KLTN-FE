@@ -13,7 +13,6 @@ import {
 } from "~/components/common/MuseumStates";
 import { useGetHeritagesQuery } from "~/store/apis/heritageApi";
 import { useLanguage, useLanguageChange } from "~/hooks/useLanguage";
-import { mockPopularHeritages } from "./mockPopularHeritages";
 
 const PopularHeritage = () => {
   const { t } = useTranslation();
@@ -39,31 +38,7 @@ const PopularHeritage = () => {
     }
   }, [response]);
 
-  const displayHeritages = useMemo(
-    () => (randomHeritages.length ? randomHeritages : mockPopularHeritages),
-    [randomHeritages],
-  );
-
-  const localizedMockHeritages = useMemo(
-    () =>
-      mockPopularHeritages.map((item) => ({
-        ...item,
-        name: t(`home.mockPopular.${item._id}.name`, { defaultValue: item.name }),
-        description: t(`home.mockPopular.${item._id}.description`, {
-          defaultValue: item.description,
-        }),
-        dynasty: t(`home.mockPopular.${item._id}.dynasty`, {
-          defaultValue: item.dynasty,
-        }),
-        province: t(`home.mockPopular.${item._id}.province`, {
-          defaultValue: item.province,
-        }),
-        location: t(`home.mockPopular.${item._id}.location`, {
-          defaultValue: item.location,
-        }),
-      })),
-    [t],
-  );
+  const displayHeritages = useMemo(() => randomHeritages, [randomHeritages]);
 
   return (
     <section>
@@ -89,31 +64,19 @@ const PopularHeritage = () => {
         {isLoading ? (
           <MuseumSkeletonGrid count={6} />
         ) : error ? (
-          <div className="space-y-8">
-            <MuseumErrorState
-              title={t("home.popular.errorTitle")}
-              description={t("home.popular.errorDescription")}
-              onRetry={refetch}
-            />
-            <HeritageList
-              heritages={localizedMockHeritages}
-              cardVariant="museum"
-            />
-          </div>
+          <MuseumErrorState
+            title={t("home.popular.errorTitle")}
+            description={t("home.popular.errorDescription")}
+            onRetry={refetch}
+          />
         ) : randomHeritages.length ? (
           <HeritageList heritages={displayHeritages} cardVariant="museum" />
         ) : (
-          <div className="space-y-8">
-            <MuseumEmptyState
-              title={t("home.popular.emptyTitle")}
-              description={t("home.popular.emptyDescription")}
-              icon={Landmark}
-            />
-            <HeritageList
-              heritages={localizedMockHeritages}
-              cardVariant="museum"
-            />
-          </div>
+          <MuseumEmptyState
+            title={t("home.popular.emptyTitle")}
+            description={t("home.popular.emptyDescription")}
+            icon={Landmark}
+          />
         )}
       </div>
     </section>

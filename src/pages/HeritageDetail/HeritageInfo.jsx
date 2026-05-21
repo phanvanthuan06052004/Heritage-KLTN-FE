@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next'
 
 const HeritageInfo = ({ data }) => {
   const { t } = useTranslation()
+  const hasCoordinates =
+    typeof data?.coordinates?.latitude === 'number' &&
+    typeof data?.coordinates?.longitude === 'number'
 
   return (
     <div className='border rounded-lg p-6 sticky top-24'>
@@ -19,7 +22,9 @@ const HeritageInfo = ({ data }) => {
         <div>
           <dt className='text-sm text-muted-foreground'>{t('heritageInfo.coordinates')}</dt>
           <dd className='font-medium'>
-            {data?.coordinates?.latitude}, {data?.coordinates?.longitude}
+            {hasCoordinates
+              ? `${data.coordinates.latitude}, ${data.coordinates.longitude}`
+              : 'Chưa có tọa độ'}
           </dd>
         </div>
       </dl>

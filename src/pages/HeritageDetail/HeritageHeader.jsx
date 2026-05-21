@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom'
 import { Button } from '~/components/common/ui/Button'
 
 const HeritageHeader = ({ data }) => {
+  const hasCoordinates =
+    typeof data?.coordinates?.latitude === 'number' &&
+    typeof data?.coordinates?.longitude === 'number'
   
   const handleShare = () => {
     if (navigator.share) {
@@ -38,12 +41,16 @@ const HeritageHeader = ({ data }) => {
         <div className='flex flex-wrap items-center justify-between gap-4'>
           <div>
             <div className='flex items-center space-x-2 mb-2'>
-              <span className='px-2 py-1 bg-heritage/90 text-white text-xs rounded-full'>
-                {data?.coordinates?.latitude}
-              </span>
-              <span className='px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full'>
-                {data?.coordinates?.longitude}
-              </span>
+              {hasCoordinates && (
+                <>
+                  <span className='px-2 py-1 bg-heritage/90 text-white text-xs rounded-full'>
+                    {data.coordinates.latitude}
+                  </span>
+                  <span className='px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full'>
+                    {data.coordinates.longitude}
+                  </span>
+                </>
+              )}
             </div>
             <h1 className='text-3xl sm:text-4xl font-medium text-white'>
               {data?.name}

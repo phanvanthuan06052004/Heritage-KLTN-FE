@@ -5,7 +5,7 @@ import HeritageMapView from './HeritageMapView'
 import HeritageList from '~/components/Heritage/HeritageList'
 import { Input } from '~/components/common/ui/Input'
 import { cn } from '~/lib/utils'
-import { useLazyGetNearestHeritagesQuery } from '~/store/apis/heritageApi'
+import { useGetHeritagesQuery, useLazyGetNearestHeritagesQuery } from '~/store/apis/heritageApi'
 import { useLanguage } from '~/hooks/useLanguage'
 
 function GenericMapExplorer({
@@ -22,13 +22,21 @@ function GenericMapExplorer({
     const [searchError, setSearchError] = useState(null)
     const [nearbyItems, setNearbyItems] = useState(items)
     const [displayedItems, setDisplayedItems] = useState(items)
+    const { data: allHeritages } = useGetHeritagesQuery({
+        page: 1,
+        limit: 100,
+        language,
+    })
 
     // RTK Query: Lazy query for nearest heritages
     const [triggerGetNearestHeritages, { data: nearestHeritages, isLoading, isError, error }] =
         useLazyGetNearestHeritagesQuery()
 
     // Memoize nearestHeritages to stabilize reference
-    const stableNearestHeritages = useMemo(() => nearestHeritages || [], [nearestHeritages])
+    const stableNearestHeritages = useMemo(
+        () => nearestHeritages?.heritages || [],
+        [nearestHeritages]
+    )
 
     // Handle marker click
     const handleMarkerClick = useCallback(
@@ -45,7 +53,7 @@ function GenericMapExplorer({
             try {
                 const { data } = await triggerGetNearestHeritages({ latitude: lat, longitude: lng, limit: 6, language })
                 // console.log('Data from getNearestHeritages (marker click):', data || 'No data')
-                setNearbyItems(data || [])
+                setNearbyItems(data?.heritages || [])
             } catch (err) {
                 console.error('Error calling getNearestHeritages (marker):', err)
             }
@@ -71,7 +79,7 @@ function GenericMapExplorer({
             try {
                 const { data } = await triggerGetNearestHeritages({ latitude: lat, longitude: lng, limit: 6, language })
                 // console.log('Data from getNearestHeritages (select button):', data || 'No data')
-                setNearbyItems(data || [])
+                setNearbyItems(data?.heritages || [])
             } catch (err) {
                 console.error('Error calling getNearestHeritages (select):', err)
             }
@@ -124,8 +132,8 @@ function GenericMapExplorer({
                             language
                         })
                         console.log('Data from getNearestHeritages (search):', searchData || 'No data')
-                        setNearbyItems(searchData?.heritages?.heritages || [])
-                        setDisplayedItems(searchData?.heritages?.heritages || [])
+                        setNearbyItems(searchData?.heritages || [])
+                        setDisplayedItems(searchData?.heritages || [])
                     } catch (err) {
                         console.error('Error calling getNearestHeritages (search):', err)
                     }
@@ -142,15 +150,16 @@ function GenericMapExplorer({
 
     // Update displayed and nearby items
     useEffect(() => {
-        if (JSON.stringify(items) !== JSON.stringify(displayedItems)) {
-            setDisplayedItems(items)
+        const sourceItems = items.length ? items : allHeritages?.heritages || []
+        if (JSON.stringify(sourceItems) !== JSON.stringify(displayedItems)) {
+            setDisplayedItems(sourceItems)
         }
-        if (!selectedLocation && JSON.stringify(items) !== JSON.stringify(nearbyItems)) {
-            setNearbyItems(items)
+        if (!selectedLocation && JSON.stringify(sourceItems) !== JSON.stringify(nearbyItems)) {
+            setNearbyItems(sourceItems)
         } else if (selectedLocation && stableNearestHeritages && stableNearestHeritages !== nearbyItems) {
             setNearbyItems(stableNearestHeritages)
         }
-    }, [items, selectedLocation, stableNearestHeritages, displayedItems, nearbyItems])
+    }, [items, allHeritages, selectedLocation, stableNearestHeritages, displayedItems, nearbyItems])
 
     // Memoize markers
     const markers = useMemo(
@@ -197,7 +206,7 @@ function GenericMapExplorer({
                                 <h2 className="text-xl font-medium text-heritage-dark">
                                     {searchQuery ? `${t('explore.searchResults')} ${itemName}` : `${itemName} ${t('explore.nearLocation')} ${locationName}`}
                                 </h2>
-                                <HeritageList heritages={nearbyItems?.heritages} />
+                                <HeritageList heritages={nearbyItems} />
                             </>
                         ) : (
                             <>

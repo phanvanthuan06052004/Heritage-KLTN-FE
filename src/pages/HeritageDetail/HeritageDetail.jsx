@@ -28,15 +28,24 @@ const HeritageDetail = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { language } = useLanguage()
-  const { data, isFetching, isLoading, isError } = useGetHeritagesBySlugQuery({ nameSlug, language })
+  const { data, isFetching, isLoading, isError } = useGetHeritagesBySlugQuery(
+    { nameSlug, language },
+    { refetchOnMountOrArgChange: false }
+  )
   const id = data?._id
   const userInfo = useSelector(selectCurrentUser)
   const isAuthenticated = !!userInfo
-  const { data: allHeritages } = useGetHeritagesQuery({
-    page: 1,
-    limit: 50,
-    language
-  })
+  const { data: allHeritages } = useGetHeritagesQuery(
+    {
+      page: 1,
+      limit: 8,
+      language
+    },
+    {
+      skip: !id,
+      refetchOnMountOrArgChange: false
+    }
+  )
 
   // Memoize related heritages để tránh tính toán lại khi không cần thiết
   const getRandomRelatedHeritages = useMemo(() => {

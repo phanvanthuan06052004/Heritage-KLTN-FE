@@ -14,6 +14,55 @@ import { toast } from 'react-toastify'
 import { Dialog, DialogHeader, DialogTitle, DialogDescription } from '~/components/common/ui/Dialog'
 import { useTranslation } from 'react-i18next'
 
+const ALLOWED_HTML_TAGS = new Set([
+  'P',
+  'BR',
+  'B',
+  'STRONG',
+  'I',
+  'EM',
+  'U',
+  'UL',
+  'OL',
+  'LI',
+  'A',
+  'BLOCKQUOTE',
+])
+
+const sanitizeHtml = (html = '') => {
+  if (!html) return ''
+
+  const document = new DOMParser().parseFromString(html, 'text/html')
+  const elements = Array.from(document.body.querySelectorAll('*'))
+
+  elements.forEach((element) => {
+    if (!ALLOWED_HTML_TAGS.has(element.tagName)) {
+      element.replaceWith(...Array.from(element.childNodes))
+      return
+    }
+
+    Array.from(element.attributes).forEach((attribute) => {
+      const name = attribute.name.toLowerCase()
+      const value = attribute.value || ''
+      const isSafeLink =
+        element.tagName === 'A' &&
+        name === 'href' &&
+        /^(https?:|mailto:|#)/i.test(value)
+
+      if (!isSafeLink) {
+        element.removeAttribute(attribute.name)
+      }
+    })
+
+    if (element.tagName === 'A') {
+      element.setAttribute('target', '_blank')
+      element.setAttribute('rel', 'noreferrer')
+    }
+  })
+
+  return document.body.innerHTML
+}
+
 const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
   const [showWriteReview, setShowWriteReview] = useState(false)
   const [openMenuId, setOpenMenuId] = useState(null)
@@ -49,6 +98,10 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
   }, [comments, hasComments])
 
   const averageRating = data?.stats?.averageRating || calculatedAverageRating
+  const overviewHtml = useMemo(
+    () => sanitizeHtml(data?.content || data?.summary || data?.history || data?.description || ''),
+    [data?.content, data?.summary, data?.history, data?.description]
+  )
 
   const handleWriteReview = () => setShowWriteReview(true)
 
@@ -91,7 +144,10 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
 
       <TabsContent value="overview" className="space-y-6">
         <h3 className="lcn-heritage-detail-title">{t("tabs.introduction")}</h3>
-        <p className="text-justify">{data?.description}</p>
+        <div
+          className="space-y-4 text-justify leading-relaxed [&_a]:text-heritage [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-heritage/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc"
+          dangerouslySetInnerHTML={{ __html: overviewHtml }}
+        />
         <p className="text-justify">
           When visiting {data?.name}, visitors will be able to admire unique architectural works, learn about the
           formation and development history of the site, as well as discover interesting stories related to this heritage.

@@ -372,6 +372,7 @@
       "phonePlaceholder": "Enter phone number...",
       "phone": "Phone Number",
       "passwordPlaceholder": "••••••••",
+      "confirmPasswordPlaceholder": "Confirm password...",
       "signUpButton": "Sign Up",
       "verifyEmailMessage": "Please check your email to verify your account.",
       "errors": {
@@ -395,7 +396,7 @@
       "verificationCodePlaceholder": "Enter verification code...",
       "newPassword": "New Password",
       "newPasswordPlaceholder": "Enter new password...",
-      "confirmPasswordPlaceholder": "Confirm new password...",
+      "confirmPasswordPlaceholder": "Confirm new password",
       "resetButton": "Reset Password",
       "resendCode": "Resend verification code",
       "resendCodeCooldown": "Resend code ({time}s)",

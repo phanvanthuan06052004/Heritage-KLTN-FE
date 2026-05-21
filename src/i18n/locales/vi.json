@@ -372,6 +372,7 @@
       "phonePlaceholder": "Nhập số điện thoại...",
       "phone": "Số điện thoại",
       "passwordPlaceholder": "••••••••",
+      "confirmPasswordPlaceholder": "Nhập lại mật khẩu...",
       "signUpButton": "Đăng ký",
       "verifyEmailMessage": "Vui lòng kiểm tra email để xác minh tài khoản của bạn.",
       "errors": {
@@ -394,7 +395,7 @@
       "verificationCode": "Mã xác minh",
       "verificationCodePlaceholder": "Nhập mã xác minh...",
       "newPassword": "Mật khẩu mới",
-      "newPasswordPlaceholder": "Nhập mật khẩu mới...",
+      "newPasswordPlaceholder": "Nhập mật khẩu mới",
       "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới...",
       "resetButton": "Đặt lại mật khẩu",
       "resendCode": "Gửi lại mã xác minh",
