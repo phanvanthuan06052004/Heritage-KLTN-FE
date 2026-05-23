@@ -8,15 +8,19 @@ import {
   LogOut,
   Users,
   BookOpen,
+  Brain,
   Settings,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
   Home,
   Shield,
   Database,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { cn } from "~/lib/utils";
+
+const AI_MANAGEMENT_URL = "http://0.0.0.0:3119/";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -67,6 +71,12 @@ const AdminLayout = () => {
       name: "Knowledge Base",
       path: "/admin/knowledge-base",
       icon: Database,
+    },
+    {
+      name: "AI Management",
+      href: AI_MANAGEMENT_URL,
+      icon: Brain,
+      external: true,
     },
     {
       name: "Settings",
@@ -129,25 +139,51 @@ const AdminLayout = () => {
             {isSidebarOpen && <span>Home</span>}
           </Link>
 
-          {navItems.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => navigate(item.path)}
-              className={cn(
-                "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                isActiveRoute(item.path)
-                  ? "bg-heritage-light text-heritage-dark"
-                  : "text-muted-foreground",
-                !isSidebarOpen && "justify-center px-3",
-              )}
-              title={!isSidebarOpen ? item.name : undefined}
-            >
-              <item.icon className="w-5 h-5 shrink-0" />
-              {isSidebarOpen && <span>{item.name}</span>}
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const itemClasses = cn(
+              "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+              "hover:bg-accent hover:text-accent-foreground",
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+              item.path && isActiveRoute(item.path)
+                ? "bg-heritage-light text-heritage-dark"
+                : "text-muted-foreground",
+              item.external && "border border-heritage/20 bg-heritage/5 text-heritage hover:bg-heritage/10 hover:text-heritage-dark",
+              !isSidebarOpen && "justify-center px-3",
+            );
+
+            if (item.external) {
+              return (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={itemClasses}
+                  title={!isSidebarOpen ? item.name : undefined}
+                >
+                  <item.icon className="w-5 h-5 shrink-0" />
+                  {isSidebarOpen && (
+                    <>
+                      <span className="flex-1 text-left">{item.name}</span>
+                      <ExternalLink className="w-4 h-4 shrink-0" />
+                    </>
+                  )}
+                </a>
+              );
+            }
+
+            return (
+              <button
+                key={item.name}
+                onClick={() => navigate(item.path)}
+                className={itemClasses}
+                title={!isSidebarOpen ? item.name : undefined}
+              >
+                <item.icon className="w-5 h-5 shrink-0" />
+                {isSidebarOpen && <span>{item.name}</span>}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Logout Button */}

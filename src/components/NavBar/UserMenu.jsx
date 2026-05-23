@@ -76,7 +76,7 @@ const UserMenu = ({ userMenuLinks }) => {
       {/* Admin link */}
       {isAdmin && (
         <Link to="/admin">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className=" border border-museum-gold/20 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold/10 hover:text-museum-gold-light focus-visible:outline-museum-gold-light">
             <Settings size={18} />
             <span className="hidden lg:inline">Admin</span>
           </Button>
