@@ -5,10 +5,10 @@ export const userSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // ADMIN: Lấy tất cả users (có phân trang, search, sort)
     getAll: builder.query({
-      query: ({ page = 1, limit = 10, search = '', sort, order }) => ({
+      query: ({ page = 1, limit = 10, search = '', role, sort, order }) => ({
         url: `${BASE_URL}/users/`,
         method: 'GET',
-        params: { page, limit, search, sort, order },
+        params: { page, limit, search, role, sort, order },
       }),
       providesTags: ['Users'],
     }),
