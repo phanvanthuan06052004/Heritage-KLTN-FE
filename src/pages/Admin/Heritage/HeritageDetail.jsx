@@ -5,7 +5,25 @@ import { Label } from '~/components/common/ui/Label'
 import { Input } from '~/components/common/ui/Input'
 import { toast } from 'react-toastify'
 import HeritageMapView from '~/pages/GoogleMapHeritage/HeritageMapView'
-import { useCreateHeritageMutation, useUploadHeritageImgMutation, useGetHeritagesByIdQuery } from '~/store/apis/heritageApi'
+import {
+    useCreateHeritageLocationMutation,
+    useCreateHeritageMediaMutation,
+    useCreateHeritageTimelineMutation,
+    useDeleteHeritageMediaMutation,
+    useDeleteHeritageTimelineMutation,
+    useGetHeritagesByIdQuery,
+    useUpdateHeritageLocationMutation,
+    useUpdateHeritageMutation,
+    useUploadHeritageImgMutation,
+} from '~/store/apis/heritageApi'
+import {
+    buildHeritagePayload,
+    buildLocationPayload,
+    buildTimelinePayload,
+    getResponseData,
+    isValidTimelineEvent,
+    toFormStatus,
+} from './heritageFormMapper'
 
 // Define center as a constant to ensure stable reference
 const DEFAULT_CENTER = { lat: 16.047079, lng: 108.206230 }; // Da Nang, Vietnam
@@ -14,8 +32,14 @@ const HeritageDetail = () => {
     const navigate = useNavigate()
     const { id } = useParams()
     const { data: heritage, isLoading: isFetching, error: fetchError } = useGetHeritagesByIdQuery(id)
-    const [createHeritage, { isLoading: isUpdating, isSuccess: updateSuccess, isError: updateError, error: updateErrorMessage }] = useCreateHeritageMutation()
+    const [updateHeritage, { isLoading: isUpdating, isError: updateError, error: updateErrorMessage }] = useUpdateHeritageMutation()
     const [uploadHeritageImg] = useUploadHeritageImgMutation()
+    const [createHeritageMedia] = useCreateHeritageMediaMutation()
+    const [deleteHeritageMedia] = useDeleteHeritageMediaMutation()
+    const [createHeritageLocation] = useCreateHeritageLocationMutation()
+    const [updateHeritageLocation] = useUpdateHeritageLocationMutation()
+    const [createHeritageTimeline] = useCreateHeritageTimelineMutation()
+    const [deleteHeritageTimeline] = useDeleteHeritageTimelineMutation()
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -27,30 +51,43 @@ const HeritageDetail = () => {
     })
     const [imagePreviews, setImagePreviews] = useState([])
     const [imageFiles, setImageFiles] = useState([])
-    const [existingImages, setExistingImages] = useState([])
+    const [existingImageItems, setExistingImageItems] = useState([])
+    const [initialImageItems, setInitialImageItems] = useState([])
+    const [existingLocationId, setExistingLocationId] = useState(null)
+    const [existingTimelineIds, setExistingTimelineIds] = useState([])
     const [errors, setErrors] = useState({})
-
-    console.log(heritage);
 
     // Initialize form with fetched data
     useEffect(() => {
         if (heritage) {
+            const mediaItems = (heritage.media || [])
+                .filter((item) => !item?.type || item.type === 'image')
+                .map((item) => ({
+                    id: item.id,
+                    url: item.url || item.thumbnailUrl,
+                }))
+                .filter((item) => item.url)
+            const location = heritage.locations?.[0]
+
             setFormData({
                 name: heritage.name || '',
                 description: heritage.description || '',
                 location: heritage.location || '',
-                images: heritage.images || [],
+                images: mediaItems.map((item) => item.url),
                 coordinates: {
                     latitude: heritage.coordinates?.latitude || '',
                     longitude: heritage.coordinates?.longitude || '',
                 },
-                status: heritage.status || 'ACTIVE',
+                status: toFormStatus(heritage.status),
                 additionalInfo: {
                     historicalEvents: heritage.additionalInfo?.historicalEvents || [],
                 },
             })
-            setImagePreviews(heritage.images || [])
-            setExistingImages(heritage.images || [])
+            setImagePreviews(mediaItems.map((item) => item.url))
+            setExistingImageItems(mediaItems)
+            setInitialImageItems(mediaItems)
+            setExistingLocationId(location?.id || null)
+            setExistingTimelineIds((heritage.timelines || []).map((timeline) => timeline.id).filter(Boolean))
         }
         if (fetchError) {
             toast.error('Unable to load heritage site information')
@@ -60,16 +97,12 @@ const HeritageDetail = () => {
 
     // Handle update success or error
     useEffect(() => {
-        if (updateSuccess) {
-            toast.success('Heritage site updated successfully!')
-            navigate('/admin/heritages')
-        }
         if (updateError) {
             console.error('Error updating heritage site:', updateErrorMessage)
             const errorMsg = updateErrorMessage?.data?.message || updateErrorMessage?.error || 'Unknown error'
             toast.error(`Failed to update heritage site: ${errorMsg}`)
         }
-    }, [updateSuccess, updateError, updateErrorMessage, navigate])
+    }, [updateError, updateErrorMessage])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -105,9 +138,9 @@ const HeritageDetail = () => {
                 toast.error('Image size cannot exceed 1MB')
                 return
             }
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif']
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
             if (!validTypes.includes(file.type)) {
-                toast.error('Only JPEG, PNG and GIF images are accepted')
+                toast.error('Only JPEG, PNG, GIF and WEBP images are accepted')
                 return
             }
 
@@ -128,11 +161,11 @@ const HeritageDetail = () => {
     }
 
     const removeImage = (index) => {
-        const isExistingImage = index < existingImages.length
+        const isExistingImage = index < existingImageItems.length
         if (isExistingImage) {
-            setExistingImages(prev => prev.filter((_, i) => i !== index))
+            setExistingImageItems(prev => prev.filter((_, i) => i !== index))
         } else {
-            const fileIndex = index - existingImages.length
+            const fileIndex = index - existingImageItems.length
             setImageFiles(prev => prev.filter((_, i) => i !== fileIndex))
         }
         setImagePreviews(prev => prev.filter((_, i) => i !== index))
@@ -196,7 +229,7 @@ const HeritageDetail = () => {
         if (!formData.coordinates.latitude || !formData.coordinates.longitude) {
             newErrors.coordinates = 'Coordinates cannot be empty'
         }
-        if (existingImages.length === 0 && imageFiles.length === 0) {
+        if (existingImageItems.length === 0 && imageFiles.length === 0) {
             newErrors.images = 'Please select at least one image'
         }
 
@@ -216,23 +249,61 @@ const HeritageDetail = () => {
         if (!validateForm()) return
 
         try {
-            const imageUrls = [...existingImages]
+            const newImageUrls = []
             for (const file of imageFiles) {
                 const formDataUpload = new FormData()
                 formDataUpload.append('image', file)
                 const uploadedImage = await uploadHeritageImg(formDataUpload).unwrap()
-                if (uploadedImage?.imageUrl) {
-                    imageUrls.push(uploadedImage.imageUrl)
+                const imageUrl = getResponseData(uploadedImage)?.imageUrl
+                if (imageUrl) {
+                    newImageUrls.push(imageUrl)
                 }
             }
 
-            const heritageData = {
-                ...formData,
-                images: imageUrls,
-                id: id,
+            await updateHeritage({
+                id,
+                data: buildHeritagePayload(formData),
+            }).unwrap()
+
+            const removedMediaIds = initialImageItems
+                .filter((item) => item.id && !existingImageItems.some((current) => current.id === item.id))
+                .map((item) => item.id)
+
+            await Promise.all(removedMediaIds.map((mediaId) => deleteHeritageMedia(mediaId).unwrap()))
+
+            await Promise.all(
+                newImageUrls.map((url, index) =>
+                    createHeritageMedia({
+                        heritageId: id,
+                        type: 'image',
+                        url,
+                        sortOrder: existingImageItems.length + index,
+                    }).unwrap(),
+                ),
+            )
+
+            const locationPayload = buildLocationPayload(formData, id)
+            if (existingLocationId) {
+                const { heritageId, ...locationUpdatePayload } = locationPayload
+                await updateHeritageLocation({
+                    id: existingLocationId,
+                    data: locationUpdatePayload,
+                }).unwrap()
+            } else {
+                await createHeritageLocation(locationPayload).unwrap()
             }
 
-            await createHeritage(heritageData).unwrap()
+            await Promise.all(existingTimelineIds.map((timelineId) => deleteHeritageTimeline(timelineId).unwrap()))
+
+            const timelineEvents = formData.additionalInfo.historicalEvents.filter(isValidTimelineEvent)
+            await Promise.all(
+                timelineEvents.map((event) =>
+                    createHeritageTimeline(buildTimelinePayload(event, id)).unwrap(),
+                ),
+            )
+
+            toast.success('Heritage site updated successfully!')
+            navigate('/admin/heritages')
         } catch (err) {
             toast.error(`Failed to update heritage site: ${err?.data?.message || err.message || 'An error occurred'}`)
         }
@@ -289,7 +360,7 @@ const HeritageDetail = () => {
                                     type="file"
                                     id="images"
                                     name="images"
-                                    accept="image/jpeg,image/png,image/gif"
+                                    accept="image/jpeg,image/png,image/gif,image/webp"
                                     onChange={handleImageChange}
                                     className={errors.images ? 'border-red-500' : ''}
                                 />
