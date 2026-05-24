@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { motion, useReducedMotion } from "motion/react";
 import { useLocation } from "react-router-dom";
 import { Button } from "~/components/common/ui/Button";
 import {
@@ -8,7 +10,6 @@ import {
   FileSearch,
   Layers,
   Loader2,
-  MessageCircle,
   Minimize2,
   Search,
   Send,
@@ -51,6 +52,190 @@ const actionTemplates = [
       `Tóm tắt câu trả lời này thành 3 ý chính, ngắn gọn và dễ hiểu:\n\n${message.content}`,
   },
 ];
+
+const MotionButton = motion.button;
+const MotionSpan = motion.span;
+
+const RobotEye = ({ x }) => (
+  <mesh position={[x, 0.47, 0.52]}>
+    <sphereGeometry args={[0.072, 24, 24]} />
+    <meshStandardMaterial
+      color="#55f3ff"
+      emissive="#1dd8ff"
+      emissiveIntensity={1.8}
+      roughness={0.18}
+    />
+  </mesh>
+);
+
+const RobotModel = ({ isMotionReduced = false }) => {
+  const groupRef = useRef(null);
+  const headRef = useRef(null);
+  const armLeftRef = useRef(null);
+  const armRightRef = useRef(null);
+
+  useFrame(({ clock }) => {
+    if (isMotionReduced || !groupRef.current) return;
+
+    const elapsed = clock.getElapsedTime();
+    groupRef.current.rotation.y = Math.sin(elapsed * 0.75) * 0.18;
+    groupRef.current.position.y = Math.sin(elapsed * 1.5) * 0.055;
+
+    if (headRef.current) {
+      headRef.current.rotation.z = Math.sin(elapsed * 1.2) * 0.035;
+    }
+    if (armLeftRef.current && armRightRef.current) {
+      armLeftRef.current.rotation.z = 0.22 + Math.sin(elapsed * 2.1) * 0.08;
+      armRightRef.current.rotation.z = -0.22 - Math.sin(elapsed * 2.1) * 0.08;
+    }
+  });
+
+  return (
+    <group ref={groupRef} rotation={[0.03, -0.18, 0]} scale={0.96}>
+      <group ref={headRef}>
+        <mesh position={[0, 0.48, 0]}>
+          <sphereGeometry args={[0.42, 48, 32]} />
+          <meshPhysicalMaterial
+            color="#f8fbff"
+            metalness={0.08}
+            roughness={0.18}
+            clearcoat={0.85}
+            clearcoatRoughness={0.16}
+          />
+        </mesh>
+        <mesh position={[0, 0.43, 0.36]} scale={[1.18, 0.72, 0.18]}>
+          <sphereGeometry args={[0.28, 40, 24]} />
+          <meshStandardMaterial
+            color="#17202a"
+            metalness={0.42}
+            roughness={0.2}
+          />
+        </mesh>
+        <RobotEye x={-0.14} />
+        <RobotEye x={0.14} />
+        <mesh position={[0, 0.31, 0.53]} rotation={[0, 0, Math.PI]}>
+          <torusGeometry args={[0.075, 0.011, 10, 28, Math.PI]} />
+          <meshStandardMaterial
+            color="#ffffff"
+            emissive="#dffbff"
+            emissiveIntensity={0.55}
+            roughness={0.2}
+          />
+        </mesh>
+      </group>
+
+      <mesh position={[0, -0.14, 0]} scale={[0.95, 1.12, 0.82]}>
+        <sphereGeometry args={[0.36, 44, 28]} />
+        <meshPhysicalMaterial
+          color="#e9eef4"
+          metalness={0.12}
+          roughness={0.26}
+          clearcoat={0.7}
+          clearcoatRoughness={0.22}
+        />
+      </mesh>
+      <mesh position={[0, -0.1, 0.34]}>
+        <sphereGeometry args={[0.13, 32, 24]} />
+        <meshStandardMaterial
+          color="#86ffff"
+          emissive="#29f3ee"
+          emissiveIntensity={1.75}
+          roughness={0.16}
+        />
+      </mesh>
+      <mesh position={[0, -0.1, 0.345]}>
+        <torusGeometry args={[0.16, 0.012, 12, 36]} />
+        <meshStandardMaterial
+          color="#e9ffff"
+          emissive="#8ffffa"
+          emissiveIntensity={0.55}
+          roughness={0.18}
+        />
+      </mesh>
+
+      <group ref={armLeftRef} position={[-0.36, -0.04, 0.02]}>
+        <mesh position={[-0.13, -0.08, 0]} rotation={[0.08, 0.05, -0.38]}>
+          <capsuleGeometry args={[0.065, 0.34, 10, 24]} />
+          <meshPhysicalMaterial color="#d9e1eb" metalness={0.14} roughness={0.3} />
+        </mesh>
+      </group>
+      <group ref={armRightRef} position={[0.36, -0.04, 0.02]}>
+        <mesh position={[0.13, -0.08, 0]} rotation={[0.08, -0.05, 0.38]}>
+          <capsuleGeometry args={[0.065, 0.34, 10, 24]} />
+          <meshPhysicalMaterial color="#d9e1eb" metalness={0.14} roughness={0.3} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+const ChatbotLauncher = ({ onClick }) => {
+  const prefersReducedMotion = useReducedMotion();
+
+  return (
+    <MotionButton
+      type="button"
+      onClick={onClick}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.92 }}
+      animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+      whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.035 }}
+      whileTap={{ scale: 0.96 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="fixed bottom-5 right-3 z-50 h-[212px] w-[min(calc(100vw-1.5rem),340px)] bg-transparent p-0 text-left outline-none transition focus-visible:ring-4 focus-visible:ring-cyan-300/45 sm:bottom-6 sm:right-6"
+      aria-label="Open Heritage Assistant"
+    >
+      <MotionSpan
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 46, scale: 0.96 }}
+        animate={
+          prefersReducedMotion
+            ? { opacity: [1, 1, 0] }
+            : {
+                opacity: [0, 1, 1, 0],
+                y: [46, 0, 0, 46],
+                scale: [0.96, 1, 1, 0.96],
+              }
+        }
+        transition={{
+          duration: 7.6,
+          times: prefersReducedMotion ? [0, 0.82, 1] : [0, 0.11, 0.82, 1],
+          ease: "easeOut",
+        }}
+        className="absolute bottom-[82px] right-[76px] z-10 w-[min(232px,calc(100vw-8.5rem))] rounded-2xl bg-white/95 px-4 py-3 text-stone-700 shadow-[0_18px_45px_rgba(15,23,42,0.18)] ring-1 ring-stone-200/70 backdrop-blur"
+        aria-hidden="true"
+      >
+        <span className="mb-2 flex items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#a95620] text-white shadow-sm">
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <span className="truncate text-sm font-semibold text-[#7b2f14]">
+            Heritage Assistant
+          </span>
+        </span>
+        <span className="block text-sm leading-5">
+          Em sẵn lòng hỗ trợ Anh/Chị tìm hiểu di sản Việt Nam.
+        </span>
+        <span className="mt-1 block text-xs leading-4 text-stone-500">
+          Hỏi em về di tích, triều đại hoặc nhân vật lịch sử.
+        </span>
+      </MotionSpan>
+      <span className="absolute bottom-0 right-0 z-20 block h-[108px] w-[96px] drop-shadow-[0_20px_28px_rgba(15,23,42,0.34)] sm:h-[124px] sm:w-[112px]">
+        <span className="absolute inset-x-5 bottom-2 h-5 rounded-full bg-slate-950/25 blur-md" />
+        <Canvas
+          camera={{ position: [0, 0.06, 3.25], fov: 32 }}
+          dpr={[1, 1.75]}
+          gl={{ alpha: true, antialias: true }}
+          className="pointer-events-none"
+        >
+          <ambientLight intensity={1.55} />
+          <directionalLight position={[2.4, 3.2, 4]} intensity={2.35} />
+          <directionalLight position={[-2.2, 1.7, 2]} intensity={0.9} color="#bdefff" />
+          <pointLight position={[0, -0.25, 1.6]} intensity={1.65} color="#4ff7f0" />
+          <RobotModel isMotionReduced={prefersReducedMotion} />
+        </Canvas>
+      </span>
+    </MotionButton>
+  );
+};
 
 const getTime = () =>
   new Date().toLocaleTimeString("en-US", {
@@ -632,6 +817,9 @@ const ChatInput = ({
         )}
       </Button>
     </div>
+    <p className="mt-2 text-center text-[10px] leading-4 text-stone-400">
+      Thông tin chỉ mang tính tham khảo, được tư vấn bởi Trí Tuệ Nhân Tạo
+    </p>
   </div>
 );
 
@@ -774,15 +962,7 @@ const GlobalChatbot = () => {
   return (
     <>
       {!isOpen && (
-        <button
-          type="button"
-          onClick={toggleChatbot}
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#a95620] text-white shadow-[0_18px_45px_rgba(123,47,20,0.32)] ring-1 ring-white/30 transition duration-300 hover:-translate-y-1 hover:bg-[#7b2f14] hover:shadow-[0_24px_60px_rgba(123,47,20,0.42)]"
-          aria-label="Open Heritage Assistant"
-        >
-          <MessageCircle className="h-6 w-6" />
-          <span className="absolute right-1.5 top-1.5 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-white" />
-        </button>
+        <ChatbotLauncher onClick={toggleChatbot} />
       )}
 
       {isOpen && (
