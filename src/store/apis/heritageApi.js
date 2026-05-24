@@ -332,26 +332,34 @@ export const heritageSlice = apiSlice.injectEndpoints({
     }),
 
     createHeritage: builder.mutation({
-      query: ({ data }) => ({
+      query: (arg) => {
+        const data = arg?.data || arg
+        return {
         url: '/heritage',
         method: 'POST',
         body: data,
-      }),
+        }
+      },
+      transformResponse: (response) => response?.data || response,
       invalidatesTags: ['Heritages'],
     }),
 
     updateHeritage: builder.mutation({
-      query: ({ id, data }) => ({
-        url: `/heritage/${id}`,
-        method: 'PUT',
-        body: data,
-      }),
+      query: (arg) => {
+        const { id, data } = arg || {}
+        return {
+          url: `/heritage/${id}`,
+          method: 'PUT',
+          body: data,
+        }
+      },
+      transformResponse: (response) => response?.data || response,
       invalidatesTags: (_result, _error, arg) => [{ type: 'Heritages', id: arg.id }],
     }),
 
     deleteHeritage: builder.mutation({
-      query: ({ id }) => ({
-        url: `/heritage/${id}`,
+      query: (arg) => ({
+        url: `/heritage/${arg?.id || arg}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Heritages'],
@@ -359,11 +367,82 @@ export const heritageSlice = apiSlice.injectEndpoints({
 
     uploadHeritageImg: builder.mutation({
       query: (data) => ({
+        url: '/media/upload',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+    }),
+
+    createHeritageMedia: builder.mutation({
+      query: (data) => ({
         url: '/media',
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Heritages', id }],
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: (_result, _error, { heritageId }) => [{ type: 'Heritages', id: heritageId }],
+    }),
+
+    updateHeritageMedia: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/media/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+    }),
+
+    deleteHeritageMedia: builder.mutation({
+      query: (id) => ({
+        url: `/media/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+
+    createHeritageLocation: builder.mutation({
+      query: (data) => ({
+        url: '/location',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: (_result, _error, { heritageId }) => [{ type: 'Heritages', id: heritageId }],
+    }),
+
+    updateHeritageLocation: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/location/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+    }),
+
+    createHeritageTimeline: builder.mutation({
+      query: (data) => ({
+        url: '/timeline',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: (_result, _error, { heritageId }) => [{ type: 'Heritages', id: heritageId }],
+    }),
+
+    updateHeritageTimeline: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/timeline/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+    }),
+
+    deleteHeritageTimeline: builder.mutation({
+      query: (id) => ({
+        url: `/timeline/${id}`,
+        method: 'DELETE',
+      }),
     }),
   }),
 })
@@ -378,5 +457,13 @@ export const {
   useUpdateHeritageMutation,
   useDeleteHeritageMutation,
   useUploadHeritageImgMutation,
+  useCreateHeritageMediaMutation,
+  useUpdateHeritageMediaMutation,
+  useDeleteHeritageMediaMutation,
+  useCreateHeritageLocationMutation,
+  useUpdateHeritageLocationMutation,
+  useCreateHeritageTimelineMutation,
+  useUpdateHeritageTimelineMutation,
+  useDeleteHeritageTimelineMutation,
   useGetAllHeritageNamesQuery,
 } = heritageSlice

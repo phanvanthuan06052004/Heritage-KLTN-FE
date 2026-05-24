@@ -5,14 +5,30 @@ import { Label } from '~/components/common/ui/Label'
 import { Input } from '~/components/common/ui/Input'
 import { toast } from 'react-toastify'
 import HeritageMapView from '~/pages/GoogleMapHeritage/HeritageMapView'
-import { useCreateHeritageMutation, useUploadHeritageImgMutation } from '~/store/apis/heritageApi'
+import {
+    useCreateHeritageLocationMutation,
+    useCreateHeritageMediaMutation,
+    useCreateHeritageMutation,
+    useCreateHeritageTimelineMutation,
+    useUploadHeritageImgMutation,
+} from '~/store/apis/heritageApi'
+import {
+    buildHeritagePayload,
+    buildLocationPayload,
+    buildTimelinePayload,
+    getResponseData,
+    isValidTimelineEvent,
+} from './heritageFormMapper'
 
 const DEFAULT_CENTER = { lat: 16.047079, lng: 108.206230 }; // Da Nang, Vietnam
 
 const AddHeritage = () => {
     const navigate = useNavigate()
-    const [createHeritage, { isLoading: isCreating, isSuccess: createSuccess, isError: createError, error: createErrorMessage }] = useCreateHeritageMutation()
+    const [createHeritage, { isLoading: isCreating, isError: createError, error: createErrorMessage }] = useCreateHeritageMutation()
     const [uploadHeritageImg] = useUploadHeritageImgMutation()
+    const [createHeritageMedia] = useCreateHeritageMediaMutation()
+    const [createHeritageLocation] = useCreateHeritageLocationMutation()
+    const [createHeritageTimeline] = useCreateHeritageTimelineMutation()
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -27,16 +43,12 @@ const AddHeritage = () => {
     const [errors, setErrors] = useState({})
 
     useEffect(() => {
-        if (createSuccess) {
-            toast.success('Create heritage site successfully!')
-            navigate('/admin/heritages')
-        }
         if (createError) {
             console.error('Error creating heritage site:', createErrorMessage)
             const errorMsg = createErrorMessage?.data?.message || createErrorMessage?.error || 'Unknown error'
             toast.error(`Failed to create heritage site: ${errorMsg}`)
         }
-    }, [createSuccess, createError, createErrorMessage, navigate])
+    }, [createError, createErrorMessage])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -72,9 +84,9 @@ const AddHeritage = () => {
                 toast.error('Image size cannot exceed 1MB')
                 return
             }
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif']
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
             if (!validTypes.includes(file.type)) {
-                toast.error('Only JPEG, PNG and GIF images are accepted')
+                toast.error('Only JPEG, PNG, GIF and WEBP images are accepted')
                 return
             }
 
@@ -183,17 +195,43 @@ const AddHeritage = () => {
                 const formDataUpload = new FormData()
                 formDataUpload.append('image', file)
                 const uploadedImage = await uploadHeritageImg(formDataUpload).unwrap()
-                if (uploadedImage?.imageUrl) {
-                    imageUrls.push(uploadedImage.imageUrl)
+                const imageUrl = getResponseData(uploadedImage)?.imageUrl
+                if (imageUrl) {
+                    imageUrls.push(imageUrl)
                 }
             }
 
-            const heritageData = {
-                ...formData,
-                images: imageUrls,
+            const createdHeritage = await createHeritage({
+                data: buildHeritagePayload(formData),
+            }).unwrap()
+            const heritageId = getResponseData(createdHeritage)?.id
+
+            if (!heritageId) {
+                throw new Error('Cannot determine created heritage ID')
             }
 
-            await createHeritage(heritageData).unwrap()
+            await createHeritageLocation(buildLocationPayload(formData, heritageId)).unwrap()
+
+            await Promise.all(
+                imageUrls.map((url, index) =>
+                    createHeritageMedia({
+                        heritageId,
+                        type: 'image',
+                        url,
+                        sortOrder: index,
+                    }).unwrap(),
+                ),
+            )
+
+            const timelineEvents = formData.additionalInfo.historicalEvents.filter(isValidTimelineEvent)
+            await Promise.all(
+                timelineEvents.map((event) =>
+                    createHeritageTimeline(buildTimelinePayload(event, heritageId)).unwrap(),
+                ),
+            )
+
+            toast.success('Create heritage site successfully!')
+            navigate('/admin/heritages')
         } catch (err) {
             toast.error(`Failed to create heritage site: ${err?.data?.message || err.message || 'An error occurred'}`)
         }
@@ -246,7 +284,7 @@ const AddHeritage = () => {
                                     type="file"
                                     id="images"
                                     name="images"
-                                    accept="image/jpeg,image/png,image/gif"
+                                    accept="image/jpeg,image/png,image/gif,image/webp"
                                     onChange={handleImageChange}
                                     className={errors.images ? 'border-red-500' : ''}
                                 />
