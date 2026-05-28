@@ -235,20 +235,20 @@ const AddKnowledgeTest = () => {
     }
 
     if (heritageError) {
-        return <div className="text-center text-red-500 p-4">Unable to load heritage list</div>
+        return <div className="text-center text-destructive p-4">Unable to load heritage list</div>
     }
 
     return (
         <div className="space-y-6 mx-auto p-4">
             <h2 className="text-2xl font-semibold">Add Knowledge Test</h2>
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="admin-card-body">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <Label htmlFor="heritageId">Heritage Site Name</Label>
                         <select
                             id="heritageId"
                             name="heritageId"
-                            className={`mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${errors.heritageId ? 'border-red-500' : ''}`}
+                            className={`mt-1 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 focus:ring-2 focus:ring-ring ${errors.heritageId ? 'border-destructive' : ''}`}
                             value={formData.heritageId}
                             onChange={handleInputChange}
                         >
@@ -259,7 +259,7 @@ const AddKnowledgeTest = () => {
                                 </option>
                             ))}
                         </select>
-                        {errors.heritageId && <p className="text-red-500 text-sm mt-1">{errors.heritageId}</p>}
+                        {errors.heritageId && <p className="text-destructive text-sm mt-1">{errors.heritageId}</p>}
                     </div>
                     <div>
                         <Label htmlFor="title">Title</Label>
@@ -269,17 +269,17 @@ const AddKnowledgeTest = () => {
                             name="title"
                             value={formData.title}
                             onChange={handleInputChange}
-                            className={`mt-1 ${errors.title ? 'border-red-500' : ''}`}
+                            className={`mt-1 ${errors.title ? 'border-destructive' : ''}`}
                             placeholder="Enter test title"
                         />
-                        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                        {errors.title && <p className="text-destructive text-sm mt-1">{errors.title}</p>}
                     </div>
                     <div>
                         <Label htmlFor="status">Status</Label>
                         <select
                             id="status"
                             name="status"
-                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                            className="mt-1 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 focus:ring-2 focus:ring-ring"
                             value={formData.status}
                             onChange={handleInputChange}
                         >
@@ -292,33 +292,33 @@ const AddKnowledgeTest = () => {
                         <textarea
                             id="content"
                             name="content"
-                            className={`mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${errors.content ? 'border-red-500' : ''}`}
+                            className={`mt-1 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 focus:ring-2 focus:ring-ring ${errors.content ? 'border-destructive' : ''}`}
                             rows="4"
                             value={formData.content}
                             onChange={handleInputChange}
                             placeholder="Enter test content"
                         />
-                        {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
+                        {errors.content && <p className="text-destructive text-sm mt-1">{errors.content}</p>}
                     </div>
                 </div>
                 <div className="mt-6">
                     <Label className="text-lg font-medium">Questions</Label>
-                    {errors.questions && <p className="text-red-500 text-sm mt-1">{errors.questions}</p>}
+                    {errors.questions && <p className="text-destructive text-sm mt-1">{errors.questions}</p>}
                     {formData.questions.map((question, qIndex) => (
-                        <div key={qIndex} className="mt-4 p-4 border rounded-lg bg-gray-50">
+                        <div key={qIndex} className="mt-4 p-4 border rounded-lg bg-muted/40">
                             <div className="mb-4">
                                 <Label htmlFor={`question_${qIndex}_content`}>Question Content {qIndex + 1}</Label>
                                 <textarea
                                     id={`question_${qIndex}_content`}
                                     name="content"
-                                    className={`mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 ${errors[`question_${qIndex}_content`] ? 'border-red-500' : ''}`}
+                                    className={`mt-1 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 focus:ring-2 focus:ring-ring ${errors[`question_${qIndex}_content`] ? 'border-destructive' : ''}`}
                                     rows="3"
                                     value={question.content}
                                     onChange={(e) => handleInputChange(e, qIndex)}
                                     placeholder="Enter question content"
                                 />
                                 {errors[`question_${qIndex}_content`] && (
-                                    <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_content`]}</p>
+                                    <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_content`]}</p>
                                 )}
                             </div>
                             <div className="mb-4">
@@ -326,7 +326,7 @@ const AddKnowledgeTest = () => {
                                 <textarea
                                     id={`question_${qIndex}_explanation`}
                                     name="explanation"
-                                    className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                                    className="mt-1 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 focus:ring-2 focus:ring-ring"
                                     rows="3"
                                     value={question.explanation}
                                     onChange={(e) => handleInputChange(e, qIndex)}
@@ -362,7 +362,7 @@ const AddKnowledgeTest = () => {
                                             />
                                             <Button
                                                 variant="outline"
-                                                className="absolute top-1 right-1 text-red-500 border-red-500 hover:bg-red-50"
+                                                className="absolute top-1 right-1 text-destructive border-destructive hover:bg-destructive/10"
                                                 onClick={() => removeImage(qIndex)}
                                             >
                                                 Delete
@@ -380,7 +380,7 @@ const AddKnowledgeTest = () => {
                                             name="optionText"
                                             value={option.optionText}
                                             onChange={(e) => handleInputChange(e, qIndex, oIndex)}
-                                            className={`flex-1 ${errors[`question_${qIndex}_option_${oIndex}`] ? 'border-red-500' : ''}`}
+                                            className={`flex-1 ${errors[`question_${qIndex}_option_${oIndex}`] ? 'border-destructive' : ''}`}
                                             placeholder={`Choice ${oIndex + 1}`}
                                         />
                                         <div className="flex items-center gap-2">
@@ -389,39 +389,39 @@ const AddKnowledgeTest = () => {
                                                 name="isCorrect"
                                                 checked={option.isCorrect}
                                                 onChange={(e) => handleInputChange(e, qIndex, oIndex)}
-                                                className="h-5 w-5 text-blue-600"
+                                                className="admin-checkbox"
                                             />
                                             <Label>Correct</Label>
                                         </div>
                                         <Button
                                             variant="outline"
-                                            className="text-red-500 border-red-500 hover:bg-red-50"
+                                            className="text-destructive border-destructive hover:bg-destructive/10"
                                             onClick={() => removeOption(qIndex, oIndex)}
                                         >
                                             Delete
                                         </Button>
                                         {errors[`question_${qIndex}_option_${oIndex}`] && (
-                                            <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_option_${oIndex}`]}</p>
+                                            <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_option_${oIndex}`]}</p>
                                         )}
                                     </div>
                                 ))}
                                 {errors[`question_${qIndex}_options`] && (
-                                    <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_options`]}</p>
+                                    <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_options`]}</p>
                                 )}
                                 {errors[`question_${qIndex}_correct`] && (
-                                    <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_correct`]}</p>
+                                    <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_correct`]}</p>
                                 )}
                                 <Button
                                     variant="outline"
                                     onClick={() => addOption(qIndex)}
-                                    className="mt-3 text-blue-600 border-blue-600 hover:bg-blue-50"
+                                    className="mt-3 text-heritage border-heritage/40 hover:bg-heritage/10"
                                 >
                                     + Add Choice
                                 </Button>
                             </div>
                             <Button
                                 variant="outline"
-                                className="text-red-500 border-red-500 hover:bg-red-50"
+                                className="text-destructive border-destructive hover:bg-destructive/10"
                                 onClick={() => removeQuestion(qIndex)}
                             >
                                 Delete Question
@@ -431,7 +431,7 @@ const AddKnowledgeTest = () => {
                     <Button
                         variant="outline"
                         onClick={addQuestion}
-                        className="mt-4 text-blue-600 border-blue-600 hover:bg-blue-50"
+                        className="mt-4 text-heritage border-heritage/40 hover:bg-heritage/10"
                     >
                         + Add Question
                     </Button>
@@ -440,14 +440,14 @@ const AddKnowledgeTest = () => {
                     <Button
                         onClick={handleCreate}
                         disabled={isCreating || isUploadingImage || isHeritageLoading}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-heritage hover:bg-heritage-dark text-white"
                     >
                         {isCreating ? 'Creating...' : 'Create'}
                     </Button>
                     <Button
                         variant="outline"
                         onClick={() => navigate('/admin/knowledge-tests')}
-                        className="text-gray-600 border-gray-600 hover:bg-gray-100"
+                        className="text-muted-foreground border-input hover:bg-muted"
                     >
                         Back
                     </Button>

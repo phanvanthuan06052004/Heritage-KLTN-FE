@@ -1,27 +1,3 @@
-const VIETNAMESE_CHAR_MAP = {
-    a: 'áàảãạăắằẳẵặâấầẩẫậ',
-    d: 'đ',
-    e: 'éèẻẽẹêếềểễệ',
-    i: 'íìỉĩị',
-    o: 'óòỏõọôốồổỗộơớờởỡợ',
-    u: 'úùủũụưứừửữự',
-    y: 'ýỳỷỹỵ',
-}
-
-export const slugify = (value = '') => {
-    let slug = value.toLowerCase().trim()
-
-    Object.entries(VIETNAMESE_CHAR_MAP).forEach(([ascii, chars]) => {
-        slug = slug.replace(new RegExp(`[${chars}]`, 'g'), ascii)
-    })
-
-    return slug
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '')
-}
-
 export const toApiStatus = (status) => (status === 'INACTIVE' ? 'draft' : 'published')
 
 export const toFormStatus = (status) => {
@@ -31,19 +7,92 @@ export const toFormStatus = (status) => {
 
 export const getResponseData = (response) => response?.data || response
 
+export const emptyHeritageForm = {
+    name: '',
+    type: 'cultural',
+    description: '',
+    content: '',
+    seoTitle: '',
+    seoDescription: '',
+    alternativeNamesText: '',
+    history: '',
+    architecture: '',
+    culturalSignificance: '',
+    constructionPeriod: '',
+    founder: '',
+    recognitionText: '',
+    festivalsText: '',
+    legends: '',
+    sourceUrl: '',
+    location: '',
+    images: [],
+    coordinates: { latitude: '', longitude: '' },
+    status: 'ACTIVE',
+    additionalInfo: { historicalEvents: [] },
+}
+
+export const htmlToText = (value = '') =>
+    value
+        .toString()
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+
+export const normalizeHtml = (value = '') => {
+    const trimmed = value.trim()
+    if (!trimmed) return ''
+    return /<[^>]+>/.test(trimmed) ? trimmed : `<p>${trimmed.replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>')}</p>`
+}
+
+export const formatJsonField = (value) => {
+    if (!value || (typeof value === 'object' && Object.keys(value).length === 0)) return ''
+    try {
+        return JSON.stringify(value, null, 2)
+    } catch (_error) {
+        return ''
+    }
+}
+
+export const parseJsonField = (value, fieldLabel) => {
+    if (!value?.trim()) return undefined
+    try {
+        return JSON.parse(value)
+    } catch (_error) {
+        throw new Error(`${fieldLabel} must be valid JSON`)
+    }
+}
+
+export const parseAlternativeNames = (value = '') =>
+    value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+
 export const buildHeritagePayload = (formData) => {
     const status = toApiStatus(formData.status)
+    const content = normalizeHtml(formData.content || formData.description)
+    const summary = normalizeHtml(formData.description)
 
     return {
-        slug: formData.slug || slugify(formData.name),
         title: formData.name.trim(),
-        summary: formData.description.trim(),
-        content: formData.description.trim(),
+        summary,
+        content,
         type: formData.type || 'cultural',
         status,
         publishedAt: status === 'published' ? new Date().toISOString() : undefined,
-        seoTitle: formData.name.trim(),
-        seoDescription: formData.description.trim(),
+        seoTitle: (formData.seoTitle || formData.name).trim(),
+        seoDescription: (formData.seoDescription || htmlToText(formData.description)).trim(),
+        alternativeNames: parseAlternativeNames(formData.alternativeNamesText),
+        history: normalizeHtml(formData.history),
+        architecture: normalizeHtml(formData.architecture),
+        culturalSignificance: normalizeHtml(formData.culturalSignificance),
+        constructionPeriod: formData.constructionPeriod.trim(),
+        founder: formData.founder.trim(),
+        recognition: parseJsonField(formData.recognitionText, 'Recognition'),
+        festivals: parseJsonField(formData.festivalsText, 'Festivals'),
+        legends: normalizeHtml(formData.legends),
+        sourceUrl: formData.sourceUrl.trim(),
     }
 }
 
@@ -56,10 +105,21 @@ export const buildLocationPayload = (formData, heritageId) => ({
     countryCode: 'VN',
 })
 
-export const buildTimelinePayload = (event, heritageId) => ({
-    heritageId,
-    description: [event.title, event.description].filter(Boolean).join('\n\n').trim(),
-})
+export const buildTimelinePayload = (event, heritageId) => {
+    const payload = {
+        heritageId,
+        description: normalizeHtml(event.description),
+    }
+    if (event.eventDate) payload.eventDate = event.eventDate
+    return payload
+}
 
 export const isValidTimelineEvent = (event) =>
-    Boolean(event?.title?.trim() || event?.description?.trim())
+    Boolean(event?.eventDate || htmlToText(event?.description || ''))
+
+export const toFormTimelineEvents = (timelines = []) =>
+    timelines.map((event) => ({
+        id: event.id,
+        eventDate: event.eventDate ? event.eventDate.toString().slice(0, 10) : '',
+        description: event.description || '',
+    }))

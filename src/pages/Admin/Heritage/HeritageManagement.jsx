@@ -41,34 +41,41 @@ const HeritageManagement = () => {
     }
 
 
-    if (isLoading) return <div className="text-center">Loading...</div>
+    if (isLoading) return <div className="text-center text-muted-foreground">Loading...</div>
     if (isError)
         return (
-            <div className="text-center text-red-500">
-                Lỗi: {error?.data?.message || 'Không thể tải danh sách di tích'}
+            <div className="text-center text-destructive">
+                Error: {error?.data?.message || 'Unable to load heritage sites'}
             </div>
         )
 
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Heritage Site Management</h2>
-            <div className="flex justify-between items-center">
-                <div className="relative w-64">
+            <div className="flex items-center justify-between gap-4">
+                <div>
+                    <h2 className="admin-page-title">Heritage Site Management</h2>
+                    <p className="admin-subtle">Manage heritage sites and their metadata.</p>
+                </div>
+                <span className="admin-badge-neutral">{totalItems} sites</span>
+            </div>
+
+            <div className="admin-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="relative w-full md:w-72">
+                    <Search className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground pointer-events-none" />
                     <Input
                         placeholder="Search by name"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10"
                     />
-                    <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                 </div>
-                <div className="flex space-x-4">
+                <div className="flex items-center gap-3">
                     <select
-                        className="p-2 border rounded"
+                        className="admin-select md:w-40"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
-                        <option value="ALL">All</option>
+                        <option value="ALL">All status</option>
                         <option value="ACTIVE">Active</option>
                         <option value="INACTIVE">Inactive</option>
                     </select>
@@ -85,54 +92,74 @@ const HeritageManagement = () => {
                         <TableHead>Location</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Created at</TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
+                    {heritages.length === 0 && (
+                        <TableRow hoverable={false}>
+                            <TableCell className="text-center text-muted-foreground py-10" colSpan={5}>
+                                No heritage sites found.
+                            </TableCell>
+                        </TableRow>
+                    )}
                     {heritages.map((heritage) => (
                         <TableRow key={heritage._id}>
-                            <TableCell maxWidth='250px'>{heritage.name}</TableCell>
-                            <TableCell>{heritage.location}</TableCell>
-                            <TableCell>{heritage.status === 'ACTIVE' ? 'Active' : 'Inactive'}</TableCell>
+                            <TableCell maxWidth='250px'>
+                                <span className="font-medium text-foreground">{heritage.name}</span>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">{heritage.location}</TableCell>
                             <TableCell>
+                                <span className={heritage.status === 'ACTIVE' ? 'admin-badge-success' : 'admin-badge-neutral'}>
+                                    {heritage.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                                </span>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
                                 {new Date(heritage.createdAt).toLocaleDateString('en-US')}
                             </TableCell>
-                            <TableCell className="flex space-x-2">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => navigate(`/admin/heritages/${heritage._id}`)}
-                                >
-                                    <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDelete(heritage._id)}
-                                >
-                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                </Button>
+                            <TableCell>
+                                <div className="flex items-center justify-end gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => navigate(`/admin/heritages/${heritage._id}`)}
+                                        title="Edit"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDelete(heritage._id)}
+                                        title="Delete"
+                                        className="text-destructive hover:bg-destructive/10"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
 
-            <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-4">
-                    <p>Total: {totalItems} heritage sites</p>
-                </div>
-                <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p className="admin-subtle">Total: {totalItems} heritage sites</p>
+                <div className="flex items-center gap-3">
                     <Button
+                        variant="outline"
+                        size="sm"
                         disabled={currentPage === 1}
                         onClick={() => setPage(currentPage - 1)}
                     >
                         Previous
                     </Button>
                     {totalPages > 0 && (
-                        <span>Page {currentPage} / {totalPages}</span>
+                        <span className="admin-subtle">Page {currentPage} / {totalPages}</span>
                     )}
                     <Button
+                        variant="outline"
+                        size="sm"
                         disabled={currentPage >= totalPages}
                         onClick={() => setPage(currentPage + 1)}
                     >

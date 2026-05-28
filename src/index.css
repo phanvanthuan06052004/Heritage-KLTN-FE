@@ -51,34 +51,37 @@
     --museum-muted: 169, 157, 138;
   }
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 224 71% 4%;
-    --card-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 224 71% 4%;
-    --sidebar: 222 47% 11%;
-    --sidebar-accent: 222 47% 17%;
+    --background: 222 24% 9%;
+    --foreground: 210 30% 96%;
+    --card: 222 22% 12%;
+    --card-foreground: 210 30% 96%;
+    --primary: 25 80% 60%;
+    --primary-foreground: 222 24% 9%;
+    --secondary: 217 19% 17%;
+    --secondary-foreground: 210 30% 96%;
+    --muted: 217 19% 17%;
+    --muted-foreground: 215 16% 65%;
+    --accent: 25 70% 47%;
+    --accent-foreground: 210 30% 96%;
+    --border: 217 19% 22%;
+    --input: 217 19% 22%;
+    --ring: 25 80% 60%;
+    --sidebar: 222 26% 7%;
+    --sidebar-accent: 222 24% 13%;
 
-    --destructive: 0 60% 40%;
-    --destructive-foreground: 210 40% 98%;
-    --success: 142 60% 40%;
-    --success-foreground: 210 40% 98%;
-    --warning: 38 80% 50%;
-    --warning-foreground: 210 40% 98%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 210 30% 96%;
+    --success: 142 60% 45%;
+    --success-foreground: 210 30% 96%;
+    --warning: 38 90% 55%;
+    --warning-foreground: 222 24% 9%;
 
-    --heritage-primary: 25 70% 47%;
-    --heritage-light: 30 20% 20%;
-    --heritage-dark: 25 80% 60%;
+    --heritage-primary: 25 80% 60%;
+    --heritage-light: 25 35% 22%;
+    --heritage-dark: 25 90% 75%;
+
+    --gold: 43 90% 60%;
+    --text3: 215 16% 65%;
   }
 }
 
@@ -107,6 +110,61 @@
 
   .lcn-heritage-detail-title {
     @apply text-xl font-medium text-heritage-dark;
+  }
+
+  /* ---------- Admin design system ---------- */
+  .admin-page-title {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+
+  .admin-subtle {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .admin-card {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-sm;
+  }
+
+  .admin-card-body {
+    @apply admin-card p-6;
+  }
+
+  .admin-card-soft {
+    @apply rounded-lg border border-border bg-muted/40 p-4 text-card-foreground;
+  }
+
+  .admin-select {
+    @apply h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .admin-checkbox {
+    @apply h-4 w-4 rounded border border-input bg-background text-heritage focus:ring-2 focus:ring-ring;
+  }
+
+  .admin-divider {
+    @apply border-t border-border;
+  }
+
+  .admin-badge {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium;
+  }
+  .admin-badge-neutral {
+    @apply admin-badge border-border bg-muted text-muted-foreground;
+  }
+  .admin-badge-success {
+    @apply admin-badge border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-300;
+  }
+  .admin-badge-danger {
+    @apply admin-badge border-transparent bg-red-500/15 text-red-700 dark:text-red-300;
+  }
+  .admin-badge-info {
+    @apply admin-badge border-transparent bg-sky-500/15 text-sky-700 dark:text-sky-300;
+  }
+  .admin-badge-warning {
+    @apply admin-badge border-transparent bg-amber-500/15 text-amber-700 dark:text-amber-300;
+  }
+  .admin-badge-heritage {
+    @apply admin-badge border-transparent bg-heritage/15 text-heritage-dark dark:text-heritage-dark;
   }
 }
 
