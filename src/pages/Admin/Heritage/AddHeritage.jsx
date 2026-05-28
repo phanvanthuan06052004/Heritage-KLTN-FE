@@ -5,6 +5,7 @@ import { Label } from '~/components/common/ui/Label'
 import { Input } from '~/components/common/ui/Input'
 import { toast } from 'react-toastify'
 import HeritageMapView from '~/pages/GoogleMapHeritage/HeritageMapView'
+import RichTextEditor from './RichTextEditor'
 import {
     useCreateHeritageLocationMutation,
     useCreateHeritageMediaMutation,
@@ -16,7 +17,9 @@ import {
     buildHeritagePayload,
     buildLocationPayload,
     buildTimelinePayload,
+    emptyHeritageForm,
     getResponseData,
+    htmlToText,
     isValidTimelineEvent,
 } from './heritageFormMapper'
 
@@ -29,15 +32,7 @@ const AddHeritage = () => {
     const [createHeritageMedia] = useCreateHeritageMediaMutation()
     const [createHeritageLocation] = useCreateHeritageLocationMutation()
     const [createHeritageTimeline] = useCreateHeritageTimelineMutation()
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        location: '',
-        images: [],
-        coordinates: { latitude: '', longitude: '' },
-        status: 'ACTIVE',
-        additionalInfo: { historicalEvents: [] },
-    })
+    const [formData, setFormData] = useState(emptyHeritageForm)
     const [imagePreviews, setImagePreviews] = useState([])
     const [imageFiles, setImageFiles] = useState([])
     const [errors, setErrors] = useState({})
@@ -117,7 +112,7 @@ const AddHeritage = () => {
             ...formData,
             additionalInfo: {
                 ...formData.additionalInfo,
-                historicalEvents: [...formData.additionalInfo.historicalEvents, { title: '', description: '' }],
+                historicalEvents: [...formData.additionalInfo.historicalEvents, { eventDate: '', description: '' }],
             },
         })
     }
@@ -161,8 +156,11 @@ const AddHeritage = () => {
         if (!formData.name.trim()) {
                 newErrors.name = 'Heritage name cannot be empty'
         }
-        if (!formData.description.trim()) {
+        if (!htmlToText(formData.description)) {
             newErrors.description = 'Description cannot be empty'
+        }
+        if (!htmlToText(formData.content)) {
+            newErrors.content = 'Content cannot be empty'
         }
         if (!formData.location.trim()) {
             newErrors.location = 'Location cannot be empty'
@@ -239,8 +237,11 @@ const AddHeritage = () => {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Add Heritage Site</h2>
-            <div className="bg-white p-6 rounded-md shadow-md">
+            <div>
+                <h2 className="admin-page-title">Add Heritage Site</h2>
+                <p className="admin-subtle">Create a new heritage site entry.</p>
+            </div>
+            <div className="admin-card-body">
                 <div className="mb-6">
                     <Label>Select location on the map</Label>
                     <div className="w-full h-[400px]">
@@ -260,9 +261,19 @@ const AddHeritage = () => {
                             name="name"
                             value={formData.name}
                             onChange={handleInputChange}
-                            className={errors.name ? 'border-red-500' : ''}
+                            className={errors.name ? 'border-destructive' : ''}
                         />
-                        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                        {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
+                    </div>
+                    <div>
+                        <Label htmlFor="type">Type</Label>
+                        <Input
+                            type="text"
+                            id="type"
+                            name="type"
+                            value={formData.type}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div>
                         <Label htmlFor="location">Location</Label>
@@ -272,9 +283,9 @@ const AddHeritage = () => {
                             name="location"
                             value={formData.location}
                             onChange={handleInputChange}
-                            className={errors.location ? 'border-red-500' : ''}
+                            className={errors.location ? 'border-destructive' : ''}
                         />
-                        {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+                        {errors.location && <p className="text-destructive text-sm mt-1">{errors.location}</p>}
                     </div>
                     <div className="col-span-2">
                         <Label htmlFor="images">Images</Label>
@@ -286,7 +297,7 @@ const AddHeritage = () => {
                                     name="images"
                                     accept="image/jpeg,image/png,image/gif,image/webp"
                                     onChange={handleImageChange}
-                                    className={errors.images ? 'border-red-500' : ''}
+                                    className={errors.images ? 'border-destructive' : ''}
                                 />
                                 <Button
                                     variant="outline"
@@ -306,7 +317,7 @@ const AddHeritage = () => {
                                             />
                                             <Button
                                                 variant="outline"
-                                                className="absolute top-1 right-1 text-red-500 border-red-500 hover:bg-red-50"
+                                                className="absolute top-1 right-1 text-destructive border-destructive hover:bg-destructive/10"
                                                 onClick={() => removeImage(index)}
                                             >
                                                     Delete
@@ -315,7 +326,7 @@ const AddHeritage = () => {
                                     ))}
                                 </div>
                             )}
-                            {errors.images && <p className="text-red-500 text-sm mt-1">{errors.images}</p>}
+                            {errors.images && <p className="text-destructive text-sm mt-1">{errors.images}</p>}
                         </div>
                     </div>
                     <div>
@@ -326,9 +337,9 @@ const AddHeritage = () => {
                             name="coordinates.latitude"
                             value={formData.coordinates.latitude}
                             onChange={handleInputChange}
-                            className={errors.coordinates ? 'border-red-500' : ''}
+                            className={errors.coordinates ? 'border-destructive' : ''}
                         />
-                        {errors.coordinates && <p className="text-red-500 text-sm mt-1">{errors.coordinates}</p>}
+                        {errors.coordinates && <p className="text-destructive text-sm mt-1">{errors.coordinates}</p>}
                     </div>
                     <div>
                         <Label htmlFor="coordinates.longitude">Longitude</Label>
@@ -338,7 +349,7 @@ const AddHeritage = () => {
                             name="coordinates.longitude"
                             value={formData.coordinates.longitude}
                             onChange={handleInputChange}
-                            className={errors.coordinates ? 'border-red-500' : ''}
+                            className={errors.coordinates ? 'border-destructive' : ''}
                         />
                     </div>
                     <div>
@@ -346,7 +357,7 @@ const AddHeritage = () => {
                         <select
                             id="status"
                             name="status"
-                            className="w-full p-2 border rounded"
+                            className="admin-select"
                             value={formData.status}
                             onChange={handleInputChange}
                         >
@@ -354,17 +365,139 @@ const AddHeritage = () => {
                             <option value="INACTIVE">Inactive</option>
                         </select>
                     </div>
-                    <div className="col-span-2">
-                        <Label htmlFor="description">Description</Label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            className={`w-full p-2 border rounded ${errors.description ? 'border-red-500' : ''}`}
-                            rows="4"
-                            value={formData.description}
+                    <div>
+                        <Label htmlFor="constructionPeriod">Construction Period</Label>
+                        <Input
+                            type="text"
+                            id="constructionPeriod"
+                            name="constructionPeriod"
+                            value={formData.constructionPeriod}
                             onChange={handleInputChange}
                         />
-                        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+                    </div>
+                    <div>
+                        <Label htmlFor="founder">Founder</Label>
+                        <Input
+                            type="text"
+                            id="founder"
+                            name="founder"
+                            value={formData.founder}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="sourceUrl">Source URL</Label>
+                        <Input
+                            type="url"
+                            id="sourceUrl"
+                            name="sourceUrl"
+                            value={formData.sourceUrl}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="alternativeNamesText">Alternative Names</Label>
+                        <Input
+                            type="text"
+                            id="alternativeNamesText"
+                            name="alternativeNamesText"
+                            value={formData.alternativeNamesText}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="description">Summary</Label>
+                        <RichTextEditor
+                            id="description"
+                            value={formData.description}
+                            onChange={(value) => setFormData({ ...formData, description: value })}
+                            error={errors.description}
+                        />
+                        {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="content">Content</Label>
+                        <RichTextEditor
+                            id="content"
+                            value={formData.content}
+                            onChange={(value) => setFormData({ ...formData, content: value })}
+                            error={errors.content}
+                        />
+                        {errors.content && <p className="text-destructive text-sm mt-1">{errors.content}</p>}
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="history">History</Label>
+                        <RichTextEditor
+                            id="history"
+                            value={formData.history}
+                            onChange={(value) => setFormData({ ...formData, history: value })}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="architecture">Architecture</Label>
+                        <RichTextEditor
+                            id="architecture"
+                            value={formData.architecture}
+                            onChange={(value) => setFormData({ ...formData, architecture: value })}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="culturalSignificance">Cultural Significance</Label>
+                        <RichTextEditor
+                            id="culturalSignificance"
+                            value={formData.culturalSignificance}
+                            onChange={(value) => setFormData({ ...formData, culturalSignificance: value })}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="legends">Legends</Label>
+                        <RichTextEditor
+                            id="legends"
+                            value={formData.legends}
+                            onChange={(value) => setFormData({ ...formData, legends: value })}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="recognitionText">Recognition</Label>
+                        <textarea
+                            id="recognitionText"
+                            name="recognitionText"
+                            className="w-full rounded border p-2 font-mono text-sm"
+                            rows="4"
+                            value={formData.recognitionText}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <Label htmlFor="festivalsText">Festivals</Label>
+                        <textarea
+                            id="festivalsText"
+                            name="festivalsText"
+                            className="w-full rounded border p-2 font-mono text-sm"
+                            rows="4"
+                            value={formData.festivalsText}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="seoTitle">SEO Title</Label>
+                        <Input
+                            type="text"
+                            id="seoTitle"
+                            name="seoTitle"
+                            value={formData.seoTitle}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="seoDescription">SEO Description</Label>
+                        <Input
+                            type="text"
+                            id="seoDescription"
+                            name="seoDescription"
+                            value={formData.seoDescription}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
                 <div className="mt-6">
@@ -372,30 +505,37 @@ const AddHeritage = () => {
                     {formData.additionalInfo.historicalEvents.map((event, index) => (
                         <div key={index} className="mt-4 p-4 border rounded">
                             <div className="mb-2">
-                                <Label htmlFor={`additionalInfo.historicalEvents.${index}.title`}>Event Title</Label>
+                                <Label htmlFor={`additionalInfo.historicalEvents.${index}.eventDate`}>Event Date</Label>
                                 <Input
-                                    type="text"
-                                    id={`additionalInfo.historicalEvents.${index}.title`}
-                                    name={`additionalInfo.historicalEvents.${index}.title`}
-                                    value={event.title}
+                                    type="date"
+                                    id={`additionalInfo.historicalEvents.${index}.eventDate`}
+                                    name={`additionalInfo.historicalEvents.${index}.eventDate`}
+                                    value={event.eventDate}
                                     onChange={handleInputChange}
                                 />
                             </div>
                             <div className="mb-2">
                                 <Label htmlFor={`additionalInfo.historicalEvents.${index}.description`}>Event Description</Label>
-                                <textarea
+                                <RichTextEditor
                                     id={`additionalInfo.historicalEvents.${index}.description`}
-                                    name={`additionalInfo.historicalEvents.${index}.description`}
-                                    className="w-full p-2 border rounded"
-                                    rows="3"
                                     value={event.description}
-                                    onChange={handleInputChange}
+                                    onChange={(value) => {
+                                        const updatedEvents = [...formData.additionalInfo.historicalEvents]
+                                        updatedEvents[index] = { ...updatedEvents[index], description: value }
+                                        setFormData({
+                                            ...formData,
+                                            additionalInfo: {
+                                                ...formData.additionalInfo,
+                                                historicalEvents: updatedEvents,
+                                            },
+                                        })
+                                    }}
                                 />
                             </div>
                             <Button
                                 variant="outline"
                                 onClick={() => removeHistoricalEvent(index)}
-                                className="text-red-500 border-red-500 hover:bg-red-50"
+                                className="text-destructive border-destructive hover:bg-destructive/10"
                             >
                                 Delete Event
                             </Button>

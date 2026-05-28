@@ -270,7 +270,7 @@ const UpdateKnowledgeTest = () => {
     return (
         <div className="space-y-6">
             <h2 className="text-2xl font-semibold">Update Knowledge Test</h2>
-            <div className="bg-white p-6 rounded-md shadow-md">
+            <div className="admin-card-body">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <Label htmlFor="heritageId">Heritage ID</Label>
@@ -280,9 +280,9 @@ const UpdateKnowledgeTest = () => {
                             name="heritageId"
                             value={formData.heritageId}
                             onChange={handleInputChange}
-                            className={errors.heritageId ? 'border-red-500' : ''}
+                            className={errors.heritageId ? 'border-destructive' : ''}
                         />
-                        {errors.heritageId && <p className="text-red-500 text-sm mt-1">{errors.heritageId}</p>}
+                        {errors.heritageId && <p className="text-destructive text-sm mt-1">{errors.heritageId}</p>}
                     </div>
                     <div>
                         <Label htmlFor="title">Title</Label>
@@ -292,16 +292,16 @@ const UpdateKnowledgeTest = () => {
                             name="title"
                             value={formData.title}
                             onChange={handleInputChange}
-                            className={errors.title ? 'border-red-500' : ''}
+                            className={errors.title ? 'border-destructive' : ''}
                         />
-                        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                        {errors.title && <p className="text-destructive text-sm mt-1">{errors.title}</p>}
                     </div>
                     <div>
                         <Label htmlFor="status">Status</Label>
                         <select
                             id="status"
                             name="status"
-                            className="w-full p-2 border rounded"
+                            className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2"
                             value={formData.status}
                             onChange={handleInputChange}
                         >
@@ -314,12 +314,12 @@ const UpdateKnowledgeTest = () => {
                         <textarea
                             id="content"
                             name="content"
-                            className={`w-full p-2 border rounded ${errors.content ? 'border-red-500' : ''}`}
+                            className={`w-full rounded-md border border-input bg-background text-foreground px-3 py-2 ${errors.content ? 'border-destructive' : ''}`}
                             rows="4"
                             value={formData.content}
                             onChange={handleInputChange}
                         />
-                        {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
+                        {errors.content && <p className="text-destructive text-sm mt-1">{errors.content}</p>}
                     </div>
                 </div>
                 <div className="mt-6">
@@ -331,13 +331,13 @@ const UpdateKnowledgeTest = () => {
                                 <textarea
                                     id={`question_${qIndex}_content`}
                                     name="content"
-                                    className={`w-full p-2 border rounded ${errors[`question_${qIndex}_content`] ? 'border-red-500' : ''}`}
+                                    className={`w-full rounded-md border border-input bg-background text-foreground px-3 py-2 ${errors[`question_${qIndex}_content`] ? 'border-destructive' : ''}`}
                                     rows="3"
                                     value={question.content}
                                     onChange={(e) => handleInputChange(e, qIndex)}
                                 />
                                 {errors[`question_${qIndex}_content`] && (
-                                    <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_content`]}</p>
+                                    <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_content`]}</p>
                                 )}
                             </div>
                             <div className="mb-2">
@@ -345,7 +345,7 @@ const UpdateKnowledgeTest = () => {
                                 <textarea
                                     id={`question_${qIndex}_explanation`}
                                     name="explanation"
-                                    className="w-full p-2 border rounded"
+                                    className="w-full rounded-md border border-input bg-background text-foreground px-3 py-2"
                                     rows="3"
                                     value={question.explanation}
                                     onChange={(e) => handleInputChange(e, qIndex)}
@@ -378,7 +378,7 @@ const UpdateKnowledgeTest = () => {
                                             />
                                             <Button
                                                 variant="outline"
-                                                className="absolute top-1 right-1 text-red-500 border-red-500 hover:bg-red-50"
+                                                className="absolute top-1 right-1 text-destructive border-destructive hover:bg-destructive/10"
                                                 onClick={() => removeImage(qIndex)}
                                             >
                                                 Delete
@@ -396,7 +396,7 @@ const UpdateKnowledgeTest = () => {
                                             name="optionText"
                                             value={option.optionText}
                                             onChange={(e) => handleInputChange(e, qIndex, oIndex)}
-                                            className={errors[`question_${qIndex}_option_${oIndex}`] ? 'border-red-500' : ''}
+                                            className={errors[`question_${qIndex}_option_${oIndex}`] ? 'border-destructive' : ''}
                                             placeholder={`Choice ${oIndex + 1}`}
                                         />
                                         <input
@@ -409,21 +409,21 @@ const UpdateKnowledgeTest = () => {
                                         <Label>Correct</Label>
                                         <Button
                                             variant="outline"
-                                            className="text-red-500 border-red-500 hover:bg-red-50"
+                                            className="text-destructive border-destructive hover:bg-destructive/10"
                                             onClick={() => removeOption(qIndex, oIndex)}
                                         >
                                             Delete
                                         </Button>
                                         {errors[`question_${qIndex}_option_${oIndex}`] && (
-                                            <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_option_${oIndex}`]}</p>
+                                            <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_option_${oIndex}`]}</p>
                                         )}
                                     </div>
                                 ))}
                                 {errors[`question_${qIndex}_options`] && (
-                                    <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_options`]}</p>
+                                    <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_options`]}</p>
                                 )}
                                 {errors[`question_${qIndex}_correct`] && (
-                                    <p className="text-red-500 text-sm mt-1">{errors[`question_${qIndex}_correct`]}</p>
+                                    <p className="text-destructive text-sm mt-1">{errors[`question_${qIndex}_correct`]}</p>
                                 )}
                                 <Button
                                     variant="outline"
@@ -435,7 +435,7 @@ const UpdateKnowledgeTest = () => {
                             </div>
                             <Button
                                 variant="outline"
-                                className="text-red-500 border-red-500 hover:bg-red-50 mt-2"
+                                className="text-destructive border-destructive hover:bg-destructive/10 mt-2"
                                 onClick={() => removeQuestion(qIndex)}
                             >
                                 Delete Question

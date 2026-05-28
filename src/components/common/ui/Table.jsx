@@ -1,7 +1,12 @@
 import { cn } from "~/lib/utils";
 
-const Table = ({ children, className }) => (
-  <div className="w-full overflow-x-auto rounded-lg border border-border">
+const Table = ({ children, className, wrapperClassName }) => (
+  <div
+    className={cn(
+      "w-full overflow-x-auto rounded-xl border border-border bg-card",
+      wrapperClassName,
+    )}
+  >
     <table className={cn("w-full border-collapse", className)}>
       {children}
     </table>
@@ -9,7 +14,7 @@ const Table = ({ children, className }) => (
 );
 
 const TableHeader = ({ children, className }) => (
-  <thead className={cn("bg-muted", className)}>{children}</thead>
+  <thead className={cn("bg-muted/60", className)}>{children}</thead>
 );
 
 const TableBody = ({ children }) => <tbody>{children}</tbody>;

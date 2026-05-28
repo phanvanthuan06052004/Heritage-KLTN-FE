@@ -24,10 +24,10 @@ import {
 import { cn } from "~/lib/utils";
 
 const statusStyles = {
-  ready: "bg-green-100 text-green-700 border-green-200",
-  processing: "bg-blue-100 text-blue-700 border-blue-200",
-  pending: "bg-amber-100 text-amber-700 border-amber-200",
-  error: "bg-red-100 text-red-700 border-red-200",
+  ready: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+  processing: "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30",
+  pending: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+  error: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30",
 };
 
 const getSourceId = (response) => response?.data?.source_id || response?.source_id;
