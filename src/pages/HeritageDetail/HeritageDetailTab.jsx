@@ -5,13 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/common/ui
 import { Button } from '~/components/common/ui/Button'
 import { HistoryTab, GalleryTab } from '~/components/lazyComponents'
 import WriteReviewModal from '~/components/WriteReviewModal'
-import { useGetAllCommentQuery } from '~/store/apis/commentApi'
+import {
+  useGetAllCommentQuery,
+  useDeleteCommentMutation,
+  useLikeCommentMutation,
+  commentSlice,
+} from '~/store/apis/commentApi'
 import Avatar from '~/components/common/Avatar'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser } from '~/store/slices/authSlice'
-import { useDeleteCommentMutation, useLikeCommentMutation } from '~/store/apis/commentApi'
 import { toast } from 'react-toastify'
-import { Dialog, DialogHeader, DialogTitle, DialogDescription } from '~/components/common/ui/Dialog'
 import { useTranslation } from 'react-i18next'
 
 const ALLOWED_HTML_TAGS = new Set([
@@ -68,7 +71,8 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [deleteModal, setDeleteModal] = useState({ open: false, commentId: null })
   const currentUser = useSelector(selectCurrentUser)
-  const [deleteComment] = useDeleteCommentMutation()
+  const dispatch = useDispatch()
+  const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation()
   const [likeComment] = useLikeCommentMutation()
   const { t } = useTranslation()
 
@@ -86,7 +90,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
     { skip: !data?._id, refetchOnMountOrArgChange: false }
   )
 
-  const comments = useMemo(() => commentData?.comments || [], [commentData?.comments])
+  const comments = useMemo(() => commentData?.data?.comments || [], [commentData?.data?.comments])
   console.log('Fetched comments:', comments)
 
   const hasComments = comments.length > 0
@@ -118,6 +122,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
     try {
       await deleteComment(deleteModal.commentId).unwrap()
       setDeleteModal({ open: false, commentId: null })
+      toast.success('Review deleted successfully!')
     } catch {
       toast.error('Failed to delete comment!')
     }
@@ -126,9 +131,31 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
   const closeDeleteModal = () => setDeleteModal({ open: false, commentId: null })
 
   const handleLike = async (commentId) => {
+    if (!isAuthenticated) return
+    const uid = currentUser?._id
+
+    // Optimistic update: cập nhật ngay trên UI trước khi server trả về
+    const patchResult = dispatch(
+      commentSlice.util.updateQueryData('getAllComment', queryOptions, (draft) => {
+        const list = draft?.data?.comments
+        if (!list) return
+        const target = list.find((c) => c._id === commentId || c.id === commentId)
+        if (!target) return
+        const liked = target.likes?.includes(uid)
+        if (liked) {
+          target.likes = target.likes.filter((id) => id !== uid)
+          target.likesCount = Math.max(0, (target.likesCount || 1) - 1)
+        } else {
+          target.likes = [...(target.likes || []), uid]
+          target.likesCount = (target.likesCount || 0) + 1
+        }
+      })
+    )
+
     try {
       await likeComment(commentId).unwrap()
     } catch {
+      patchResult.undo()
       toast.error('Failed to like!')
     }
   }
@@ -292,16 +319,60 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
             onSubmit={handleReviewSubmit}
           />
         )}
-        <Dialog open={deleteModal.open} onClose={closeDeleteModal}>
-          <DialogHeader>
-            <DialogTitle>Confirm Delete Comment</DialogTitle>
-            <DialogDescription>Are you sure you want to delete this comment? This action cannot be undone.</DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-3 p-4">
-            <Button variant="outline" onClick={closeDeleteModal}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+        {deleteModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-museum-black/78 px-4 backdrop-blur-sm">
+            <div className="museum-card relative w-full max-w-md overflow-hidden rounded-[2rem] border border-museum-gold/25 bg-museum-black/92 p-6 text-museum-ivory shadow-museum-card">
+              <div className="museum-pattern pointer-events-none absolute inset-0 opacity-[0.08]" />
+              <div className="relative">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full border border-museum-seal/40 bg-museum-seal/15 text-museum-seal">
+                    <Trash2 size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-museum-gold-light">
+                      Heritage Review
+                    </p>
+                    <h3 className="font-display text-2xl font-semibold text-museum-ivory">
+                      Delete review
+                    </h3>
+                  </div>
+                </div>
+                <p className="mb-6 text-sm leading-6 text-museum-parchment">
+                  Are you sure you want to delete this review? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeDeleteModal}
+                    disabled={isDeleting}
+                    className="rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-ivory/14"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={confirmDelete}
+                    disabled={isDeleting}
+                    className="rounded-full bg-museum-seal text-museum-ivory shadow-lg hover:bg-museum-seal/85"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-        </Dialog>
+        )}
       </TabsContent>
     </Tabs>
   )

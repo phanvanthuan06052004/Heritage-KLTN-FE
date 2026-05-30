@@ -1,5 +1,4 @@
 import { ArrowRight, Heart, ImageOff, MapPin } from "lucide-react";
-import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
@@ -23,8 +22,6 @@ const CONFIG = {
   placeholderImage: "/images/placeholder.webp",
   fallbackImage: "/images/placeholder.webp",
 };
-
-const MotionArticle = motion.article;
 
 const HeritageCard = ({
   item,
@@ -133,12 +130,8 @@ const HeritageCard = ({
         className="group block h-full rounded-[2rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
         aria-label={`View details: ${name}`}
       >
-        <MotionArticle
+        <article
           className="museum-card flex h-full flex-col overflow-hidden rounded-[2rem] bg-museum-ivory/7 transition duration-300 hover:-translate-y-1 hover:border-museum-gold/45 hover:shadow-museum-gold"
-          initial={{ opacity: 0, y: 38, scale: 0.96 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: false, amount: 0.22, margin: "0px 0px -8% 0px" }}
-          transition={{ duration: 0.62, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="relative overflow-hidden">
             {imgError ? (
@@ -214,7 +207,7 @@ const HeritageCard = ({
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </span>
           </div>
-        </MotionArticle>
+        </article>
       </Link>
     );
   }

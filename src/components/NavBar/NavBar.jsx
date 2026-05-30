@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Landmark, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { cn } from '~/lib/utils'
@@ -55,16 +55,18 @@ const NavBar = () => {
       <header className={navbarClasses}>
         <div className='lcn-container-x flex h-full items-center justify-between gap-4'>
           {/* Logo */}
-          <Link to='/' className='flex min-w-[210px] items-center gap-3 text-museum-ivory'>
-            <span className='flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-museum-gold/30 bg-museum-gold text-museum-black shadow-museum-gold'>
-              <Landmark className='h-5 w-5' />
-            </span>
-            <span className='min-w-0'>
-              <span className='block font-display text-xl font-semibold leading-none sm:text-2xl'>
-                Heritage Reborn
+          <Link to='/' className='flex min-w-[190px] items-center gap-2.5 text-museum-ivory'>
+            <img
+              src='/images/logo-mark.png'
+              alt='Heritage'
+              className='h-12 w-10 object-contain'
+            />
+            <span className='flex flex-col leading-none'>
+              <span className='font-display text-[1.35rem] font-semibold tracking-[0.18em] text-museum-ivory'>
+                HERITAGE
               </span>
-              <span className='hidden text-[0.62rem] uppercase text-museum-muted sm:block'>
-                Digital Museum
+              <span className='mt-1 hidden text-[0.58rem] font-medium tracking-[0.12em] text-museum-gold sm:block'>
+                Explore the past
               </span>
             </span>
           </Link>

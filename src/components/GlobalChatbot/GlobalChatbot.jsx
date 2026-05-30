@@ -68,7 +68,7 @@ const RobotEye = ({ x }) => (
   </mesh>
 );
 
-const RobotModel = ({ isMotionReduced = false }) => {
+const RobotModel = ({ isMotionReduced = false, isWaving = false }) => {
   const groupRef = useRef(null);
   const headRef = useRef(null);
   const armLeftRef = useRef(null);
@@ -79,14 +79,17 @@ const RobotModel = ({ isMotionReduced = false }) => {
 
     const elapsed = clock.getElapsedTime();
     groupRef.current.rotation.y = Math.sin(elapsed * 0.75) * 0.18;
-    groupRef.current.position.y = Math.sin(elapsed * 1.5) * 0.055;
+    groupRef.current.position.y =
+      Math.sin(elapsed * (isWaving ? 3.2 : 1.5)) * (isWaving ? 0.085 : 0.055);
 
     if (headRef.current) {
-      headRef.current.rotation.z = Math.sin(elapsed * 1.2) * 0.035;
+      headRef.current.rotation.z = Math.sin(elapsed * (isWaving ? 4.8 : 1.2)) * (isWaving ? 0.08 : 0.035);
     }
     if (armLeftRef.current && armRightRef.current) {
       armLeftRef.current.rotation.z = 0.22 + Math.sin(elapsed * 2.1) * 0.08;
-      armRightRef.current.rotation.z = -0.22 - Math.sin(elapsed * 2.1) * 0.08;
+      armRightRef.current.rotation.z = isWaving
+        ? -0.92 + Math.sin(elapsed * 9.2) * 0.42
+        : -0.22 - Math.sin(elapsed * 2.1) * 0.08;
     }
   });
 
@@ -171,17 +174,22 @@ const RobotModel = ({ isMotionReduced = false }) => {
 
 const ChatbotLauncher = ({ onClick }) => {
   const prefersReducedMotion = useReducedMotion();
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <MotionButton
       type="button"
       onClick={onClick}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
       initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.92 }}
       animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
       whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.035 }}
       whileTap={{ scale: 0.96 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="fixed bottom-5 right-3 z-50 h-[212px] w-[min(calc(100vw-1.5rem),340px)] bg-transparent p-0 text-left outline-none transition focus-visible:ring-4 focus-visible:ring-cyan-300/45 sm:bottom-6 sm:right-6"
+      className="fixed bottom-5 right-3 z-50 h-[108px] w-[96px] bg-transparent p-0 text-left outline-none transition focus-visible:ring-4 focus-visible:ring-cyan-300/45 sm:bottom-6 sm:right-6 sm:h-[124px] sm:w-[112px]"
       aria-label="Open Heritage Assistant"
     >
       <MotionSpan
@@ -200,7 +208,7 @@ const ChatbotLauncher = ({ onClick }) => {
           times: prefersReducedMotion ? [0, 0.82, 1] : [0, 0.11, 0.82, 1],
           ease: "easeOut",
         }}
-        className="absolute bottom-[82px] right-[76px] z-10 w-[min(232px,calc(100vw-8.5rem))] rounded-2xl bg-white/95 px-4 py-3 text-stone-700 shadow-[0_18px_45px_rgba(15,23,42,0.18)] ring-1 ring-stone-200/70 backdrop-blur"
+        className="pointer-events-none absolute bottom-[82px] right-[76px] z-10 w-[min(232px,calc(100vw-8.5rem))] rounded-2xl bg-white/95 px-4 py-3 text-stone-700 shadow-[0_18px_45px_rgba(15,23,42,0.18)] ring-1 ring-stone-200/70 backdrop-blur"
         aria-hidden="true"
       >
         <span className="mb-2 flex items-center gap-2">
@@ -218,7 +226,20 @@ const ChatbotLauncher = ({ onClick }) => {
           Hỏi em về di tích, triều đại hoặc nhân vật lịch sử.
         </span>
       </MotionSpan>
-      <span className="absolute bottom-0 right-0 z-20 block h-[108px] w-[96px] drop-shadow-[0_20px_28px_rgba(15,23,42,0.34)] sm:h-[124px] sm:w-[112px]">
+      <MotionSpan
+        initial={false}
+        animate={
+          isHovered && !prefersReducedMotion
+            ? { opacity: 1, y: 0, scale: 1 }
+            : { opacity: 0, y: 8, scale: 0.92 }
+        }
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="pointer-events-none absolute bottom-[104px] right-[4px] z-30 rounded-full border border-cyan-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-cyan-950 shadow-[0_12px_28px_rgba(15,23,42,0.18)] sm:bottom-[120px]"
+        aria-hidden="true"
+      >
+        Xin chào!
+      </MotionSpan>
+      <span className="absolute inset-0 z-20 block drop-shadow-[0_20px_28px_rgba(15,23,42,0.34)]">
         <span className="absolute inset-x-5 bottom-2 h-5 rounded-full bg-slate-950/25 blur-md" />
         <Canvas
           camera={{ position: [0, 0.06, 3.25], fov: 32 }}
@@ -230,7 +251,7 @@ const ChatbotLauncher = ({ onClick }) => {
           <directionalLight position={[2.4, 3.2, 4]} intensity={2.35} />
           <directionalLight position={[-2.2, 1.7, 2]} intensity={0.9} color="#bdefff" />
           <pointLight position={[0, -0.25, 1.6]} intensity={1.65} color="#4ff7f0" />
-          <RobotModel isMotionReduced={prefersReducedMotion} />
+          <RobotModel isMotionReduced={prefersReducedMotion} isWaving={isHovered} />
         </Canvas>
       </span>
     </MotionButton>
@@ -835,10 +856,6 @@ const GlobalChatbot = () => {
 
   const [queryRAG] = useQueryRAGMutation();
 
-  const isHeritageDetailPage =
-    location.pathname.startsWith("/heritage/") &&
-    !location.pathname.includes("/chat/heritage/");
-
   const welcomeMessage = useMemo(
     () => ({
       id: "welcome",
@@ -852,12 +869,6 @@ const GlobalChatbot = () => {
     }),
     [],
   );
-
-  useEffect(() => {
-    if (isHeritageDetailPage) {
-      setIsOpen(false);
-    }
-  }, [isHeritageDetailPage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -955,7 +966,7 @@ const GlobalChatbot = () => {
     setIsMinimized(false);
   };
 
-  if (isHeritageDetailPage) {
+  if (location.pathname.includes("/chat/heritage/")) {
     return null;
   }
 

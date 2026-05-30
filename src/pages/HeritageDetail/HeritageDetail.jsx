@@ -7,10 +7,8 @@ import HeritageCard from '~/components/Heritage/HeritageCard'
 import HeritageDetailSkeleton from './HeritageDetailSkeleton'
 import { Button } from '~/components/common/ui/Button'
 import { selectCurrentUser } from '~/store/slices/authSlice'
-import { MessageCircle, X } from 'lucide-react'
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '~/components/common/ui/Dialog'
 import {
-  HeritageChat,
   LeaderboardTable,
   HeritageKnowledgeTest,
   HeritageDetailTabs,
@@ -63,7 +61,6 @@ const HeritageDetail = () => {
   }, [allHeritages, id])
 
   const [activeFeature, setActiveFeature] = useState(null)
-  const [isChatOpen, setIsChatOpen] = useState(false)
 
   const handleFeatureClick = (feature) => {
     if (!isAuthenticated) {
@@ -83,7 +80,6 @@ const HeritageDetail = () => {
   }
 
   const closeFeatureDialog = () => setActiveFeature(null)
-  const toggleChat = () => setIsChatOpen(!isChatOpen)
 
   if (isError) {
     return (
@@ -140,33 +136,6 @@ const HeritageDetail = () => {
               </div>
             </div>
           </div>
-          {isAuthenticated && !isChatOpen && (
-            <Button
-              className='fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light'
-              onClick={toggleChat}
-            >
-              <MessageCircle className='w-6 h-6' />
-            </Button>
-          )}
-          {isAuthenticated && isChatOpen && (
-            <div className='fixed bottom-6 right-6 z-50 w-[300px] overflow-hidden rounded-2xl border border-museum-gold/25 bg-museum-black shadow-museum-card'>
-              <div className='flex items-center justify-between bg-museum-gold p-3 text-museum-black'>
-                <h3 className='text-sm font-medium'>{t('heritageDetail.chatAbout')} {data?.name}</h3>
-                <Button
-                  className='p-1 bg-transparent hover:bg-museum-black/10'
-                  onClick={toggleChat}
-                >
-                  <X className='w-4 h-4' />
-                </Button>
-              </div>
-              <HeritageChat
-                heritageId={id}
-                heritageName={data?.name}
-                landmarkData={data}
-                onClose={toggleChat}
-              />
-            </div>
-          )}
           <Dialog open={activeFeature === 'leaderboard'} onClose={closeFeatureDialog}>
             <DialogHeader>
               <DialogTitle>{t('heritageDetail.leaderboardTitle')}</DialogTitle>

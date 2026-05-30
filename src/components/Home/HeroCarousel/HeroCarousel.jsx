@@ -101,9 +101,25 @@ const HeroCarousel = () => {
                   </span>
                   <ShieldCheck className="h-6 w-6 text-museum-jade" />
                 </div>
-                <div className="mx-auto flex aspect-square max-w-[280px] items-center justify-center rounded-full border-[14px] border-double border-museum-gold bg-[radial-gradient(circle,rgba(216,162,74,0.32),rgba(165,82,45,0.16)_58%,transparent_59%)]">
-                  <div className="flex h-36 w-36 items-center justify-center rounded-full border border-museum-terracotta/50 bg-museum-gold/15">
-                    <LandmarkMark />
+                <div className="relative overflow-hidden rounded-[1.35rem] border border-museum-gold/35 bg-museum-black/10 p-2 shadow-[0_24px_60px_rgba(27,19,12,0.18)]">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1rem]">
+                    <img
+                      src="/images/hero-artifact-temple.jpg"
+                      alt="Van Mieu Quoc Tu Giam"
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,10,7,0.02)_0%,rgba(11,10,7,0.18)_58%,rgba(11,10,7,0.62)_100%)]" />
+                    <div className="absolute inset-x-0 bottom-0 p-4 text-museum-ivory">
+                      <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-museum-gold-light">
+                        {t("home.hero.artifact.featuredLabel")}
+                      </p>
+                      <h2 className="mt-1 font-display text-2xl font-semibold leading-none">
+                        {t("home.hero.artifact.siteName")}
+                      </h2>
+                      <p className="mt-1 text-xs text-museum-parchment/82">
+                        {t("home.hero.artifact.siteLocation")}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="mt-7 grid grid-cols-2 gap-3">
@@ -120,7 +136,7 @@ const HeroCarousel = () => {
                       {t("home.hero.artifact.milestoneLabel")}
                     </div>
                     <div className="mt-1 font-display text-xl font-semibold">
-                      1288
+                      1070
                     </div>
                   </div>
                 </div>
@@ -132,14 +148,5 @@ const HeroCarousel = () => {
     </section>
   );
 };
-
-const LandmarkMark = () => (
-  <svg viewBox="0 0 96 96" className="h-20 w-20 text-museum-seal" aria-hidden="true">
-    <path
-      fill="currentColor"
-      d="M48 10 12 28v8h72v-8L48 10Zm-25 32v30h10V42H23Zm20 0v30h10V42H43Zm20 0v30h10V42H63ZM16 78v8h64v-8H16Z"
-    />
-  </svg>
-);
 
 export default HeroCarousel;

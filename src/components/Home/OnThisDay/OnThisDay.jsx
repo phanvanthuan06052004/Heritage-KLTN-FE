@@ -6,40 +6,25 @@ import { useLanguage } from "~/hooks/useLanguage";
 import { historicalEvents } from "./onThisDayData";
 
 const eventTranslationsEN = {
-  "1-1": {
-    title: "Lê Lợi becomes Emperor",
+  "1-31": {
+    title: "Tết Offensive",
     description:
-      "Lê Lợi officially ascended the throne, founding the Later Lê dynasty after ten years of victorious resistance against Ming forces.",
-  },
-  "1-28": {
-    title: "Victory of Ngọc Hồi - Đống Đa",
-    description:
-      "Emperor Quang Trung defeated Qing forces and liberated the imperial capital of Thăng Long.",
+      "The Tết Offensive spread across South Vietnam, becoming a major turning point in the Vietnam War.",
   },
   "2-3": {
     title: "Founding of the Communist Party of Vietnam",
     description:
       "The Communist Party of Vietnam was founded in Hong Kong under the leadership of Nguyễn Ái Quốc.",
   },
-  "2-15": {
-    title: "Opening of the Ho Chi Minh Trail at sea",
-    description:
-      "The maritime Ho Chi Minh route was opened to support the southern battlefield.",
-  },
   "3-8": {
-    title: "First battle involving U.S. troops in Vietnam",
+    title: "U.S. Marines land in Đà Nẵng",
     description:
-      "U.S. Marines landed in Đà Nẵng, marking the start of direct American combat involvement in Vietnam.",
+      "The first U.S. ground combat units landed in Đà Nẵng, expanding direct American military involvement in Vietnam.",
   },
-  "3-20": {
-    title: "Battle of Như Nguyệt",
+  "4-9": {
+    title: "Victory at Bạch Đằng",
     description:
-      "Lý Thường Kiệt defeated Song forces on the Như Nguyệt River, one of Vietnam’s great historical victories.",
-  },
-  "4-5": {
-    title: "Third Bạch Đằng victory",
-    description:
-      "Trần Hưng Đạo commanded the naval battle that destroyed Yuan forces on the Bạch Đằng River.",
+      "Đại Việt forces under Trần Hưng Đạo defeated the Yuan fleet on the Bạch Đằng River.",
   },
   "4-30": {
     title: "Liberation of the South and national reunification",
@@ -49,92 +34,82 @@ const eventTranslationsEN = {
   "5-7": {
     title: "Victory at Điện Biên Phủ",
     description:
-      "Vietnamese forces defeated the French at Điện Biên Phủ, ending nine years of resistance against France.",
+      "Vietnamese forces won a decisive victory at Điện Biên Phủ, ending the war against French colonial rule.",
   },
   "5-19": {
     title: "Birth of President Hồ Chí Minh",
     description:
-      "Hồ Chí Minh, the great leader of the Vietnamese people, was born in Sen Village, Nam Đàn, Nghệ An.",
+      "Nguyễn Sinh Cung, later President Hồ Chí Minh, was born in Sen Village, Nam Đàn, Nghệ An.",
   },
-  "6-16": {
-    title: "Founding of the Vietnamese Nationalist Party",
+  "6-5": {
+    title: "Nguyễn Tất Thành leaves to seek national salvation",
     description:
-      "The Vietnamese Nationalist Party was founded under the leadership of Nguyễn Thái Học.",
+      "Nguyễn Tất Thành left Nhà Rồng Wharf aboard the Amiral Latouche Tréville to begin his journey abroad.",
   },
-  "6-28": {
-    title: "Outbreak of the Cần Vương movement",
+  "6-21": {
+    title: "First issue of Thanh Niên newspaper",
     description:
-      "Tôn Thất Thuyết supported Emperor Hàm Nghi and launched the Cần Vương movement against French rule.",
+      "Thanh Niên, the newspaper of the Vietnamese Revolutionary Youth League founded by Nguyễn Ái Quốc, published its first issue in Guangzhou.",
+  },
+  "7-13": {
+    title: "Emperor Hàm Nghi issues the Cần Vương edict",
+    description:
+      "At Tân Sở, Emperor Hàm Nghi issued the Cần Vương edict calling on the people to resist French colonial rule.",
   },
   "7-17": {
     title: "Hồ Chí Minh’s appeal against the U.S. war",
     description:
       "President Hồ Chí Minh issued a national call for resistance against the U.S. war.",
   },
-  "7-25": {
+  "8-2": {
     title: "Gulf of Tonkin incident",
     description:
-      "Events in the Gulf of Tonkin led the United States to expand the war into North Vietnam.",
+      "The USS Maddox reported an attack in the Gulf of Tonkin, an event that led the United States to expand the war in Vietnam.",
   },
   "8-19": {
-    title: "Success of the August Revolution",
+    title: "Success of the August Revolution in Hanoi",
     description:
-      "The people of Hà Nội seized power, opening nationwide victory for the August Revolution.",
-  },
-  "8-28": {
-    title: "Nguyễn Tất Thành leaves to seek a path for national liberation",
-    description:
-      "Nguyễn Tất Thành, later Hồ Chí Minh, left Sài Gòn aboard the Amiral Latouche Tréville.",
+      "The people of Hà Nội seized power, helping open the nationwide victory of the August Revolution.",
   },
   "9-2": {
     title: "Hồ Chí Minh reads the Declaration of Independence",
     description:
       "At Ba Đình Square, Hồ Chí Minh proclaimed the birth of the Democratic Republic of Vietnam.",
   },
-  "9-16": {
-    title: "Laos National Day connection",
-    description:
-      "Vietnam and Laos established close diplomatic ties through their shared struggle for independence.",
-  },
   "10-10": {
     title: "Liberation of Hanoi",
     description:
-      "The People’s Army of Vietnam took over Hanoi after nine years of resistance against French colonial rule.",
-  },
-  "10-15": {
-    title: "Opening of the Ho Chi Minh Trail",
-    description:
-      "The strategic North-South supply route officially opened through the Trường Sơn range.",
+      "The People’s Army of Vietnam took over Hanoi after the Geneva Accords, marking the capital's liberation day.",
   },
   "11-1": {
     title: "Coup against Ngô Đình Diệm",
     description:
-      "The Ngô Đình Diệm government was overthrown, opening a turbulent political period in South Vietnam.",
+      "The coup in Saigon overthrew the Ngô Đình Diệm government, opening a turbulent political period in South Vietnam.",
   },
   "11-20": {
     title: "First Battle of Hanoi",
     description:
-      "The people and defenders of Hanoi resisted French invasion; Nguyễn Tri Phương died heroically.",
+      "French forces attacked Hanoi; Governor Nguyễn Tri Phương was seriously wounded and later died.",
   },
   "12-19": {
     title: "Nationwide resistance against France",
     description:
-      "President Hồ Chí Minh issued the national call for resistance, beginning the nine-year war against France.",
+      "President Hồ Chí Minh issued the national call for resistance, beginning the war against French colonial rule.",
   },
   "12-25": {
-    title: "Beginning of the Tết Offensive campaign",
+    title: "Founding of the Vietnamese Nationalist Party",
     description:
-      "The General Offensive and Uprising of Tết Mậu Thân began across South Vietnam.",
+      "The Vietnamese Nationalist Party was founded in Hanoi under the early leadership of Nguyễn Thái Học.",
   },
 };
 
-function getDaysUntilNext(month, day, targetMonth, targetDay) {
-  const now = new Date(2026, month - 1, day);
-  const target = new Date(2026, targetMonth - 1, targetDay);
+function getDaysUntilNext(year, month, day, targetMonth, targetDay) {
+  const now = new Date(year, month - 1, day);
+  const target = new Date(year, targetMonth - 1, targetDay);
   if (target >= now) {
     return Math.round((target - now) / (1000 * 60 * 60 * 24));
   }
-  const nextYear = new Date(2027, targetMonth - 1, targetDay);
+  const nextYear = new Date(year + 1, targetMonth - 1, targetDay);
   return Math.round((nextYear - now) / (1000 * 60 * 60 * 24));
 }
 
@@ -142,6 +117,7 @@ const OnThisDay = () => {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const today = new Date();
+  const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
   const currentDay = today.getDate();
 
@@ -155,6 +131,7 @@ const OnThisDay = () => {
     let closestDays = Infinity;
     for (const event of historicalEvents) {
       const days = getDaysUntilNext(
+        currentYear,
         currentMonth,
         currentDay,
         event.month,
@@ -166,7 +143,7 @@ const OnThisDay = () => {
       }
     }
     return { type: "upcoming", event: closest, daysUntil: closestDays };
-  }, [currentMonth, currentDay]);
+  }, [currentYear, currentMonth, currentDay]);
 
   if (!match?.event) return null;
 

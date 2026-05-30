@@ -26,13 +26,16 @@
       "mapCta": "Open Heritage Map",
       "stats": {
         "years": "years of history",
-        "dynasties": "dynasties",
+        "dynasties": "historical periods",
         "interactive": "living experience"
       },
       "artifact": {
         "archive": "Annam Archive",
+        "featuredLabel": "Featured heritage site",
+        "siteName": "Temple of Literature",
+        "siteLocation": "Quốc Tử Giám, Hanoi",
         "dynastyLabel": "Dynasty",
-        "dynastyValue": "Tran Dynasty",
+        "dynastyValue": "Ly Dynasty",
         "milestoneLabel": "Milestone"
       },
       "slide1Title": "Discover Vietnamese Cultural Heritage",

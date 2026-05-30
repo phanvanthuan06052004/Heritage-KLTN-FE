@@ -16,7 +16,7 @@ const figures = [
   { name: "Lý Công Uẩn", year: "1010" },
   { name: "Quang Trung", year: "1788" },
   { name: "Ngô Quyền", year: "938" },
-  { name: "Mạc Đĩnh Chi", year: "1306" },
+  { name: "Mạc Đĩnh Chi", year: "1304" },
   { name: "Nguyễn Trãi", year: "1442" },
   { name: "Phạm Ngũ Lão", year: "1320" },
 ];

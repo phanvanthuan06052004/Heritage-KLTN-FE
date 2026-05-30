@@ -85,11 +85,15 @@ const AdminLayout = () => {
         <div className="flex items-center justify-between h-16 px-3 border-b border-border shrink-0">
           {isSidebarOpen ? (
             <Link to="/admin" className="flex items-center gap-2.5 group">
-              <span className="grid place-items-center w-9 h-9 rounded-lg bg-gradient-to-br from-heritage to-heritage-dark text-white shadow-sm group-hover:scale-105 transition-transform">
-                <Shield className="w-5 h-5" />
-              </span>
+              <img
+                src="/images/logo-mark.png"
+                alt="Heritage"
+                className="h-11 w-9 object-contain transition-transform group-hover:scale-105"
+              />
               <div className="flex flex-col leading-tight">
-                <span className="text-sm font-semibold text-foreground">Heritage</span>
+                <span className="text-sm font-semibold tracking-[0.14em] text-foreground">
+                  HERITAGE
+                </span>
                 <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
                   Admin Console
                 </span>
@@ -98,9 +102,9 @@ const AdminLayout = () => {
           ) : (
             <Link
               to="/admin"
-              className="grid place-items-center w-9 h-9 rounded-lg bg-gradient-to-br from-heritage to-heritage-dark text-white"
+              className="grid place-items-center w-10 h-10"
             >
-              <Shield className="w-5 h-5" />
+              <img src="/images/logo-mark.png" alt="Heritage" className="h-10 w-9 object-contain" />
             </Link>
           )}
           <Button

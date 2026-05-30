@@ -26,13 +26,16 @@
       "mapCta": "Mở bản đồ di sản",
       "stats": {
         "years": "năm lịch sử",
-        "dynasties": "triều đại",
+        "dynasties": "giai đoạn",
         "interactive": "trải nghiệm sống động"
       },
       "artifact": {
         "archive": "An Nam lưu trữ",
+        "featuredLabel": "Di tích tiêu biểu",
+        "siteName": "Văn Miếu",
+        "siteLocation": "Quốc Tử Giám, Hà Nội",
         "dynastyLabel": "Triều đại",
-        "dynastyValue": "Nhà Trần",
+        "dynastyValue": "Nhà Lý",
         "milestoneLabel": "Dấu mốc"
       },
       "slide1Title": "Khám Phá Di Sản Văn Hóa Việt Nam",
