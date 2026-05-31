@@ -1,31 +1,27 @@
 import { ArrowRight, Heart, ImageOff, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useState, memo, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/common/ui/Button";
-import { selectCurrentUser } from "~/store/slices/authSlice";
 import {
   useAddToFavoritesMutation,
   useRemoveFromFavoritesMutation,
 } from "~/store/apis/favoritesSlice";
-import {
-  selectIsFavorited,
-  setFavoriteStatus,
-  selectIsFavoriteInitialized,
-} from "~/store/slices/favoriteSlice";
+import { setFavoriteStatus } from "~/store/slices/favoriteSlice";
 
 const CONFIG = {
   placeholderImage: "/images/placeholder.webp",
   fallbackImage: "/images/placeholder.webp",
 };
 
-const HeritageCard = ({
+const HeritageCard = memo(({
   item,
-  isFavorited: propIsFavorited,
+  isFavorited: propIsFavorited = false,
+  isAuthenticated = false,
   onFavoriteChange,
   variant = "default",
 }) => {
@@ -42,29 +38,15 @@ const HeritageCard = ({
   } = item || {};
 
   const dispatch = useDispatch();
-  const userInfo = useSelector(selectCurrentUser);
-  const isAuthenticated = !!userInfo;
 
-  const isFavoritedFromStore = useSelector(selectIsFavorited(_id));
-  const isFavoriteInitialized = useSelector(selectIsFavoriteInitialized);
-
-  const [isFavorited, setIsFavorited] = useState(propIsFavorited || false);
-  const [imgSrc, setImgSrc] = useState(images[0] || CONFIG.placeholderImage);
+  const imgSrcRef = useRef(images[0] || CONFIG.placeholderImage);
   const [imgError, setImgError] = useState(false);
 
   const [addToFavorites, { isLoading: isAdding }] = useAddToFavoritesMutation();
   const [removeFromFavorites, { isLoading: isRemoving }] =
     useRemoveFromFavoritesMutation();
 
-  useEffect(() => {
-    if (propIsFavorited !== undefined) {
-      setIsFavorited(propIsFavorited);
-    } else if (isFavoriteInitialized) {
-      setIsFavorited(isFavoritedFromStore);
-    }
-  }, [propIsFavorited, isFavoritedFromStore, isFavoriteInitialized]);
-
-  const handleFavoriteClick = async (e) => {
+  const handleFavoriteClick = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -73,25 +55,22 @@ const HeritageCard = ({
       return;
     }
 
-    try {
-      const newFavoritedState = !isFavorited;
-      setIsFavorited(newFavoritedState);
-      dispatch(
-        setFavoriteStatus({
-          heritageId: _id,
-          isFavorited: newFavoritedState,
-        }),
-      );
+    const newFavoritedState = !propIsFavorited;
+    dispatch(
+      setFavoriteStatus({
+        heritageId: _id,
+        isFavorited: newFavoritedState,
+      }),
+    );
 
+    try {
       if (newFavoritedState) {
         await addToFavorites({
-          userId: userInfo._id,
           heritageId: _id,
         }).unwrap();
         toast.success("Added to favorites");
       } else {
         await removeFromFavorites({
-          userId: userInfo._id,
           heritageId: _id,
         }).unwrap();
         toast.success("Removed from favorites");
@@ -101,22 +80,19 @@ const HeritageCard = ({
         onFavoriteChange(newFavoritedState);
       }
     } catch (error) {
-      // Rollback
-      setIsFavorited(!isFavorited);
       dispatch(
         setFavoriteStatus({
           heritageId: _id,
-          isFavorited: !isFavorited,
+          isFavorited: !newFavoritedState,
         }),
       );
-      console.log(error);
       toast.error("An error occurred. Please try again later.");
     }
-  };
+  }, [_id, isAuthenticated, propIsFavorited, dispatch, addToFavorites, removeFromFavorites, onFavoriteChange]);
 
   const handleImageError = () => {
     setImgError(true);
-    setImgSrc(CONFIG.fallbackImage);
+    imgSrcRef.current = CONFIG.fallbackImage;
   };
 
   if (!item) return null;
@@ -140,9 +116,9 @@ const HeritageCard = ({
               </div>
             ) : (
               <img
-                src={imgSrc}
+                src={imgSrcRef.current}
                 alt={name}
-                className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="aspect-[4/3] w-full object-cover"
                 loading="lazy"
                 width="600"
                 height="450"
@@ -172,7 +148,7 @@ const HeritageCard = ({
                 disabled={isLoading}
                 className="absolute right-4 top-4 rounded-full bg-museum-black/70 text-museum-ivory backdrop-blur hover:bg-museum-gold hover:text-museum-black"
                 aria-label={
-                  isFavorited ? "Remove from favorites" : "Add to favorites"
+                  propIsFavorited ? "Remove from favorites" : "Add to favorites"
                 }
                 aria-live="polite"
               >
@@ -180,7 +156,7 @@ const HeritageCard = ({
                   size={20}
                   className={cn(
                     "transition-all",
-                    isFavorited && "fill-museum-seal text-museum-seal scale-110",
+                    propIsFavorited && "fill-museum-seal text-museum-seal scale-110",
                     isLoading && "opacity-50",
                   )}
                 />
@@ -226,15 +202,15 @@ const HeritageCard = ({
               <ImageOff className="w-10 h-10 text-muted-foreground/50" />
             </div>
           ) : (
-            <img
-              src={imgSrc}
-              alt={name}
-              className="aspect-[3/2] w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
-              width="600"
-              height="400"
-              onError={handleImageError}
-            />
+              <img
+                  src={imgSrcRef.current}
+                  alt={name}
+                  className="aspect-[3/2] w-full object-cover"
+                  loading="lazy"
+                  width="600"
+                  height="400"
+                  onError={handleImageError}
+                />
           )}
 
           {/* Favorite button */}
@@ -245,16 +221,16 @@ const HeritageCard = ({
               onClick={handleFavoriteClick}
               disabled={isLoading}
               className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm hover:bg-white/90"
-              aria-label={
-                isFavorited ? "Remove from favorites" : "Add to favorites"
-              }
-              aria-live="polite"
-            >
-              <Heart
-                size={20}
-                className={cn(
-                  "transition-all",
-                  isFavorited
+                aria-label={
+                  propIsFavorited ? "Remove from favorites" : "Add to favorites"
+                }
+                aria-live="polite"
+              >
+                <Heart
+                  size={20}
+                  className={cn(
+                    "transition-all",
+                    propIsFavorited
                     ? "fill-heritage text-heritage scale-110"
                     : "text-muted-foreground",
                   isLoading && "opacity-50",
@@ -285,6 +261,8 @@ const HeritageCard = ({
       </div>
     </Link>
   );
-};
+});
+
+HeritageCard.displayName = "HeritageCard";
 
 export default HeritageCard;

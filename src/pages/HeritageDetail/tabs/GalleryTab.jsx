@@ -43,7 +43,7 @@ const GalleryTab = ({ images = [], name = 'Di tích' }) => {
             >
               <img
                 src={imageSrc}
-                alt={`${name} - Ảnh ${index + 1}`}
+                alt={`${name} - ${index + 1}`}
                 className='w-full h-full object-cover hover:scale-105 transition-transform duration-300'
                 loading='lazy'
                 style={{ maxWidth: '100%', maxHeight: '100%' }}
@@ -54,13 +54,20 @@ const GalleryTab = ({ images = [], name = 'Di tích' }) => {
       </div>
 
       {selectedImage && (
-        <div
-          className='fixed inset-0 z-[100] flex h-dvh w-dvw items-center justify-center bg-museum-black/95 backdrop-blur-sm'
-          role='dialog'
-          aria-modal='true'
-          aria-label={`${name} - Ảnh ${selectedImage.index + 1}`}
-          onClick={() => setSelectedImage(null)}
-        >
+        <div className='fixed inset-0 z-[100]'>
+          <button
+            type='button'
+            onClick={() => setSelectedImage(null)}
+            aria-label='Close image'
+            className='fixed inset-0 bg-museum-black/95 backdrop-blur-sm'
+          />
+
+          <div
+            className='relative z-10 flex h-dvh w-dvw items-center justify-center'
+            role='dialog'
+            aria-modal='true'
+            aria-label={`${name} - ${selectedImage.index + 1}`}
+          >
           <button
             type='button'
             onClick={() => setSelectedImage(null)}
@@ -70,12 +77,14 @@ const GalleryTab = ({ images = [], name = 'Di tích' }) => {
             <X className='h-5 w-5' />
           </button>
 
-          <img
-            src={selectedImage.src}
-            alt={`${name} - Ảnh ${selectedImage.index + 1}`}
-            className='h-dvh w-dvw object-contain shadow-[0_32px_90px_rgba(0,0,0,0.55)]'
-            onClick={(event) => event.stopPropagation()}
-          />
+          <div className='max-w-full max-h-full'>
+            <img
+              src={selectedImage.src}
+              alt={`${name} - ${selectedImage.index + 1}`}
+              className='h-dvh w-dvw object-contain shadow-[0_32px_90px_rgba(0,0,0,0.55)]'
+            />
+          </div>
+          </div>
         </div>
       )}
     </>

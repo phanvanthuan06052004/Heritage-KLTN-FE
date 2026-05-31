@@ -4,13 +4,13 @@ import { cn } from "~/lib/utils";
 
 const buttonVariants = {
   variant: {
-    default: "bg-heritage text-primary-foreground hover:bg-heritage-dark",
+    default: "bg-[color:var(--heritage-primary)] text-[color:var(--primary-foreground)] hover:opacity-95",
     destructive:
-      "bg-destructive text-destructive-foreground hover:bg-destructive/85",
+      "bg-[color:var(--destructive)] text-[color:var(--destructive-foreground)] hover:opacity-90",
     outline:
-      "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-    ghost: "hover:bg-accent hover:text-accent-foreground",
-    link: "text-primary underline-offset-4 hover:underline",
+      "border border-[color:var(--input)] bg-[color:var(--card)] hover:bg-[color:var(--accent)] hover:text-[color:var(--accent-foreground)]",
+    ghost: "bg-transparent hover:bg-[color:var(--accent)] hover:text-[color:var(--accent-foreground)]",
+    link: "bg-transparent text-[color:var(--heritage-primary)] underline-offset-4 hover:underline",
   },
   size: {
     default: "h-10 px-4 py-2",
@@ -29,6 +29,7 @@ const Button = forwardRef(
       isLoading = false,
       disabled,
       children,
+      "aria-label": ariaLabel,
       ...props
     },
     ref,
@@ -50,6 +51,8 @@ const Button = forwardRef(
           className,
         )}
         disabled={disabled || isLoading}
+        aria-busy={isLoading ? "true" : undefined}
+        aria-label={ariaLabel}
         {...props}
       >
         {isLoading && (

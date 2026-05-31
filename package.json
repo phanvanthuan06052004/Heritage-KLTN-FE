@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.6",
@@ -37,20 +39,32 @@
     "vn-heritage": "file:"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.7",
     "@eslint/js": "^9.21.0",
+    "@storybook/addon-a11y": "^8.6.14",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/cli": "^8.6.14",
+    "@storybook/react": "^8.6.14",
+    "@storybook/react-vite": "^8.6.14",
+    "@storybook/test-runner": "^0.24.4",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.21",
+    "axe-core": "^4.11.4",
     "eslint": "^9.21.0",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "jest-axe": "^10.0.0",
     "jsdom": "^28.1.0",
     "msw": "^2.14.3",
     "postcss": "^8.5.3",
+    "storybook": "8.6.14",
     "tailwindcss": "^3.4.17",
     "vite": "^6.2.0",
     "vitest": "^4.1.5"

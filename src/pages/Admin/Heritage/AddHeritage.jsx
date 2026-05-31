@@ -312,7 +312,7 @@ const AddHeritage = () => {
                                         <div key={index} className="relative">
                                             <img
                                                 src={preview}
-                                                alt={`Image Preview ${index + 1}`}
+                                                alt={`Preview ${index + 1}`}
                                                 className="w-32 h-32 object-cover rounded"
                                             />
                                             <Button

@@ -794,9 +794,9 @@ const TypingIndicator = () => (
           <Loader2 className="h-4 w-4 animate-spin text-[#a95620]" />
           Đang tìm trong kho tri thức
           <span className="flex gap-1">
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#a95620]" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#a95620] [animation-delay:120ms]" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#a95620] [animation-delay:240ms]" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620]" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620] [animation-delay:150ms]" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620] [animation-delay:300ms]" />
           </span>
         </div>
       </div>

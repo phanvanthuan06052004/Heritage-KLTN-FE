@@ -4,14 +4,14 @@ import { cn } from "~/lib/utils";
 const inputVariants = {
   variant: {
     default:
-      "border-input bg-background text-foreground focus:ring-2 focus:ring-heritage focus:border-heritage",
+      "border-[color:var(--input)] bg-[color:var(--background)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--heritage-primary)] focus:border-[color:var(--heritage-primary)]",
     outline:
-      "border-input bg-transparent focus:ring-2 focus:ring-accent focus:border-accent",
-    ghost: "border-none bg-transparent focus:ring-0 hover:bg-accent/10",
+      "border-[color:var(--input)] bg-transparent focus:ring-2 focus:ring-[color:var(--accent)] focus:border-[color:var(--accent)]",
+    ghost: "border-none bg-transparent focus:ring-0 hover:bg-[color:var(--accent)]/10",
     destructive:
-      "border-destructive bg-background text-foreground focus:ring-2 focus:ring-destructive focus:border-destructive",
+      "border-[color:var(--destructive)] bg-[color:var(--background)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--destructive)] focus:border-[color:var(--destructive)]",
     success:
-      "border-green-500 bg-background text-foreground focus:ring-2 focus:ring-green-500 focus:border-green-500",
+      "border-[color:var(--success)] bg-[color:var(--background)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--success)] focus:border-[color:var(--success)]",
   },
   size: {
     default: "h-10 px-4 py-2",
@@ -23,7 +23,7 @@ const inputVariants = {
 
 const Input = forwardRef(
   (
-    { className, variant = "default", size = "default", error, ...props },
+    { className, variant = "default", size = "default", error, "aria-label": ariaLabel, ...props },
     ref,
   ) => {
     const variantClasses =
@@ -39,11 +39,12 @@ const Input = forwardRef(
           sizeClasses,
           "w-full rounded-md text-sm transition-colors",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          "placeholder:text-muted-foreground",
+          "placeholder:text-[color:var(--muted-foreground)]",
           "focus-visible:outline-none",
           className,
         )}
         aria-invalid={error ? "true" : undefined}
+        aria-label={ariaLabel}
         {...props}
       />
     );

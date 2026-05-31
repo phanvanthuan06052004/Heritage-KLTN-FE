@@ -263,7 +263,9 @@
   .museum-card {
     border: 1px solid rgba(var(--museum-gold), 0.2);
     background: linear-gradient(145deg, rgba(247, 239, 226, 0.09), rgba(216, 162, 74, 0.04));
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.45),
+      0 1px 3px rgba(216, 162, 74, 0.08);
   }
 
   .museum-paper {
@@ -348,10 +350,7 @@
   }
 
   .text-museum-gradient {
-    background: linear-gradient(90deg, rgb(var(--museum-ivory)), rgb(var(--museum-gold-light)) 48%, rgb(var(--museum-parchment)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: rgb(var(--museum-gold-light));
   }
 
   .museum-scrollbar {
@@ -374,34 +373,7 @@
   }
 }
 
-/* Custom scrollbar */
-.scrollbar-custom::-webkit-scrollbar {
-  width: 6px;
-}
-.scrollbar-custom::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scrollbar-custom::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--muted));
-  border-radius: 10px;
-}
-.scrollbar-custom::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(var(--primary) / 0.5);
-}
 
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.2);
-}
 
 /* Message word break */
 .message-bubble p {

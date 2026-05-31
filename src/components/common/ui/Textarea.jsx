@@ -23,13 +23,13 @@ const Textarea = forwardRef(
           ref={ref}
           className={cn(
             "flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm",
-            "bg-background ring-offset-background",
-            "placeholder:text-muted-foreground",
+            "bg-[color:var(--background)] ring-offset-background",
+            "placeholder:text-[color:var(--muted-foreground)]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50",
             error
-              ? "border-destructive focus-visible:ring-destructive"
-              : "border-input",
+              ? "border-[color:var(--destructive)] focus-visible:ring-[color:var(--destructive)]"
+              : "border-[color:var(--input)]",
             className,
           )}
           aria-invalid={error ? "true" : undefined}
@@ -44,10 +44,10 @@ const Textarea = forwardRef(
             className={cn(
               "absolute bottom-2 right-3 text-xs",
               charCount > maxLength * 0.9
-                ? "text-destructive"
+                ? "text-[color:var(--destructive)]"
                 : charCount > maxLength * 0.75
-                  ? "text-warning"
-                  : "text-muted-foreground",
+                  ? "text-[color:var(--warning)]"
+                  : "text-[color:var(--muted-foreground)]",
             )}
             aria-live="polite"
           >

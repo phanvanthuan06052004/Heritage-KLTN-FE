@@ -144,14 +144,15 @@ const WriteReviewModal = ({ heritageId, onClose, onSubmit }) => {
             {errors.content && <p id="content-error" className="mt-1 text-sm text-museum-gold-light">{errors.content}</p>}
           </div>
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium text-museum-parchment">Upload images (optional, max 5 images)</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="w-full rounded-2xl border border-museum-gold/20 bg-museum-ivory/8 p-2 text-sm text-museum-muted file:mr-3 file:rounded-full file:border-0 file:bg-museum-gold file:px-4 file:py-2 file:text-sm file:font-semibold file:text-museum-black hover:file:bg-museum-gold-light"
-            />
+              <label htmlFor="images" className="mb-2 block text-sm font-medium text-museum-parchment">Upload images (optional, max 5 images)</label>
+              <input
+                id="images"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="w-full rounded-2xl border border-museum-gold/20 bg-museum-ivory/8 p-2 text-sm text-museum-muted file:mr-3 file:rounded-full file:border-0 file:bg-museum-gold file:px-4 file:py-2 file:text-sm file:font-semibold file:text-museum-black hover:file:bg-museum-gold-light"
+              />
             {images.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {images.map((image, index) => (

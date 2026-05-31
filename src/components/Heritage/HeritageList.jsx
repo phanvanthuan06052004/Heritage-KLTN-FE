@@ -1,9 +1,9 @@
 import { cn } from "~/lib/utils";
-import { lazy, Suspense } from "react";
+import { useSelector } from "react-redux";
 import { Inbox } from "lucide-react";
-import HeritageSkeletonCard from "./HeritageSkeletonCard";
-
-const HeritageCard = lazy(() => import("./HeritageCard"));
+import HeritageCard from "./HeritageCard";
+import { selectCurrentUser } from "~/store/slices/authSlice";
+import { selectFavoriteMap } from "~/store/slices/favoriteSlice";
 
 const EmptyState = () => (
   <div
@@ -25,23 +25,32 @@ const EmptyState = () => (
 );
 
 const HeritageList = ({ heritages, className, cardVariant }) => {
+  const userInfo = useSelector(selectCurrentUser);
+  const favoriteMap = useSelector(selectFavoriteMap);
+  const isAuthenticated = !!userInfo;
+
   if (!heritages?.length) {
     return <EmptyState />;
   }
 
   return (
     <ul
-      role="list"
       className={cn(
         "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
         className,
       )}
     >
       {heritages.map((item) => (
-        <li key={item._id}>
-          <Suspense fallback={<HeritageSkeletonCard />}>
-            <HeritageCard item={item} variant={cardVariant} />
-          </Suspense>
+        <li
+          key={item._id}
+          style={{ contentVisibility: "auto", containIntrinsicSize: "auto 450px" }}
+        >
+          <HeritageCard 
+            item={item} 
+            variant={cardVariant}
+            isAuthenticated={isAuthenticated}
+            isFavorited={!!favoriteMap[item._id]}
+          />
         </li>
       ))}
     </ul>

@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
 
 // Địa chỉ máy chủ socket
-const SOCKET_SERVER_URL = 'http://localhost:8017'
+const SOCKET_SERVER_URL = 'http://localhost:3000'
 
 // Các sự kiện socket
 export const SOCKET_EVENTS = {
