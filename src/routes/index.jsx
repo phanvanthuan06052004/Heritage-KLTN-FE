@@ -28,6 +28,7 @@ const Profile = lazy(() => import("~/pages/Profile"));
 const Register = lazy(() => import("~/pages/Register"));
 const NotFound = lazy(() => import("~/pages/NotFound"));
 const ForgotPassword = lazy(() => import("~/pages/ForgotPassword"));
+const BattleTimeline = lazy(() => import("~/pages/BattleTimeline/BattleTimeline"));
 
 // Map route paths to lazy-loaded components
 const routeComponents = {
@@ -43,6 +44,7 @@ const routeComponents = {
   "/favorites": <Favorites />,
   "/explore": <GenericMapExplorer />,
   "/forgot-password": <ForgotPassword />,
+  "/battle-timeline": <BattleTimeline />,
 };
 
 /**

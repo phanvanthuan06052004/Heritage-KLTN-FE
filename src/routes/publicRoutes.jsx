@@ -11,6 +11,7 @@ const publicRoutes = [
   { path: "/favorites", element: null },
   { path: "/explore", element: null },
   { path: "/forgot-password", element: null, restricted: true },
+  { path: "/battle-timeline", element: null },
 ];
 
 export default publicRoutes;

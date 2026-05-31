@@ -1,4 +1,4 @@
-import { BookOpen, Headset, Heart, House, Map, UserPlus } from 'lucide-react'
+import { BookOpen, Headset, Heart, House, Map, Swords, UserPlus } from 'lucide-react'
 
 export const navLinks = [
   { 
@@ -15,6 +15,11 @@ export const navLinks = [
     nameKey: 'nav.explore',
     to: '/explore', 
     icon: () => <Map className='h-5 w-5' /> 
+  },
+  { 
+    nameKey: 'nav.battleTimeline',
+    to: '/battle-timeline', 
+    icon: () => <Swords className='h-5 w-5' /> 
   },
   { 
     nameKey: 'nav.about',
