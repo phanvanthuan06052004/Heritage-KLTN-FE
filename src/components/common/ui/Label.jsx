@@ -7,9 +7,9 @@ const Label = ({ children, className, required, ...props }) => (
   >
     {children}
     {required && (
-      <span className="ml-1 text-destructive" aria-hidden="true">
-        *
-      </span>
+        <span className="ml-1 text-[color:var(--destructive)]" aria-hidden="true">
+          *
+        </span>
     )}
   </label>
 );

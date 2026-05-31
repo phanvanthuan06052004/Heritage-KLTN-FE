@@ -102,7 +102,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-heritage-light flex items-center justify-center text-heritage-dark text-sm font-medium">
+            <div className="w-8 h-8 rounded-full bg-[color:var(--heritage-light)] flex items-center justify-center text-[color:var(--heritage-dark)] text-sm font-medium">
               {comment.username?.[0]?.toUpperCase() || "?"}
             </div>
           )}
@@ -115,7 +115,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
               {comment.username}
             </span>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-[color:var(--muted-foreground)]">
                 {comment.createdAt
                   ? new Date(comment.createdAt).toLocaleDateString("vi-VN")
                   : ""}
@@ -123,7 +123,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
               {isOwnComment && (
                 <button
                   onClick={handleDeleteComment}
-                  className="text-xs text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+                  className="text-xs text-[color:var(--destructive)] hover:text-[color:var(--destructive)]/80 transition-colors disabled:opacity-50"
                   disabled={isDeleting}
                   aria-label="Delete comment"
                 >
@@ -142,7 +142,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
           <div className="flex items-center gap-3 mt-2">
             <button
               onClick={toggleReplyForm}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              className="text-xs text-[color:var(--muted-foreground)] hover:text-[color:var(--heritage-primary)] transition-colors"
               aria-label={
                 replyForm.isOpen ? "Cancel reply" : "Reply to comment"
               }
@@ -153,7 +153,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
             {hasReplies && (
               <button
                 onClick={toggleReplies}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
+                className="text-xs text-[color:var(--muted-foreground)] hover:text-[color:var(--heritage-primary)] transition-colors flex items-center gap-1"
                 aria-label={showReplies ? "Hide replies" : "Show replies"}
               >
                 {showReplies ? (
@@ -173,7 +173,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
               className="mt-3 animate-slide-down"
             >
               <textarea
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                className="w-full rounded-md border border-[color:var(--input)] bg-[color:var(--background)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--heritage-primary)] resize-none"
                 rows="3"
                 placeholder="Write your reply..."
                 value={replyForm.content}
@@ -205,10 +205,10 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
         <div className="mt-2 animate-fade-in">
           {isLoadingReplies ? (
             <div className="flex justify-center py-4">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <Loader2 className="w-5 h-5 animate-spin text-[color:var(--heritage-primary)]" />
             </div>
           ) : repliesData?.discussArray?.length === 0 ? (
-            <p className="ml-14 text-sm text-muted-foreground py-2">
+            <p className="ml-14 text-sm text-[color:var(--muted-foreground)] py-2">
               <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
               No replies yet.
             </p>

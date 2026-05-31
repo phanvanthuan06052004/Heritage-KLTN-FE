@@ -131,6 +131,7 @@ const Favorites = () => {
                   key={item._id}
                   item={item}
                   isFavorited={true}
+                  isAuthenticated={true}
                   variant="museum"
                   onFavoriteChange={(newState) => {
                     if (!newState && favoriteItems.length <= 1) {

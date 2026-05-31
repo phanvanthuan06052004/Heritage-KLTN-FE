@@ -1,5 +1,6 @@
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./toast.css";
 
 const ToastProvider = () => {
   return (
@@ -13,9 +14,9 @@ const ToastProvider = () => {
       pauseOnFocusLoss
       draggable
       pauseOnHover
-      theme="colored"
-      toastClassName="rounded-lg text-sm shadow-lg"
-      progressClassName="h-1"
+      theme="dark"
+      toastClassName="museum-toast"
+      progressClassName="museum-toast-progress"
     />
   );
 };

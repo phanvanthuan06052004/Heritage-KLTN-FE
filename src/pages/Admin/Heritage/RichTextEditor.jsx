@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Bold, Italic, Link, List, ListOrdered, Pilcrow, Unlink } from 'lucide-react'
 import { Button } from '~/components/common/ui/Button'
 import { cn } from '~/lib/utils'
@@ -40,7 +40,7 @@ const RichTextEditor = ({ id, value = '', onChange, className, error }) => {
     return (
         <div className={cn('overflow-hidden rounded-md border border-input bg-background', error && 'border-destructive', className)}>
             <div className="flex flex-wrap items-center gap-1 border-b border-border bg-muted/40 p-2">
-                {toolbarActions.map(({ command, value: commandValue, icon: Icon, label }) => (
+                {toolbarActions.map(({ command, value: commandValue, icon, label }) => (
                     <Button
                         key={`${command}-${commandValue || ''}`}
                         type="button"
@@ -50,7 +50,7 @@ const RichTextEditor = ({ id, value = '', onChange, className, error }) => {
                         title={label}
                         onClick={() => runCommand(command, commandValue)}
                     >
-                        <Icon className="h-4 w-4" />
+                        {React.createElement(icon, { className: 'h-4 w-4' })}
                     </Button>
                 ))}
                 <Button

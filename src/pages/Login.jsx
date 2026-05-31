@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { Button } from "~/components/common/ui/Button";
 import { useSignInMutation } from "~/store/apis/authSlice";
 import { setCredentials } from "~/store/slices/authSlice";
-import { setAccessToken } from "~/store/slices/authSlice";
 
 const Login = () => {
   const { t } = useTranslation();
@@ -33,7 +32,8 @@ const Login = () => {
         password: formData.password,
       }).unwrap();
 
-      const { accessToken, refreshToken, sessionId, user } = response;
+      const payload = response?.data ?? response;
+      const { accessToken, refreshToken, sessionId, user } = payload;
 
       // dispatch(setAccessToken({ accessToken}));
       toast.success(t("auth.loginSuccess"));

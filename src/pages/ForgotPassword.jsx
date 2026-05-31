@@ -131,26 +131,26 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center sm:px-4 py-12 min-h-screen mt-navbar-mobile sm:mt-navbar">
-      <div className="max-w-md w-full animate-fade-up">
-        <div className="rounded-xl shadow-lg border border-border bg-card overflow-hidden">
+    <section className="museum-shell flex min-h-screen items-center justify-center px-4 py-12 pt-navbar-mobile sm:pt-navbar">
+      <div className="w-full max-w-md animate-fade-up">
+        <div className="museum-card overflow-hidden rounded-[2rem]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-heritage-light/50 to-accent p-8 text-center space-y-1">
-            <div className="w-16 h-16 rounded-full bg-heritage text-white flex items-center justify-center mx-auto mb-3">
+          <div className="museum-paper p-8 text-center space-y-1">
+            <div className="w-16 h-16 rounded-full bg-museum-gold text-museum-black flex items-center justify-center mx-auto mb-3 shadow-museum-gold">
               {isResetComplete ? (
                 <Check className="w-7 h-7" />
               ) : (
                 <KeyRound className="w-7 h-7" />
               )}
             </div>
-            <h3 className="text-xl sm:text-2xl text-heritage-dark font-bold tracking-tight">
+            <h3 className="font-display text-3xl text-museum-espresso font-semibold tracking-tight">
               {isResetComplete
                 ? t("auth.forgotPassword.titleSuccess")
                 : isSubmitted
                   ? t("auth.forgotPassword.titleReset")
                   : t("auth.forgotPassword.title")}
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-museum-terracotta">
               {isResetComplete
                 ? t("auth.forgotPassword.subtitleSuccess")
                 : isSubmitted
@@ -159,24 +159,24 @@ const ForgotPassword = () => {
             </p>
           </div>
 
-          <div className="p-6 sm:p-8">
+          <div className="p-6 text-museum-ivory sm:p-8">
             {/* Success state */}
             {isResetComplete ? (
               <div className="space-y-4">
-                <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300 flex items-start gap-3">
+                <div className="rounded-2xl border border-museum-jade/30 bg-museum-jade/15 p-4 text-sm text-museum-jade-light flex items-start gap-3">
                   <Check className="w-5 h-5 mt-0.5 shrink-0" />
                   <div>
                     <p className="font-medium">
                       {t("auth.forgotPassword.resetSuccessMessage")}
                     </p>
-                    <p className="mt-1">
+                    <p className="mt-1 text-museum-muted">
                       {t("auth.forgotPassword.redirectMessage")}
                     </p>
                   </div>
                 </div>
                 <Button
                   type="button"
-                  className="w-full"
+                  className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
                   onClick={() => navigate("/login")}
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -187,16 +187,16 @@ const ForgotPassword = () => {
               /* Email form */
               <form onSubmit={handleSubmit} className="space-y-5">
                 {error && (
-                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive text-center">
+                  <div className="rounded-2xl border border-museum-seal/35 bg-museum-seal/20 p-3 text-center text-sm text-museum-gold-light">
                     {error}
                   </div>
                 )}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="email">
+                  <label className="text-sm font-medium text-museum-gold-light" htmlFor="email">
                     {t("auth.email")}
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                     <input
                       type="email"
                       id="email"
@@ -207,18 +207,18 @@ const ForgotPassword = () => {
                         setEmail(e.target.value);
                         if (error) setError(null);
                       }}
-                      className="w-full h-11 pl-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none transition-colors"
+                      className="w-full h-11 pl-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                     />
                   </div>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-11"
+                  className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
                   disabled={isRequestingCode}
                 >
                   {isRequestingCode ? (
                     <div className="flex items-center gap-2">
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 border-2 border-museum-black border-t-transparent rounded-full" />
                       {t("auth.processing")}
                     </div>
                   ) : (
@@ -232,67 +232,57 @@ const ForgotPassword = () => {
             ) : (
               /* Verification form */
               <div className="space-y-5">
-                <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+                <div className="rounded-2xl border border-museum-gold/25 bg-museum-gold/10 p-4 text-sm text-museum-gold-light">
                   {t("auth.forgotPassword.emailSentMessage", { email })}
                 </div>
 
                 <form onSubmit={handleVerifyCode} className="space-y-5">
                   {error && (
-                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive text-center">
+                    <div className="rounded-2xl border border-museum-seal/35 bg-museum-seal/20 p-3 text-center text-sm text-museum-gold-light">
                       {error}
                     </div>
                   )}
 
                   <div className="space-y-2">
-                    <label
-                      className="text-sm font-medium"
-                      htmlFor="verificationCode"
-                    >
+                    <label className="text-sm font-medium text-museum-gold-light" htmlFor="verificationCode">
                       {t("auth.forgotPassword.verificationCode")}
                     </label>
                     <input
                       type="text"
                       id="verificationCode"
                       required
-                      placeholder={t(
-                        "auth.forgotPassword.verificationCodePlaceholder",
-                      )}
+                      placeholder={t("auth.forgotPassword.verificationCodePlaceholder")}
                       value={verificationCode}
                       onChange={(e) => {
                         setVerificationCode(e.target.value);
                         if (error) setError(null);
                       }}
-                      className="w-full h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none transition-colors"
+                      className="w-full h-11 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label
-                      className="text-sm font-medium"
-                      htmlFor="newPassword"
-                    >
+                    <label className="text-sm font-medium text-museum-gold-light" htmlFor="newPassword">
                       {t("auth.forgotPassword.newPassword")}
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                       <input
                         type={showPassword ? "text" : "password"}
                         id="newPassword"
                         required
-                        placeholder={t(
-                          "auth.forgotPassword.newPasswordPlaceholder",
-                        )}
+                        placeholder={t("auth.forgotPassword.newPasswordPlaceholder")}
                         value={newPassword}
                         onChange={(e) => {
                           setNewPassword(e.target.value);
                           if (error) setError(null);
                         }}
-                        className="w-full h-11 pl-10 pr-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none transition-colors"
+                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-muted hover:text-museum-black transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="w-4 h-4" />
@@ -304,34 +294,27 @@ const ForgotPassword = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label
-                      className="text-sm font-medium"
-                      htmlFor="confirmPassword"
-                    >
+                    <label className="text-sm font-medium text-museum-gold-light" htmlFor="confirmPassword">
                       {t("auth.confirmPassword")}
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         id="confirmPassword"
                         required
-                        placeholder={t(
-                          "auth.forgotPassword.confirmPasswordPlaceholder",
-                        )}
+                        placeholder={t("auth.forgotPassword.confirmPasswordPlaceholder")}
                         value={confirmPassword}
                         onChange={(e) => {
                           setConfirmPassword(e.target.value);
                           if (error) setError(null);
                         }}
-                        className="w-full h-11 pl-10 pr-10 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none transition-colors"
+                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-muted hover:text-museum-black transition-colors"
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="w-4 h-4" />
@@ -345,12 +328,12 @@ const ForgotPassword = () => {
                   <div className="flex flex-col space-y-3">
                     <Button
                       type="submit"
-                      className="w-full h-11"
+                      className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
                       disabled={isResetting}
                     >
                       {isResetting ? (
                         <div className="flex items-center gap-2">
-                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                          <div className="animate-spin h-4 w-4 border-2 border-museum-black border-t-transparent rounded-full" />
                           {t("auth.processing")}
                         </div>
                       ) : (
@@ -363,7 +346,7 @@ const ForgotPassword = () => {
 
                     <Button
                       type="button"
-                      className="w-full h-11"
+                      className="w-full h-11 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
                       variant="outline"
                       disabled={cooldown > 0 || isResetting}
                       onClick={handleResendCode}
@@ -386,7 +369,7 @@ const ForgotPassword = () => {
           <div className="text-center p-6 pt-0 text-sm">
             <Link
               to="/login"
-              className="text-heritage font-medium hover:underline inline-flex items-center"
+              className="text-museum-gold-light font-medium hover:text-museum-ivory hover:underline inline-flex items-center"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               {t("auth.forgotPassword.backToLogin")}
@@ -394,7 +377,7 @@ const ForgotPassword = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -99,46 +99,40 @@ const AuthenConfirm = () => {
   }
 
   return (
-    <div className="flex items-center justify-center sm:px-4 py-12 min-h-screen mt-navbar-mobile sm:mt-navbar">
-      <div className="max-w-md w-full animate-fade-up">
-        <div className="rounded-xl shadow-lg border border-border bg-card overflow-hidden">
+    <section className="museum-shell flex min-h-screen items-center justify-center px-4 py-12 pt-navbar-mobile sm:pt-navbar">
+      <div className="w-full max-w-md animate-fade-up">
+        <div className="museum-card overflow-hidden rounded-[2rem]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-heritage-light/50 to-accent p-8 text-center space-y-1">
-            <div className="w-16 h-16 rounded-full bg-heritage text-white flex items-center justify-center mx-auto mb-3">
+          <div className="museum-paper p-8 text-center space-y-1">
+            <div className="w-16 h-16 rounded-full bg-museum-gold text-museum-black flex items-center justify-center mx-auto mb-3 shadow-museum-gold">
               <Shield className="w-7 h-7" />
             </div>
-            <h3 className="text-xl sm:text-2xl text-heritage-dark font-bold tracking-tight">
+            <h3 className="font-display text-3xl text-museum-espresso font-semibold tracking-tight">
               Email Verification
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-museum-terracotta">
               Enter the 6-digit OTP sent to{" "}
-              <strong className="text-foreground">{email}</strong>
+              <strong className="text-museum-espresso">{email}</strong>
             </p>
           </div>
 
           {/* Content */}
-          <div className="p-6 sm:p-8">
+          <div className="p-6 text-museum-ivory sm:p-8">
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Success message */}
               {resendMessage && (
-                <div className="p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300 text-center">
+                <div className="rounded-2xl border border-museum-jade/30 bg-museum-jade/15 p-3 text-center text-sm text-museum-jade-light">
                   {resendMessage}
                 </div>
               )}
 
-              {/* Error message */}
               {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive text-center">
+                <div className="rounded-2xl border border-museum-seal/35 bg-museum-seal/20 p-3 text-center text-sm text-museum-gold-light">
                   {error}
                 </div>
               )}
 
-              {/* Code input */}
               <div className="space-y-2">
-                <label
-                  className="text-sm font-medium text-foreground"
-                  htmlFor="code"
-                >
+                <label className="text-sm font-medium text-museum-gold-light" htmlFor="code">
                   Verification Code
                 </label>
                 <input
@@ -152,19 +146,18 @@ const AuthenConfirm = () => {
                     if (error) setError(null);
                   }}
                   maxLength={8}
-                  className="w-full h-12 text-center text-lg font-mono tracking-widest rounded-lg border border-input bg-background placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none transition-colors"
-                  autoFocus
+                  className="w-full h-12 text-center text-lg font-mono tracking-widest rounded-xl border border-museum-gold/20 bg-museum-ivory text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-11"
+                className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                    <div className="animate-spin h-4 w-4 border-2 border-museum-black border-t-transparent rounded-full" />
                     Verifying...
                   </div>
                 ) : (
@@ -176,11 +169,11 @@ const AuthenConfirm = () => {
               </Button>
             </form>
 
-            <div className="text-center pt-6 text-sm">
+            <div className="pt-6 text-center text-sm">
               <button
                 onClick={handleResendCode}
                 disabled={resendCooldown > 0 || isLoading}
-                className="inline-flex items-center gap-2 text-heritage hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-2 text-museum-gold-light hover:text-museum-ivory hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Resend code {resendCooldown > 0 ? `(${resendCooldown}s)` : ""}
@@ -189,7 +182,7 @@ const AuthenConfirm = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

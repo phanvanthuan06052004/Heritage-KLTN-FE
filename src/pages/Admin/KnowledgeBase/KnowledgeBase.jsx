@@ -188,14 +188,15 @@ const KnowledgeBase = () => {
           </div>
 
           <form onSubmit={handleFileImport} className="space-y-3">
-            <label className="block text-sm font-medium text-foreground">
-              Document file
-            </label>
-            <Input
-              type="file"
-              accept=".pdf,.doc,.docx,.txt,.html,.htm,.md"
-              onChange={(event) => setFile(event.target.files?.[0] || null)}
-            />
+              <label htmlFor="kb-document-file" className="block text-sm font-medium text-foreground">
+                Document file
+              </label>
+              <Input
+                id="kb-document-file"
+                type={"file"}
+                accept=".pdf,.doc,.docx,.txt,.html,.htm,.md"
+                onChange={(event) => setFile(event.target.files?.[0] || null)}
+              />
             <Button type="submit" disabled={isUploading || !file}>
               {isUploadingFile ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -207,11 +208,12 @@ const KnowledgeBase = () => {
           </form>
 
           <form onSubmit={handleUrlImport} className="space-y-3 border-t border-border pt-4">
-            <label className="block text-sm font-medium text-foreground">
+            <label htmlFor="kb-website-url" className="block text-sm font-medium text-foreground">
               Website URL
             </label>
             <div className="flex gap-2">
               <Input
+                id="kb-website-url"
                 value={url}
                 onChange={(event) => setUrl(event.target.value)}
                 placeholder="https://..."

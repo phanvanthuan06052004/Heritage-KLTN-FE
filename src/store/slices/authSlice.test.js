@@ -2,7 +2,6 @@ import { configureStore } from '@reduxjs/toolkit'
 import authSlice, {
   setCredentials,
   setAccessToken,
-  setUser,
   logOut,
 } from './authSlice'
 
@@ -57,7 +56,9 @@ describe('authSlice', () => {
     store.dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }))
 
     const state = store.getState().auth
-    expect(state.userInfo).toEqual(user)
+    // normalizeUser enriches the user shape; assert key fields instead of exact object
+    expect(state.userInfo._id).toBe(user._id)
+    expect(state.userInfo.email).toBe(user.email)
     expect(state.accessToken).toBe(accessToken)
     expect(state.refreshToken).toBe(refreshToken)
     expect(state.sessionId).toBe(sessionId)

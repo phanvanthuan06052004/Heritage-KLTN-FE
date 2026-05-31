@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 import { useEffect, useRef, useCallback } from "react";
 import { cn } from "~/lib/utils";
 
-const Dialog = ({ open, onClose, children, className }) => {
+const Dialog = ({ open, onClose, children, className, ...props }) => {
   const dialogRef = useRef(null);
   const previousActiveElement = useRef(null);
 
@@ -60,15 +60,14 @@ const Dialog = ({ open, onClose, children, className }) => {
 
   if (!open) return null;
 
-  const handleContentClick = (e) => e.stopPropagation();
-
   return (
     <div className="fixed inset-0 z-50" role="presentation">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/60 animate-fade-in backdrop-blur-sm"
+      {/* Backdrop - use native button to be keyboard accessible */}
+      <button
+        type="button"
         onClick={onClose}
-        aria-hidden="true"
+        aria-label="Close dialog"
+        className="fixed inset-0 bg-black/60 animate-fade-in backdrop-blur-sm"
       />
 
       {/* Dialog Content */}
@@ -76,15 +75,15 @@ const Dialog = ({ open, onClose, children, className }) => {
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        {...props}
         tabIndex={-1}
         className={cn(
           "fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2",
-          "border bg-background p-6 shadow-xl sm:rounded-lg",
+          "border bg-[color:var(--background)] p-6 shadow-xl sm:rounded-lg",
           "animate-scale-in",
           "max-h-[85vh] overflow-y-auto",
           className,
         )}
-        onClick={handleContentClick}
       >
         {/* Close Button */}
         <button
@@ -141,7 +140,7 @@ const DialogTitle = ({ className, children, ...props }) => (
 const DialogDescription = ({ className, children, ...props }) => (
   <p
     id="dialog-description"
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm text-[color:var(--muted-foreground)]", className)}
     {...props}
   >
     {children}

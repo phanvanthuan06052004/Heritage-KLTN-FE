@@ -23,7 +23,7 @@ export function TabsList({ className, children }) {
         "h-10 w-full grid grid-cols-4 gap-1 mb-8 items-center justify-center rounded-md p-1",
         isMuseum
           ? "border border-museum-gold/15 bg-museum-ivory/7 text-museum-muted"
-          : "bg-muted text-muted-foreground",
+          : "bg-[color:var(--muted)] text-[color:var(--muted-foreground)]",
         className,
       )}
     >
@@ -51,8 +51,8 @@ export function TabsTrigger({ value, className, children, disabled }) {
           : "focus-visible:outline-ring",
         isMuseum && isActive && "bg-museum-gold text-museum-black shadow-museum-gold",
         isMuseum && !isActive && "hover:bg-museum-ivory/8 hover:text-museum-gold-light",
-        !isMuseum && isActive && "bg-heritage-light text-heritage-dark shadow-sm",
-        !isMuseum && !isActive && "hover:text-foreground",
+        !isMuseum && isActive && "bg-[color:var(--heritage-light)] text-[color:var(--heritage-dark)] shadow-sm",
+        !isMuseum && !isActive && "hover:text-[color:var(--foreground)]",
         className,
       )}
     >

@@ -233,7 +233,12 @@ const ChatHeritagePage = () => {
 
         {/* Overlay trên mobile */}
         {isMobile && sidebarOpen && (
-          <div className='fixed inset-0 bg-black/20 z-10 backdrop-blur-sm' onClick={() => setSidebarOpen(false)} />
+          <button
+            type='button'
+            onClick={() => setSidebarOpen(false)}
+            aria-label='Close sidebar'
+            className='fixed inset-0 bg-black/20 z-10 backdrop-blur-sm'
+          />
         )}
 
         {/* Khu vực trò chuyện */}

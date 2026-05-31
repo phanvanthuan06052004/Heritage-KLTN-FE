@@ -291,7 +291,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
                       <img
                         key={index}
                         src={image}
-                        alt={`Image ${index + 1}`}
+                        alt={`${index + 1}`}
                         className="max-w-[150px] rounded-lg mt-2"
                       />
                     ))}

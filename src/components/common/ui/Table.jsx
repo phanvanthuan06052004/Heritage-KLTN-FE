@@ -14,7 +14,7 @@ const Table = ({ children, className, wrapperClassName }) => (
 );
 
 const TableHeader = ({ children, className }) => (
-  <thead className={cn("bg-muted/60", className)}>{children}</thead>
+  <thead className={cn("bg-[color:var(--muted)]/60", className)}>{children}</thead>
 );
 
 const TableBody = ({ children }) => <tbody>{children}</tbody>;
@@ -70,7 +70,7 @@ const TableHead = ({
   >
     {sortable ? (
       <button
-        className="inline-flex items-center gap-1 hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="inline-flex items-center gap-1 hover:text-[color:var(--heritage-primary)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         onClick={onSort}
         aria-label={`Sort by ${children}${sortDirection === "asc" ? ", ascending" : sortDirection === "desc" ? ", descending" : ""}`}
       >

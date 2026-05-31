@@ -49,7 +49,7 @@ export const formatJsonField = (value) => {
     if (!value || (typeof value === 'object' && Object.keys(value).length === 0)) return ''
     try {
         return JSON.stringify(value, null, 2)
-    } catch (_error) {
+    } catch {
         return ''
     }
 }
@@ -58,7 +58,7 @@ export const parseJsonField = (value, fieldLabel) => {
     if (!value?.trim()) return undefined
     try {
         return JSON.parse(value)
-    } catch (_error) {
+    } catch {
         throw new Error(`${fieldLabel} must be valid JSON`)
     }
 }

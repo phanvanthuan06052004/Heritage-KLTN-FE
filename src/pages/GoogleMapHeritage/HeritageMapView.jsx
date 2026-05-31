@@ -340,15 +340,16 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                 )}
                 <div className="flex gap-2 items-center">
                     <div className="flex-1">
-                        <label className="mb-1 block font-medium text-museum-gold-light">Address:</label>
-                        <input
-                            type="text"
-                            value={currentAddress}
-                            readOnly
-                            placeholder="No location selected"
-                            className="w-full rounded-xl border border-museum-gold/20 bg-museum-ivory px-4 py-2.5 text-sm text-museum-black placeholder:text-museum-muted"
-                            aria-label="Current address"
-                        />
+                            <label htmlFor="heritage-current-address" className="mb-1 block font-medium text-museum-gold-light">Address:</label>
+                            <input
+                                id="heritage-current-address"
+                                type="text"
+                                value={currentAddress}
+                                readOnly
+                                placeholder="No location selected"
+                                className="w-full rounded-xl border border-museum-gold/20 bg-museum-ivory px-4 py-2.5 text-sm text-museum-black placeholder:text-museum-muted"
+                                aria-label="Current address"
+                            />
                     </div>
                     <Button
                         onClick={handleSelectCoordinates}
