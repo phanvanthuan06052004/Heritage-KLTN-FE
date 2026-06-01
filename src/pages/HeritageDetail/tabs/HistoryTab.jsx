@@ -1,4 +1,4 @@
-import { Gavel } from 'lucide-react'
+import { Clock3 } from 'lucide-react'
 
 const HistoryTab = ({ historicalEvents = [] }) => {
   if (!historicalEvents || historicalEvents.length === 0) {
@@ -6,19 +6,24 @@ const HistoryTab = ({ historicalEvents = [] }) => {
   }
 
   return (
-    <ul className='space-y-2'>
+    <ol className='relative space-y-5 before:absolute before:bottom-5 before:left-5 before:top-5 before:w-px before:bg-museum-gold/18'>
       {historicalEvents.map((event, index) => (
-        <li className='mb-6 rounded-2xl border border-museum-gold/15 bg-museum-ivory/6 p-5 transition-transform hover:scale-[1.005]' key={index}>
-          <div className='flex items-center mb-3'>
-            <div className='w-10 h-10 flex items-center justify-center text-museum-gold-light bg-museum-gold/10 rounded-full flex-shrink-0'>
-              <Gavel size={20} />
-            </div>
-            <h3 className='ml-4 text-lg font-semibold text-museum-ivory'>{event?.title}</h3>
+        <li className='relative pl-14' key={index}>
+          <div className='absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-museum-gold/22 bg-museum-black text-museum-gold-light'>
+            <Clock3 size={18} />
           </div>
-          <p className='text-justify leading-relaxed text-museum-parchment'>{event?.description}</p>
+          <article className='rounded-3xl border border-museum-gold/14 bg-museum-ivory/[0.045] p-5 sm:p-6'>
+            <div className='mb-3 flex items-start justify-between gap-4'>
+              <h3 className='font-display text-xl font-semibold leading-snug text-museum-ivory'>{event?.title}</h3>
+              <span className='shrink-0 rounded-full bg-museum-gold/12 px-2.5 py-1 text-xs font-semibold text-museum-gold-light'>
+                {String(index + 1).padStart(2, '0')}
+              </span>
+            </div>
+            <p className='max-w-[75ch] text-pretty leading-8 text-museum-parchment'>{event?.description}</p>
+          </article>
         </li>
       ))}
-    </ul>
+    </ol>
   )
 }
 

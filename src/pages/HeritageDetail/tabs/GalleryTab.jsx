@@ -28,7 +28,7 @@ const GalleryTab = ({ images = [], name = 'Di tích' }) => {
 
   return (
     <>
-      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
         {images.map((image, index) => {
           const imageSrc = image || 'https://placehold.co/600x400?text=Di+t%C3%ADch+L%E1%BB%8Bch+s%E1%BB%AD&font=roboto'
 
@@ -37,17 +37,19 @@ const GalleryTab = ({ images = [], name = 'Di tích' }) => {
               key={index}
               type='button'
               onClick={() => setSelectedImage({ src: imageSrc, index })}
-              className='flex items-center justify-center overflow-hidden rounded-2xl border border-museum-gold/15 bg-museum-ivory/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light'
-              style={{ width: '264px', height: '168px', maxWidth: '100%' }}
+              className='group relative aspect-[4/3] overflow-hidden rounded-3xl border border-museum-gold/15 bg-museum-ivory/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light'
               aria-label={`Phóng to ${name} - Ảnh ${index + 1}`}
             >
               <img
                 src={imageSrc}
                 alt={`${name} - ${index + 1}`}
-                className='w-full h-full object-cover hover:scale-105 transition-transform duration-300'
+                className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]'
                 loading='lazy'
-                style={{ maxWidth: '100%', maxHeight: '100%' }}
+                decoding='async'
               />
+              <span className='absolute bottom-3 left-3 rounded-full bg-museum-black/72 px-3 py-1 text-xs font-semibold text-museum-ivory'>
+                Ảnh {index + 1}
+              </span>
             </button>
           )
         })}

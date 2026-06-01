@@ -1,16 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useMemo } from "react";
-import { Search, RefreshCw, AlertTriangle } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import {
-  heritageSlice,
-  useLazyGetHeritagesQuery,
-} from "~/store/apis/heritageApi";
+import { useLazyGetHeritagesQuery } from "~/store/apis/heritageApi";
 import HeritageList from "~/components/Heritage/HeritageList";
 import { Pagination } from "~/components/common/Pagination";
 import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
 import {
   MuseumEmptyState,
+  MuseumErrorState,
   MuseumSkeletonGrid,
 } from "~/components/common/MuseumStates";
 import { setHeritagesPage } from "~/store/slices/paginationSlice";
@@ -20,12 +18,25 @@ import {
   selectHeritagesSearchQuery,
 } from "~/store/selectors/paginationSelectors";
 import { useLanguage, useLanguageChange } from "~/hooks/useLanguage";
-import { Button } from "~/components/common/ui/Button";
+
+const DEFAULT_TOTAL_PAGES = 1;
+
+const getListPayload = (response) => {
+  if (!response) return {};
+  return response?.data?.items ? response.data : response;
+};
+
+const scrollToPageTop = () => {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+};
 
 const Heritages = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { language } = useLanguage();
+  const shouldScrollTopRef = useRef(false);
   const currentPage = useSelector(selectHeritagesCurrentPage);
   const itemsPerPage = useSelector(selectHeritagesItemsPerPage);
   const searchQuery = useSelector(selectHeritagesSearchQuery);
@@ -35,6 +46,8 @@ const Heritages = () => {
       page: currentPage,
       limit: itemsPerPage,
       name: searchQuery || undefined,
+      sort: "title",
+      order: "asc",
       language,
     }),
     [currentPage, itemsPerPage, searchQuery, language],
@@ -44,11 +57,44 @@ const Heritages = () => {
     useLazyGetHeritagesQuery();
 
   const { heritages, totalPages } = useMemo(() => {
-    const heritages = response?.heritages || [];
-    const pagination = response?.pagination || {};
-    const totalPages = pagination.totalPages ?? 1;
-    return { heritages, totalPages };
-  }, [response]);
+    const payload = getListPayload(response);
+    const heritages = payload?.heritages || payload?.items || [];
+    const totalItems = payload?.total ?? payload?.pagination?.total ?? heritages.length;
+    const totalPages =
+      payload?.pagination?.totalPages ??
+      Math.max(DEFAULT_TOTAL_PAGES, Math.ceil(totalItems / itemsPerPage));
+
+    return { heritages, totalItems, totalPages };
+  }, [response, itemsPerPage]);
+
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      dispatch(setHeritagesPage(totalPages));
+    }
+  }, [currentPage, dispatch, totalPages]);
+
+  const isInitialLoading = isLoading && !response;
+
+  const renderSearchIndicator = () => {
+    if (!searchQuery) return null;
+
+    return (
+      <div className="mx-auto -mt-4 mb-8 inline-flex max-w-full items-center gap-2 rounded-full border border-museum-gold/25 bg-museum-gold/10 px-4 py-2 text-sm text-museum-gold-light">
+        <Search className="h-4 w-4 shrink-0" />
+        <span className="truncate">
+          Kết quả cho: <strong>"{searchQuery}"</strong>
+        </span>
+      </div>
+    );
+  };
+
+  const renderErrorState = () => (
+    <MuseumErrorState
+      title="Không tải được danh sách di sản"
+      description={error?.data?.message || "Vui lòng thử lại sau."}
+      onRetry={() => trigger(queryParams)}
+    />
+  );
 
   useEffect(() => {
     trigger(queryParams);
@@ -60,13 +106,20 @@ const Heritages = () => {
 
   const handlePageChange = useCallback(
     (page) => {
-      if (page >= 1 && page <= totalPages) {
+      if (page >= 1 && page <= totalPages && page !== currentPage) {
+        shouldScrollTopRef.current = true;
         dispatch(setHeritagesPage(page));
-        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     },
-    [dispatch, totalPages],
+    [currentPage, dispatch, totalPages],
   );
+
+  useEffect(() => {
+    if (!shouldScrollTopRef.current) return;
+
+    shouldScrollTopRef.current = false;
+    requestAnimationFrame(scrollToPageTop);
+  }, [currentPage]);
 
   // Generate pagination buttons
   const paginationButtons = useMemo(() => {
@@ -91,70 +144,49 @@ const Heritages = () => {
     return pages;
   }, [currentPage, totalPages]);
 
-  // Prefetch next page
-  const prefetchNextPage = useCallback(() => {
-    if (
-      currentPage < totalPages &&
-      (!searchQuery || heritages.length > 0) &&
-      !error
-    ) {
-      const nextPageParams = {
-        page: currentPage + 1,
-        limit: itemsPerPage,
-        name: searchQuery || undefined,
-        language,
-      };
-      dispatch(
-        heritageSlice.util.prefetch("getHeritages", nextPageParams, {
-          force: false,
-        }),
+  const renderContent = () => {
+    if (isInitialLoading || isFetching) {
+      return (
+        <MuseumSkeletonGrid
+          count={itemsPerPage}
+          className="gap-5 lg:grid-cols-3 xl:grid-cols-5"
+        />
       );
     }
-  }, [
-    currentPage,
-    totalPages,
-    itemsPerPage,
-    searchQuery,
-    heritages.length,
-    error,
-    dispatch,
-    language,
-  ]);
 
-  useEffect(() => {
-    if (!isLoading && !isFetching) {
-      prefetchNextPage();
+    if (error) {
+      return renderErrorState();
     }
-  }, [prefetchNextPage, isLoading, isFetching]);
 
-  // Error state
-  const renderErrorState = () => (
-    <div className="col-span-full flex flex-col items-center gap-4 rounded-[2rem] border border-museum-gold/20 bg-museum-ivory/5 px-6 py-16 text-center text-museum-ivory">
-      <div className="rounded-full bg-museum-seal/25 p-4">
-        <AlertTriangle className="h-10 w-10 text-museum-gold-light" />
-      </div>
-      <div>
-        <p className="text-lg font-medium text-museum-ivory">
-          Failed to load heritage sites
-        </p>
-        <p className="mt-1 text-sm text-museum-muted">
-          {error?.data?.message || "Please try again later"}
-        </p>
-      </div>
-      <Button
-        onClick={() => trigger(queryParams)}
-        variant="outline"
-        className="mt-2 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
-      >
-        <RefreshCw className="w-4 h-4 mr-2" />
-        Try again
-      </Button>
-    </div>
-  );
+    if (!heritages.length) {
+      return (
+        <MuseumEmptyState
+          title="Không tìm thấy di sản"
+          description="Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc."
+        />
+      );
+    }
+
+    return (
+      <>
+        <HeritageList heritages={heritages} cardVariant="museum" />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            paginationButtons={paginationButtons}
+            handlePageChange={handlePageChange}
+            isLoading={isFetching}
+            variant="museum"
+          />
+        )}
+      </>
+    );
+  };
 
   return (
     <section className="museum-shell min-h-screen overflow-hidden pt-navbar-mobile sm:pt-navbar">
-      <div className="lcn-container relative min-h-screen">
+      <div className="relative mx-auto min-h-screen max-w-[1600px] space-y-8 px-3 py-8 sm:space-y-10 sm:px-4 sm:py-10 lg:px-5 2xl:px-6">
         <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
 
         {/* Header */}
@@ -164,46 +196,15 @@ const Heritages = () => {
             title={t("home.title")}
             description={t("home.subtitle")}
             align="center"
+            className="mb-6 max-w-5xl sm:mb-8"
           />
 
           {/* Search indicator */}
-          {searchQuery && (
-            <div className="mx-auto -mt-4 mb-8 inline-flex items-center gap-2 rounded-full border border-museum-gold/25 bg-museum-gold/10 px-4 py-2 text-sm text-museum-gold-light">
-              <Search className="w-4 h-4" />
-              <span>
-                Results for: <strong>"{searchQuery}"</strong>
-              </span>
-            </div>
-          )}
+          {renderSearchIndicator()}
         </div>
 
         {/* Content */}
-        <div>
-          {isLoading ? (
-            <MuseumSkeletonGrid count={itemsPerPage} />
-          ) : error ? (
-            renderErrorState()
-          ) : !heritages.length ? (
-            <MuseumEmptyState
-              title="No heritage sites found"
-              description="Try adjusting your search or filters."
-            />
-          ) : (
-            <>
-              <HeritageList heritages={heritages} cardVariant="museum" />
-              {totalPages > 1 && (
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  paginationButtons={paginationButtons}
-                  handlePageChange={handlePageChange}
-                  isLoading={isFetching}
-                  variant="museum"
-                />
-              )}
-            </>
-          )}
-        </div>
+        <div>{renderContent()}</div>
       </div>
     </section>
   );

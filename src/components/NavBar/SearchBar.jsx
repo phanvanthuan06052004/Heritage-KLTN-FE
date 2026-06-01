@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search, X, Loader2 } from "lucide-react";
@@ -18,6 +18,10 @@ const SearchBar = ({ className }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    setSearchValue(searchQuery || "");
+  }, [searchQuery]);
+
   const handleClear = useCallback(() => {
     setSearchValue("");
     dispatch(setHeritagesSearchQuery(""));
@@ -25,12 +29,14 @@ const SearchBar = ({ className }) => {
   }, [dispatch]);
 
   const handleSearch = useCallback(() => {
-    if (searchValue !== searchQuery) {
+    const nextQuery = searchValue.trim();
+
+    if (nextQuery !== searchQuery) {
       setIsSearching(true);
-      dispatch(setHeritagesSearchQuery(searchValue));
+      dispatch(setHeritagesSearchQuery(nextQuery));
       setTimeout(() => setIsSearching(false), 300);
 
-      if (searchValue.trim() && location.pathname !== "/heritages") {
+      if (nextQuery && location.pathname !== "/heritages") {
         navigate("/heritages");
       }
     }
@@ -50,53 +56,58 @@ const SearchBar = ({ className }) => {
   };
 
   return (
-    <div className={cn("relative flex items-center", className)}>
+    <form
+      className={cn(
+        "group flex h-11 w-full min-w-0 items-center rounded-full border border-museum-gold/20 bg-museum-black/45 p-1 text-museum-ivory shadow-[inset_0_1px_0_rgba(247,239,226,0.08)] transition-colors duration-200 focus-within:border-museum-gold/65 focus-within:bg-museum-black/72 focus-within:ring-2 focus-within:ring-museum-gold/18 md:w-[260px] lg:w-[330px]",
+        className,
+      )}
+      role="search"
+      onSubmit={(event) => {
+        event.preventDefault();
+        handleSearch();
+      }}
+    >
+      <label className="sr-only" htmlFor="header-heritage-search">
+        Search heritage sites
+      </label>
+      <span className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center text-museum-gold-light/80 transition-colors group-focus-within:text-museum-gold-light">
+        <Search className="h-4 w-4" aria-hidden="true" />
+      </span>
       <input
+        id="header-heritage-search"
         ref={inputRef}
-        aria-label="Search heritage sites"
         placeholder={t("heritage.search")}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         value={searchValue}
-        className={cn(
-          "h-11 rounded-full border border-museum-gold/20 bg-museum-ivory/8",
-          "w-full min-w-0 sm:w-[220px] lg:w-[280px]",
-          "pr-10 pl-11 text-sm text-museum-ivory shadow-inner",
-          "placeholder:text-museum-muted/80",
-          "focus:border-museum-gold/60 focus:ring-2 focus:ring-museum-gold/20 focus:outline-none",
-          "transition-all duration-300",
-        )}
+        className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm font-medium text-museum-ivory outline-none placeholder:text-museum-muted/75"
       />
-      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-museum-gold-light/80" />
       {searchValue && (
         <button
+          type="button"
           aria-label="Clear search"
           onClick={handleClear}
-          className="absolute top-1/2 right-10 -translate-y-1/2 text-museum-muted hover:text-museum-ivory transition-all"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-museum-muted transition-colors hover:bg-museum-ivory/10 hover:text-museum-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
         >
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </button>
       )}
       <button
+        type="submit"
         aria-label="Search"
-        onClick={handleSearch}
         className={cn(
-          "absolute top-1/2 right-3 -translate-y-1/2",
-          "text-museum-muted hover:text-museum-gold-light transition-all",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-museum-gold text-museum-black transition-colors hover:bg-museum-gold-light disabled:cursor-wait disabled:opacity-70",
+          !searchValue && "bg-museum-ivory/10 text-museum-muted hover:bg-museum-ivory/14 hover:text-museum-ivory",
         )}
+        disabled={isSearching}
       >
         {isSearching ? (
-          <Loader2 className="animate-spin w-4 h-4" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <>
-            <Search className="h-4 w-4 sm:hidden" />
-            <span className="hidden rounded-full border border-museum-gold/20 px-1.5 py-0.5 text-[0.62rem] font-semibold sm:inline">
-              Enter
-            </span>
-          </>
+          <Search className="h-4 w-4" />
         )}
       </button>
-    </div>
+    </form>
   );
 };
 

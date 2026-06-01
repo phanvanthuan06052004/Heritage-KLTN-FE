@@ -17,21 +17,43 @@ const STATUS_COLORS = {
 const ICON_TYPES = ['infantry', 'cavalry', 'artillery', 'commander', 'base', 'tank', 'flag', 'defensive_line']
 
 // Isometric constants
-const ISO_TILT = 0.5236  // 30 degree tilt (perspective)
+const DEFAULT_TILT = 0.5236  // 30 degree tilt (perspective)
+const MIN_TILT = 0.2
+const MAX_TILT = 0.9
 const MIN_ZOOM = 0.4
 const MAX_ZOOM = 2.5
+
+const FLAG_BY_KEYWORD = [
+  [/viet|vpa|vietnam|minh/i, '🇻🇳'],
+  [/french|france|fr_/i, '🇫🇷'],
+  [/norman|william/i, '⚜️'],
+  [/saxon|english|anglo/i, '🏴'],
+  [/china|qing/i, '🇨🇳'],
+  [/japan/i, '🇯🇵'],
+  [/mongol/i, '🏳️'],
+  [/cham/i, '🚩'],
+  [/nguyen/i, '🟨'],
+  [/tay son|tayson/i, '🔴'],
+  [/khmer/i, '🇰🇭'],
+  [/united states|american|usa/i, '🇺🇸']
+]
+
+function getFactionFlag(faction) {
+  const haystack = `${faction?.id || ''} ${faction?.name || ''}`
+  return FLAG_BY_KEYWORD.find(([pattern]) => pattern.test(haystack))?.[1] || '⚑'
+}
 
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
 // Convert world X,Y (normalized 0-1) to screen coordinates with camera rotation
-function worldToIso(wx, wy, w, h, cx, cy, zoom, angle) {
+function worldToIso(wx, wy, w, h, cx, cy, zoom, angle, tilt = DEFAULT_TILT) {
   const ix = (wx - 0.5) * w
   const iy = (wy - 0.5) * h
   // Base isometric projection
-  const sx = (ix - iy) * Math.cos(ISO_TILT)
-  const sy = (ix + iy) * Math.sin(ISO_TILT)
+  const sx = (ix - iy) * Math.cos(tilt)
+  const sy = (ix + iy) * Math.sin(tilt)
   // Rotate by camera angle
   const cosA = Math.cos(angle)
   const sinA = Math.sin(angle)
@@ -48,15 +70,51 @@ function perspectiveScale(wy, zoom) {
   return zoom * (1 - wy * 0.35)
 }
 
-export default function CanvasRenderer({ timeline, currentStep, animProgress }) {
+function sameTarget(a, b) {
+  if (!a || !b) return false
+  return a.type === b.type && a.id === b.id && a.index === b.index
+}
+
+function distanceToSegment(px, py, ax, ay, bx, by) {
+  const dx = bx - ax
+  const dy = by - ay
+  if (dx === 0 && dy === 0) return Math.hypot(px - ax, py - ay)
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+}
+
+function hitTest(zones, x, y) {
+  for (let i = zones.length - 1; i >= 0; i--) {
+    const zone = zones[i]
+    if (zone.kind === 'circle' && Math.hypot(x - zone.x, y - zone.y) <= zone.r) return zone.target
+    if (zone.kind === 'rect' && x >= zone.x && x <= zone.x + zone.w && y >= zone.y && y <= zone.y + zone.h) return zone.target
+    if (zone.kind === 'line' && distanceToSegment(x, y, zone.from.x, zone.from.y, zone.to.x, zone.to.y) <= zone.tolerance) return zone.target
+  }
+  return null
+}
+
+export default function CanvasRenderer({
+  timeline,
+  currentStep,
+  animProgress,
+  selectedTarget,
+  hoveredTarget,
+  onSelectTarget,
+  onHoverTarget,
+  overlays = {},
+  cameraResetSignal,
+  cameraCommand
+}) {
   const canvasRef = useRef(null)
   const containerRef = useRef(null)
   const rafRef = useRef(null)
+  const renderRef = useRef(null)
+  const hitZonesRef = useRef([])
   const [loaded, setLoaded] = useState(false)
 
   // Camera state
-  const cameraRef = useRef({ ox: 0, oy: 0, zoom: 1, angle: 0 })
-  const dragRef = useRef({ active: false, mode: null, sx: 0, sy: 0, startOx: 0, startOy: 0, startAngle: 0 })
+  const cameraRef = useRef({ ox: 0, oy: 0, zoom: 1, angle: 0, tilt: DEFAULT_TILT })
+  const dragRef = useRef({ active: false, moved: false, mode: null, sx: 0, sy: 0, startOx: 0, startOy: 0, startAngle: 0 })
   const [cameraHint, setCameraHint] = useState(true)
 
   useEffect(() => {
@@ -71,6 +129,49 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     return () => { cancelled = true }
   }, [])
 
+  useEffect(() => {
+    cameraRef.current = { ox: 0, oy: 0, zoom: 1, angle: 0, tilt: DEFAULT_TILT }
+    renderRef.current?.()
+  }, [cameraResetSignal])
+
+  useEffect(() => {
+    if (!cameraCommand?.type) return
+    const camera = cameraRef.current
+    switch (cameraCommand.type) {
+      case 'rotateLeft':
+        camera.angle -= Math.PI / 10
+        break
+      case 'rotateRight':
+        camera.angle += Math.PI / 10
+        break
+      case 'tiltUp':
+        camera.tilt = Math.max(MIN_TILT, camera.tilt - 0.08)
+        break
+      case 'tiltDown':
+        camera.tilt = Math.min(MAX_TILT, camera.tilt + 0.08)
+        break
+      case 'topDown':
+        camera.angle = 0
+        camera.tilt = MIN_TILT
+        camera.zoom = Math.max(camera.zoom, 0.95)
+        break
+      case 'isometric':
+        camera.angle = 0
+        camera.tilt = DEFAULT_TILT
+        camera.zoom = 1
+        break
+      case 'cinematic':
+        camera.angle = -Math.PI / 7
+        camera.tilt = 0.78
+        camera.zoom = 1.22
+        break
+      default:
+        break
+    }
+    setCameraHint(false)
+    renderRef.current?.()
+  }, [cameraCommand])
+
   // Mouse drag handlers
   useEffect(() => {
     const container = containerRef.current
@@ -81,7 +182,7 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
       if (e.button === 2) {
         e.preventDefault()
         dragRef.current = {
-          active: true, mode: 'rotate',
+          active: true, moved: false, mode: 'rotate',
           sx: e.clientX, sy: e.clientY,
           startOx: cameraRef.current.ox, startOy: cameraRef.current.oy,
           startAngle: cameraRef.current.angle
@@ -89,7 +190,7 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
         container.style.cursor = 'grabbing'
       } else if (e.button === 0) {
         dragRef.current = {
-          active: true, mode: 'pan',
+          active: true, moved: false, mode: 'pan',
           sx: e.clientX, sy: e.clientY,
           startOx: cameraRef.current.ox, startOy: cameraRef.current.oy,
           startAngle: cameraRef.current.angle
@@ -100,20 +201,36 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     }
     const onContextMenu = (e) => e.preventDefault()
     const onMove = (e) => {
-      if (!dragRef.current.active) return
+      const rect = container.getBoundingClientRect()
+      const px = e.clientX - rect.left
+      const py = e.clientY - rect.top
+      if (!dragRef.current.active) {
+        const target = hitTest(hitZonesRef.current, px, py)
+        onHoverTarget?.(target)
+        container.style.cursor = target ? 'pointer' : 'grab'
+        return
+      }
       const dx = e.clientX - dragRef.current.sx
       const dy = e.clientY - dragRef.current.sy
+      if (Math.hypot(dx, dy) > 4) dragRef.current.moved = true
       if (dragRef.current.mode === 'rotate') {
         cameraRef.current.angle = dragRef.current.startAngle + dx * 0.005
       } else {
         cameraRef.current.ox = dragRef.current.startOx + dx
         cameraRef.current.oy = dragRef.current.startOy + dy
       }
-      render()
+      renderRef.current?.()
     }
-    const onUp = () => {
+    const onUp = (e) => {
+      if (dragRef.current.active && !dragRef.current.moved && dragRef.current.mode === 'pan') {
+        const rect = container.getBoundingClientRect()
+        const target = hitTest(hitZonesRef.current, e.clientX - rect.left, e.clientY - rect.top)
+        onSelectTarget?.(target)
+      }
       dragRef.current.active = false
-      container.style.cursor = 'grab'
+      const rect = container.getBoundingClientRect()
+      const target = hitTest(hitZonesRef.current, e.clientX - rect.left, e.clientY - rect.top)
+      container.style.cursor = target ? 'pointer' : 'grab'
     }
     const onWheel = (e) => {
       e.preventDefault()
@@ -127,12 +244,13 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
       const scale = cameraRef.current.zoom / prevZoom
       cameraRef.current.ox = mx + (cameraRef.current.ox - mx) * scale
       cameraRef.current.oy = my + (cameraRef.current.oy - my) * scale
-      render()
+      renderRef.current?.()
     }
     const onDblClick = () => {
-      cameraRef.current = { ox: 0, oy: 0, zoom: 1, angle: 0 }
-      render()
+      cameraRef.current = { ox: 0, oy: 0, zoom: 1, angle: 0, tilt: DEFAULT_TILT }
+      renderRef.current?.()
     }
+    const onMouseLeave = () => onHoverTarget?.(null)
 
     container.addEventListener('mousedown', onDown)
     container.addEventListener('contextmenu', onContextMenu)
@@ -140,6 +258,7 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     window.addEventListener('mouseup', onUp)
     container.addEventListener('wheel', onWheel, { passive: false })
     container.addEventListener('dblclick', onDblClick)
+    container.addEventListener('mouseleave', onMouseLeave)
     container.style.cursor = 'grab'
 
     return () => {
@@ -149,8 +268,9 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
       window.removeEventListener('mouseup', onUp)
       container.removeEventListener('wheel', onWheel)
       container.removeEventListener('dblclick', onDblClick)
+      container.removeEventListener('mouseleave', onMouseLeave)
     }
-  }, [timeline, currentStep, animProgress, loaded])
+  }, [timeline, currentStep, animProgress, loaded, onSelectTarget, onHoverTarget])
 
   const render = useCallback(() => {
     const canvas = canvasRef.current
@@ -169,9 +289,10 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     canvas.height = h * dpr
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-    const { ox, oy, zoom, angle } = cameraRef.current
+    const { ox, oy, zoom, angle, tilt } = cameraRef.current
     const cx = w / 2 + ox
     const cy = h / 2 + oy
+    const hitZones = []
 
     // Draw terrain first (uses its own coordinate system with camera applied)
     const mapWidth = timeline.map?.width || 900
@@ -186,10 +307,10 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     ctx.beginPath()
     // Calculate isometric ground plane corners
     const corners = [
-      worldToIso(0, 0, mapWidth, mapHeight, cx, cy, zoom, angle),
-      worldToIso(1, 0, mapWidth, mapHeight, cx, cy, zoom, angle),
-      worldToIso(1, 1, mapWidth, mapHeight, cx, cy, zoom, angle),
-      worldToIso(0, 1, mapWidth, mapHeight, cx, cy, zoom, angle),
+      worldToIso(0, 0, mapWidth, mapHeight, cx, cy, zoom, angle, tilt),
+      worldToIso(1, 0, mapWidth, mapHeight, cx, cy, zoom, angle, tilt),
+      worldToIso(1, 1, mapWidth, mapHeight, cx, cy, zoom, angle, tilt),
+      worldToIso(0, 1, mapWidth, mapHeight, cx, cy, zoom, angle, tilt),
     ]
 
     // Sky area above the isometric plane
@@ -224,15 +345,13 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     ctx.lineWidth = 0.5
     const gridSize = 0.08
     for (let gx = 0; gx <= 1; gx += gridSize) {
-      const a = worldToIso(gx, 0, mapWidth, mapHeight, cx, cy, zoom, angle)
-      const b = worldToIso(gx, 1, mapWidth, mapHeight, cx, cy, zoom, angle)
-      const ca = worldToIso(gx, 0, mapWidth, mapHeight, cx, cy, zoom, angle)
-      const cb = worldToIso(gx, 1, mapWidth, mapHeight, cx, cy, zoom, angle)
+      const ca = worldToIso(gx, 0, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
+      const cb = worldToIso(gx, 1, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
       ctx.beginPath(); ctx.moveTo(ca.x, ca.y); ctx.lineTo(cb.x, cb.y); ctx.stroke()
     }
     for (let gy = 0; gy <= 1; gy += gridSize) {
-      const a = worldToIso(0, gy, mapWidth, mapHeight, cx, cy, zoom, angle)
-      const b = worldToIso(1, gy, mapWidth, mapHeight, cx, cy, zoom, angle)
+      const a = worldToIso(0, gy, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
+      const b = worldToIso(1, gy, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
       ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke()
     }
 
@@ -245,16 +364,25 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     ctx.stroke()
 
     // Draw terrain features
-    if (timeline.map?.terrain) {
-      const scaleX = mapWidth / mapWidth
-      const scaleY = mapHeight / mapHeight
+    if (overlays.terrain !== false && timeline.map?.terrain) {
       timeline.map.terrain.forEach((t) => {
-        const pos = worldToIso(t.x / mapWidth, t.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle)
+        const pos = worldToIso(t.x / mapWidth, t.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
         const tw = t.width || 100
         const th = t.height || 60
         const twScaled = tw * zoom * 0.7
         const thScaled = th * zoom * 0.7 * (1 - (t.y / mapHeight) * 0.3)
-        drawTerrainFeature(ctx, t, pos.x - twScaled / 2, pos.y - thScaled / 2, twScaled, thScaled)
+        const target = { type: 'terrain', id: t.id }
+        const isSelected = sameTarget(selectedTarget, target)
+        const isHovered = sameTarget(hoveredTarget, target)
+        drawTerrainFeature(ctx, t, pos.x - twScaled / 2, pos.y - thScaled / 2, twScaled, thScaled, overlays.labels !== false, isSelected, isHovered)
+        hitZones.push({
+          kind: 'rect',
+          x: pos.x - twScaled / 2,
+          y: pos.y - thScaled / 2,
+          w: twScaled,
+          h: thScaled,
+          target
+        })
       })
     }
 
@@ -264,6 +392,31 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     const entities = timeline.entities || []
     const factions = timeline.factions || []
     const states = step.entity_states || []
+    const resolveActionPoint = (action, key) => {
+      const explicit = action[key]
+      if (Number.isFinite(explicit?.x) && Number.isFinite(explicit?.y)) return explicit
+
+      if (key === 'from') {
+        const actorState = states.find((state) => state.entity_id === action.actor_id)
+        const actor = entities.find((entity) => entity.id === action.actor_id)
+        return {
+          x: actorState?.x ?? actor?.initial_x ?? actor?.x ?? mapWidth / 2,
+          y: actorState?.y ?? actor?.initial_y ?? actor?.y ?? mapHeight / 2
+        }
+      }
+
+      const targetState = states.find((state) => state.entity_id === action.target_id)
+      const targetTerrain = timeline.map?.terrain?.find((terrain) => terrain.id === action.target_id)
+      if (targetState) return { x: targetState.x, y: targetState.y }
+      if (targetTerrain) {
+        return {
+          x: (targetTerrain.x || 0) + (targetTerrain.width || 0) / 2,
+          y: (targetTerrain.y || 0) + (targetTerrain.height || 0) / 2
+        }
+      }
+
+      return resolveActionPoint(action, 'from')
+    }
 
     let nextStates = []
     if (currentStep < timeline.steps.length - 1 && animProgress > 0) {
@@ -278,26 +431,49 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     // but we need them in iso space too
 
     // Draw effects
-    step.effects?.forEach((effect) => {
-      const pos = worldToIso(effect.x / mapWidth, effect.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle)
-      const pSize = perspectiveScale(effect.y / mapHeight, zoom)
-      drawEffectScaled(ctx, effect, pos.x, pos.y, pSize)
-    })
+    if (overlays.effects !== false) {
+      step.effects?.forEach((effect) => {
+        const pos = worldToIso(effect.x / mapWidth, effect.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
+        const pSize = perspectiveScale(effect.y / mapHeight, zoom)
+        drawEffectScaled(ctx, effect, pos.x, pos.y, pSize)
+      })
+    }
 
     // Draw action arrows
-    step.actions?.forEach((action) => {
-      const from = worldToIso(action.from.x / mapWidth, action.from.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle)
-      const to = worldToIso(action.to.x / mapWidth, action.to.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle)
-      const isoAction = {
-        ...action,
-        from: { x: from.x, y: from.y },
-        to: { x: to.x, y: to.y }
-      }
-      drawAction(ctx, isoAction, 1, 1)
-    })
+    if (overlays.actions !== false) {
+      step.actions?.forEach((action, index) => {
+        const actionFrom = resolveActionPoint(action, 'from')
+        const actionTo = resolveActionPoint(action, 'to')
+        const from = worldToIso(actionFrom.x / mapWidth, actionFrom.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
+        const to = worldToIso(actionTo.x / mapWidth, actionTo.y / mapHeight, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
+        const target = { type: 'action', id: `${step.step}-${index}`, index }
+        const isSelected = sameTarget(selectedTarget, target)
+        const isHovered = sameTarget(hoveredTarget, target)
+        if (isSelected || isHovered) {
+          ctx.save()
+          ctx.globalAlpha = isSelected ? 0.35 : 0.2
+          ctx.strokeStyle = isSelected ? '#F2C66D' : '#F7EFE2'
+          ctx.lineWidth = isSelected ? 9 : 7
+          ctx.lineCap = 'round'
+          ctx.beginPath()
+          ctx.moveTo(from.x, from.y)
+          ctx.lineTo(to.x, to.y)
+          ctx.stroke()
+          ctx.restore()
+        }
+        const isoAction = {
+          ...action,
+          label: overlays.labels === false ? null : action.label,
+          from: { x: from.x, y: from.y },
+          to: { x: to.x, y: to.y }
+        }
+        drawAction(ctx, isoAction, 1, 1)
+        hitZones.push({ kind: 'line', from, to, tolerance: 14, target })
+      })
+    }
 
     // Draw entities (with isometric projection + perspective scaling)
-    states.forEach((state) => {
+    if (overlays.units !== false) states.forEach((state) => {
       if (!state.visible) return
 
       const entity = entities.find((e) => e.id === state.entity_id)
@@ -315,9 +491,12 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
         }
       }
 
-      const pos = worldToIso(wx, wy, mapWidth, mapHeight, cx, cy, zoom, angle)
+      const pos = worldToIso(wx, wy, mapWidth, mapHeight, cx, cy, zoom, angle, tilt)
       const eSize = Math.max(38, 55 * perspectiveScale(wy, zoom))
       const opacity = STATUS_OPACITY[state.status] || 1
+      const target = { type: 'entity', id: state.entity_id }
+      const isSelected = sameTarget(selectedTarget, target)
+      const isHovered = sameTarget(hoveredTarget, target)
 
       // Status overlay circle
       const statusColor = STATUS_COLORS[state.status]
@@ -331,7 +510,33 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
         ctx.restore()
       }
 
-      drawEntity(ctx, { ...entity, factionColor: color, label: entity?.label }, pos.x, pos.y, eSize * 0.7, opacity)
+      if (isSelected || isHovered) {
+        ctx.save()
+        ctx.globalAlpha = isSelected ? 0.9 : 0.55
+        ctx.strokeStyle = isSelected ? '#F2C66D' : '#F7EFE2'
+        ctx.lineWidth = isSelected ? 3 : 2
+        ctx.setLineDash(isSelected ? [] : [5, 4])
+        ctx.beginPath()
+        ctx.arc(pos.x, pos.y, eSize * 1.08, 0, Math.PI * 2)
+        ctx.stroke()
+        ctx.setLineDash([])
+        ctx.restore()
+      }
+
+      drawEntity(
+        ctx,
+        {
+          ...entity,
+          factionColor: color,
+          factionFlag: getFactionFlag(faction),
+          label: overlays.labels === false ? null : entity?.label
+        },
+        pos.x,
+        pos.y,
+        eSize * 0.7,
+        opacity
+      )
+      hitZones.push({ kind: 'circle', x: pos.x, y: pos.y, r: eSize * 1.05, target })
 
       // Status overlays
       if (state.status === 'attacking') {
@@ -383,6 +588,7 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     })
 
     ctx.restore()
+    hitZonesRef.current = hitZones
 
     // Overlay: step indicator (fixed in screen space, not affected by camera)
     ctx.save()
@@ -400,16 +606,16 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     ctx.save()
     ctx.fillStyle = 'rgba(11,10,7,0.6)'
     ctx.beginPath()
-    ctx.roundRect(w - 80, 10, 70, 22, 6)
+    ctx.roundRect(w - 142, 10, 132, 22, 6)
     ctx.fill()
     ctx.fillStyle = 'rgba(216,162,74,0.7)'
     ctx.font = '10px monospace'
     ctx.textAlign = 'center'
-    ctx.fillText(`${Math.round(zoom * 100)}%`, w - 45, 25)
+    ctx.fillText(`${Math.round(zoom * 100)}% · ${Math.round(angle * 180 / Math.PI)}° · T${Math.round(tilt * 100)}`, w - 76, 25)
     ctx.restore()
 
     // Camera hint
-    if (cameraHint && zoom === 1 && ox === 0 && oy === 0 && angle === 0) {
+    if (cameraHint && zoom === 1 && ox === 0 && oy === 0 && angle === 0 && tilt === DEFAULT_TILT) {
       ctx.save()
       ctx.fillStyle = 'rgba(11,10,7,0.55)'
       const hintW = 340, hintH = 36
@@ -427,14 +633,18 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
     if (step.entity_states?.some(s => s.status === 'attacking')) {
       rafRef.current = requestAnimationFrame(render)
     }
-  }, [timeline, currentStep, animProgress, loaded, cameraHint])
+  }, [timeline, currentStep, animProgress, loaded, cameraHint, selectedTarget, hoveredTarget, overlays])
 
   // Render triggers
+  useEffect(() => {
+    renderRef.current = render
+  }, [render])
+
   useEffect(() => {
     if (!loaded) return
     render()
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [render])
+  }, [loaded, render])
 
   useEffect(() => {
     const hasAttacking = timeline?.steps[currentStep]?.entity_states?.some(
@@ -478,7 +688,7 @@ export default function CanvasRenderer({ timeline, currentStep, animProgress }) 
 function drawEffectScaled(ctx, effect, x, y, scale) {
   ctx.save()
   switch (effect.type) {
-    case 'explosion':
+    case 'explosion': {
       const grad = ctx.createRadialGradient(x, y, 2 * scale, x, y, 32 * scale)
       grad.addColorStop(0, '#F7EFE2')
       grad.addColorStop(0.15, '#F2C66D')
@@ -494,6 +704,7 @@ function drawEffectScaled(ctx, effect, x, y, scale) {
       ctx.arc(x, y, 5 * scale, 0, Math.PI * 2)
       ctx.fill()
       break
+    }
     case 'smoke':
       ctx.fillStyle = 'rgba(169,157,138,0.4)'
       for (let i = 0; i < 3; i++) {
@@ -525,10 +736,20 @@ function drawEffectScaled(ctx, effect, x, y, scale) {
 }
 
 // We need a local terrain feature renderer that doesn't use the old coordinate system
-function drawTerrainFeature(ctx, terrain, x, y, w, h) {
+function drawTerrainFeature(ctx, terrain, x, y, w, h, showLabel = true, selected = false, hovered = false) {
   ctx.save()
+  if (selected || hovered) {
+    ctx.save()
+    ctx.globalAlpha = selected ? 0.9 : 0.55
+    ctx.strokeStyle = selected ? '#F2C66D' : '#F7EFE2'
+    ctx.lineWidth = selected ? 2.5 : 1.5
+    ctx.setLineDash(selected ? [] : [5, 4])
+    ctx.strokeRect(x - 4, y - 4, w + 8, h + 8)
+    ctx.setLineDash([])
+    ctx.restore()
+  }
   switch (terrain.type) {
-    case 'hill':
+    case 'hill': {
       const cx = x + w / 2
       ctx.fillStyle = '#3d6b45'
       ctx.beginPath()
@@ -544,13 +765,14 @@ function drawTerrainFeature(ctx, terrain, x, y, w, h) {
       ctx.lineTo(cx, y + h * 0.4)
       ctx.closePath()
       ctx.fill()
-      if (terrain.label) {
+      if (showLabel && terrain.label) {
         ctx.fillStyle = 'rgba(232,221,200,0.9)'
         ctx.font = `${Math.max(9, w * 0.1)}px serif`
         ctx.textAlign = 'center'
         ctx.fillText(terrain.label, cx, y + h * 0.5) // Keep label
       }
       break
+    }
     case 'river':
       ctx.strokeStyle = 'rgba(25,55,35,0.7)'
       ctx.lineWidth = Math.max(h * 1.5, 8)
@@ -604,7 +826,7 @@ function drawTerrainFeature(ctx, terrain, x, y, w, h) {
       ctx.closePath()
       ctx.fill()
       break
-    case 'town':
+    case 'town': {
       ctx.fillStyle = 'rgba(138,110,90,0.3)'
       ctx.fillRect(x, y + h * 0.2, w, h * 0.8)
       const blds = [
@@ -628,6 +850,53 @@ function drawTerrainFeature(ctx, terrain, x, y, w, h) {
         ctx.fill()
       })
       break
+    }
+    case 'plain':
+      ctx.fillStyle = 'rgba(120,135,76,0.28)'
+      ctx.strokeStyle = 'rgba(216,162,74,0.18)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.stroke()
+      for (let i = 0; i < 4; i++) {
+        ctx.strokeStyle = 'rgba(247,239,226,0.08)'
+        ctx.beginPath()
+        ctx.moveTo(x + w * 0.15, y + h * (0.25 + i * 0.14))
+        ctx.quadraticCurveTo(x + w * 0.5, y + h * (0.12 + i * 0.12), x + w * 0.85, y + h * (0.26 + i * 0.13))
+        ctx.stroke()
+      }
+      break
+    case 'coast':
+      ctx.fillStyle = 'rgba(42,93,112,0.55)'
+      ctx.fillRect(x, y, w, h)
+      ctx.strokeStyle = 'rgba(247,239,226,0.35)'
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.moveTo(x + w * 0.12, y + h * 0.25)
+      ctx.bezierCurveTo(x + w * 0.35, y + h * 0.55, x + w * 0.62, y + h * 0.18, x + w * 0.9, y + h * 0.58)
+      ctx.stroke()
+      ctx.fillStyle = 'rgba(216,162,74,0.16)'
+      ctx.fillRect(x, y + h * 0.58, w, h * 0.42)
+      break
+    default:
+      ctx.fillStyle = 'rgba(216,162,74,0.12)'
+      ctx.strokeStyle = 'rgba(216,162,74,0.28)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.roundRect(x, y, w, h, Math.min(10, w * 0.08))
+      ctx.fill()
+      ctx.stroke()
+      break
+  }
+  if (showLabel && terrain.label && terrain.type !== 'hill') {
+    ctx.fillStyle = 'rgba(11,10,7,0.68)'
+    ctx.font = `${Math.max(9, Math.min(12, w * 0.1))}px serif`
+    ctx.textAlign = 'center'
+    const labelWidth = ctx.measureText(terrain.label).width
+    ctx.fillRect(x + w / 2 - labelWidth / 2 - 4, y + h / 2 - 9, labelWidth + 8, 16)
+    ctx.fillStyle = 'rgba(247,239,226,0.92)'
+    ctx.fillText(terrain.label, x + w / 2, y + h / 2 + 3)
   }
   ctx.restore()
 }

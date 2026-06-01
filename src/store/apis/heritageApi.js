@@ -24,6 +24,13 @@ const stripHtml = (value = '') =>
     .replace(/[ \t]{2,}/g, ' ')
     .trim()
 
+const unwrapResponseData = (response) => response?.data || response
+
+const getStrongText = (html = '') => {
+  const match = html.toString().match(/<strong[^>]*>(.*?)<\/strong>/i)
+  return match ? stripHtml(match[1]) : ''
+}
+
 const getBestMediaUrl = (media) => media?.url || media?.thumbnailUrl
 
 const getEmbeddedExtras = (heritage, language) => ({
@@ -44,12 +51,17 @@ const hasEmbeddedDetailExtras = (heritage) =>
 const normalizeHistoricalEvents = (timelines = [], heritage) => {
   const timelineEvents = timelines
     .filter((event) => event?.description)
-    .map((event) => ({
-      title: event.eventDate
-        ? new Date(event.eventDate).getFullYear().toString()
-        : 'Lịch sử',
-      description: stripHtml(event.description),
-    }))
+    .map((event) => {
+      const title =
+        getStrongText(event.description) ||
+        (event.eventDate ? new Date(event.eventDate).getFullYear().toString() : 'Lịch sử')
+      const description = stripHtml(event.description).replace(title, '').trim()
+
+      return {
+        title,
+        description: description || stripHtml(event.description),
+      }
+    })
 
   if (timelineEvents.length) return timelineEvents
   if (heritage?.history) {
@@ -109,6 +121,11 @@ export const normalizeHeritage = (
     nameSlug: translatedHeritage.slug,
     description,
     location,
+    media: effectiveMedia,
+    locations: effectiveLocations,
+    timelines: effectiveTimelines,
+    translations,
+    primaryLocation,
     images: images.length ? images : [PLACEHOLDER_IMAGE],
     coordinates:
       latitude !== undefined && longitude !== undefined
@@ -128,9 +145,18 @@ const getPagination = ({ total = 0, page = 1, limit = 10 }) => ({
   totalPages: Math.max(1, Math.ceil(total / limit)),
 })
 
+const unwrapHeritageListResponse = (response) => {
+  const payload = response?.data?.items ? response.data : response
+
+  return {
+    items: payload?.items || payload?.heritages || [],
+    total: payload?.total,
+  }
+}
+
 const buildHeritageListUrl = ({
   page = 1,
-  limit = 9,
+  limit = 20,
   name = '',
   status,
   type,
@@ -151,7 +177,7 @@ const buildHeritageListUrl = ({
 const fetchJson = async (fetchWithBQ, url) => {
   const result = await fetchWithBQ(url)
   if (result.error) return { data: undefined, error: result.error }
-  return { data: result.data }
+  return { data: unwrapResponseData(result.data) }
 }
 
 const fetchHeritageExtras = async (fetchWithBQ, heritageId, language) => {
@@ -222,13 +248,14 @@ export const heritageSlice = apiSlice.injectEndpoints({
       async queryFn(arg, _queryApi, _extraOptions, fetchWithBQ) {
         const language = arg?.language || getCurrentLanguage()
         const page = arg?.page || 1
-        const limit = arg?.limit || 9
+        const limit = arg?.limit || 20
         const result = await fetchWithBQ(buildHeritageListUrl(arg))
 
         if (result.error) return { error: result.error }
 
-        const rawItems = result.data?.items || result.data?.heritages || []
-        const total = result.data?.total ?? rawItems.length
+        const { items: rawItems, total: responseTotal } =
+          unwrapHeritageListResponse(result.data)
+        const total = responseTotal ?? rawItems.length
         const heritages = await enrichHeritageCards(fetchWithBQ, rawItems, language)
 
         return {
@@ -256,12 +283,13 @@ export const heritageSlice = apiSlice.injectEndpoints({
 
         if (result.error) return { error: result.error }
 
+        const heritage = unwrapResponseData(result.data)
         const currentLanguage = language || getCurrentLanguage()
-        const extras = hasEmbeddedDetailExtras(result.data)
-          ? getEmbeddedExtras(result.data, currentLanguage)
-          : await fetchHeritageExtras(fetchWithBQ, result.data.id, currentLanguage)
+        const extras = hasEmbeddedDetailExtras(heritage)
+          ? getEmbeddedExtras(heritage, currentLanguage)
+          : await fetchHeritageExtras(fetchWithBQ, heritage.id, currentLanguage)
 
-        return { data: normalizeHeritage(result.data, extras) }
+        return { data: normalizeHeritage(heritage, extras) }
       },
       providesTags: (_result, _error, arg) => [
         { type: 'Heritages', id: normalizeArg(arg).id },
@@ -274,7 +302,8 @@ export const heritageSlice = apiSlice.injectEndpoints({
 
         if (result.error) return { error: result.error }
 
-        const heritages = (result.data?.items || []).map((heritage) =>
+        const { items } = unwrapHeritageListResponse(result.data)
+        const heritages = items.map((heritage) =>
           normalizeHeritage(heritage, { language: language || getCurrentLanguage() }),
         )
 
@@ -290,12 +319,13 @@ export const heritageSlice = apiSlice.injectEndpoints({
 
         if (result.error) return { error: result.error }
 
+        const heritage = unwrapResponseData(result.data)
         const currentLanguage = language || getCurrentLanguage()
-        const extras = hasEmbeddedDetailExtras(result.data)
-          ? getEmbeddedExtras(result.data, currentLanguage)
-          : await fetchHeritageExtras(fetchWithBQ, result.data.id, currentLanguage)
+        const extras = hasEmbeddedDetailExtras(heritage)
+          ? getEmbeddedExtras(heritage, currentLanguage)
+          : await fetchHeritageExtras(fetchWithBQ, heritage.id, currentLanguage)
 
-        return { data: normalizeHeritage(result.data, extras) }
+        return { data: normalizeHeritage(heritage, extras) }
       },
       providesTags: (result) => [{ type: 'Heritages', id: result?._id }],
     }),
@@ -308,11 +338,8 @@ export const heritageSlice = apiSlice.injectEndpoints({
 
         if (result.error) return { error: result.error }
 
-        const heritages = await enrichHeritageCards(
-          fetchWithBQ,
-          result.data?.items || [],
-          language,
-        )
+        const { items } = unwrapHeritageListResponse(result.data)
+        const heritages = await enrichHeritageCards(fetchWithBQ, items, language)
         const from = {
           latitude: Number(arg?.latitude),
           longitude: Number(arg?.longitude),

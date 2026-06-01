@@ -1026,6 +1026,21 @@ export function drawEntity(ctx, entity, x, y, size, opacity = 1) {
     ctx.beginPath(); ctx.arc(x, y, hw + 2, 0, Math.PI * 2); ctx.stroke()
     ctx.drawImage(icon, x - hw, y - hw, s, s)
 
+    if (entity.factionFlag) {
+      const flagX = x + hw * 0.78
+      const flagY = y - hw * 0.78
+      ctx.fillStyle = 'rgba(11,10,7,0.82)'
+      ctx.strokeStyle = color + '80'
+      ctx.lineWidth = 1
+      ctx.beginPath(); ctx.roundRect(flagX - 13, flagY - 13, 26, 22, 6); ctx.fill(); ctx.stroke()
+      ctx.font = '16px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = '#F7EFE2'
+      ctx.fillText(entity.factionFlag, flagX, flagY - 1)
+      ctx.textBaseline = 'alphabetic'
+    }
+
     if (entity.label) {
       ctx.font = 'bold 11px serif'; ctx.textAlign = 'center'
       const mw = ctx.measureText(entity.label).width
@@ -1035,36 +1050,49 @@ export function drawEntity(ctx, entity, x, y, size, opacity = 1) {
       ctx.fillText(entity.label, x, y + hw + 13)
     }
   } else {
-    // Group: main icon + wedge formation behind it
-    const iconS = Math.max(size * 1.8, 40)
+    // Group: repeated military icons arranged as a formation, not a single soldier.
+    const iconS = Math.max(size * 1.15, 28)
     const iconHw = iconS / 2
-    const dotR = 3.5
-    const dotGap = dotR * 2.5
+    const unitS = Math.max(size * 0.38, 12)
+    const unitGapX = unitS * 0.88
+    const unitGapY = unitS * 0.72
     const totalDots = rows.reduce((a, b) => a + b, 0)
+    const formationTop = y + iconHw + 8
+    const formationBottom = formationTop + (rows.length - 1) * unitGapY + unitS
+    const maxRowCount = Math.max(...rows)
+    const maxRowW = (maxRowCount - 1) * unitGapX + unitS
 
-    // Draw wedge formation behind the main icon (downward-pointing chevron)
+    ctx.fillStyle = color + '18'
+    ctx.strokeStyle = color + '35'
+    ctx.lineWidth = 1
+    ctx.setLineDash([4, 4])
+    ctx.beginPath()
+    ctx.roundRect(x - maxRowW / 2 - 8, formationTop - 8, maxRowW + 16, formationBottom - formationTop + 16, 10)
+    ctx.fill()
+    ctx.stroke()
+    ctx.setLineDash([])
+
+    // Draw the formation with repeated icons. Larger units still get a command marker above.
     for (let r = 0; r < rows.length; r++) {
       const count = rows[r]
-      const rowY = y + iconHw + 8 + r * dotGap * 1.6
-      const rowW = (count - 1) * dotGap
+      const rowY = formationTop + r * unitGapY
+      const rowW = (count - 1) * unitGapX
       for (let d = 0; d < count; d++) {
-        const dx = x - rowW / 2 + d * dotGap
+        const dx = x - rowW / 2 + d * unitGapX
         const dy = rowY
-        // Small filled dot with faction color
-        ctx.fillStyle = color + '90'
-        ctx.beginPath(); ctx.arc(dx, dy, dotR, 0, Math.PI * 2); ctx.fill()
-        ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 0.8
-        ctx.beginPath(); ctx.arc(dx, dy, dotR, 0, Math.PI * 2); ctx.stroke()
+        ctx.fillStyle = color + '55'
+        ctx.beginPath(); ctx.arc(dx, dy, unitS * 0.55, 0, Math.PI * 2); ctx.fill()
+        ctx.drawImage(icon, dx - unitS / 2, dy - unitS / 2, unitS, unitS)
       }
     }
 
     // Formation outline
     const firstRowCount = rows[0]
     const lastRowCount = rows[rows.length - 1]
-    const firstRowW = (firstRowCount - 1) * dotGap
-    const lastRowW = (lastRowCount - 1) * dotGap
-    const topY = y + iconHw + 8
-    const botY = topY + (rows.length - 1) * dotGap * 1.6
+    const firstRowW = (firstRowCount - 1) * unitGapX
+    const lastRowW = (lastRowCount - 1) * unitGapX
+    const topY = formationTop
+    const botY = formationTop + (rows.length - 1) * unitGapY
 
     ctx.strokeStyle = color + '30'
     ctx.lineWidth = 1
@@ -1078,15 +1106,30 @@ export function drawEntity(ctx, entity, x, y, size, opacity = 1) {
     ctx.stroke()
     ctx.setLineDash([])
 
-    // Main icon on top (in front of the wedge)
+    // Main command icon on top of the formation.
     ctx.fillStyle = color + '65'
     ctx.beginPath(); ctx.arc(x, y, iconHw + 3, 0, Math.PI * 2); ctx.fill()
     ctx.strokeStyle = color; ctx.lineWidth = 2.5
     ctx.beginPath(); ctx.arc(x, y, iconHw + 3, 0, Math.PI * 2); ctx.stroke()
     ctx.drawImage(icon, x - iconHw, y - iconHw, iconS, iconS)
 
+    if (entity.factionFlag) {
+      const flagX = x + iconHw * 0.7
+      const flagY = y - iconHw * 0.9
+      ctx.fillStyle = 'rgba(11,10,7,0.82)'
+      ctx.strokeStyle = color + '80'
+      ctx.lineWidth = 1
+      ctx.beginPath(); ctx.roundRect(flagX - 13, flagY - 13, 26, 22, 6); ctx.fill(); ctx.stroke()
+      ctx.font = '16px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = '#F7EFE2'
+      ctx.fillText(entity.factionFlag, flagX, flagY - 1)
+      ctx.textBaseline = 'alphabetic'
+    }
+
     // Count badge
-    const badgeX = x + lastRowW / 2 + dotR + 10
+    const badgeX = x + lastRowW / 2 + unitS / 2 + 12
     const badgeY = botY
     ctx.fillStyle = 'rgba(11,10,7,0.85)'
     ctx.strokeStyle = color + '60'

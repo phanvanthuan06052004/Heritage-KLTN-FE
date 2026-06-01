@@ -53,7 +53,7 @@ const NavBar = () => {
   return (
     <>
       <header className={navbarClasses}>
-        <div className='lcn-container-x flex h-full items-center justify-between gap-4'>
+        <div className='mx-auto flex h-full max-w-[1600px] items-center justify-between gap-4 px-3 sm:px-4 lg:px-5 2xl:px-6'>
           {/* Logo */}
           <Link to='/' className='flex min-w-[190px] items-center gap-2.5 text-museum-ivory'>
             <img

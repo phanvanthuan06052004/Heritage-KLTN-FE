@@ -79,7 +79,7 @@ const HeritageCard = memo(({
       if (onFavoriteChange) {
         onFavoriteChange(newFavoritedState);
       }
-    } catch (error) {
+    } catch {
       dispatch(
         setFavoriteStatus({
           heritageId: _id,
@@ -107,7 +107,7 @@ const HeritageCard = memo(({
         aria-label={`View details: ${name}`}
       >
         <article
-          className="museum-card flex h-full flex-col overflow-hidden rounded-[2rem] bg-museum-ivory/7 transition duration-300 hover:-translate-y-1 hover:border-museum-gold/45 hover:shadow-museum-gold"
+          className="museum-card flex h-full flex-col overflow-hidden rounded-[2rem] bg-museum-ivory/7 shadow-none transition-colors duration-200 hover:border-museum-gold/45"
         >
           <div className="relative overflow-hidden">
             {imgError ? (
@@ -120,6 +120,7 @@ const HeritageCard = memo(({
                 alt={name}
                 className="aspect-[4/3] w-full object-cover"
                 loading="lazy"
+                decoding="async"
                 width="600"
                 height="450"
                 onError={handleImageError}
@@ -134,7 +135,7 @@ const HeritageCard = memo(({
                   </span>
                 )}
                 {province && (
-                  <span className="rounded-full bg-museum-black/70 px-3 py-1 text-xs font-semibold text-museum-gold-light backdrop-blur">
+                  <span className="rounded-full bg-museum-black/80 px-3 py-1 text-xs font-semibold text-museum-gold-light">
                     {province}
                   </span>
                 )}
@@ -146,7 +147,7 @@ const HeritageCard = memo(({
                 size="icon"
                 onClick={handleFavoriteClick}
                 disabled={isLoading}
-                className="absolute right-4 top-4 rounded-full bg-museum-black/70 text-museum-ivory backdrop-blur hover:bg-museum-gold hover:text-museum-black"
+                className="absolute right-4 top-4 rounded-full bg-museum-black/80 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
                 aria-label={
                   propIsFavorited ? "Remove from favorites" : "Add to favorites"
                 }

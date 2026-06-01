@@ -1,87 +1,53 @@
-import { Award, MapPin, Play, Star, Lock } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { cn } from '~/lib/utils';
+import { Award, Lock, MapPin, Play, Star } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { cn } from '~/lib/utils'
 
 const features = [
   {
     value: 'knowledge-test',
     icon: Star,
     labelKey: 'heritageFeatures.knowledgeTest',
-    label: 'Trắc nghiệm',
+    description: 'Kiểm tra kiến thức sau khi đọc tư liệu.',
   },
   {
     value: 'leaderboard',
     icon: Award,
     labelKey: 'heritageFeatures.leaderboard',
-    label: 'Bảng xếp hạng',
+    description: 'Xem thứ hạng của người học trong cộng đồng.',
   },
   {
     value: 'chatroom',
     icon: MapPin,
     labelKey: 'heritageFeatures.chatroom',
-    label: 'Trò chuyện',
+    description: 'Đặt câu hỏi và trò chuyện về di sản này.',
   },
   {
     value: 'roleplay',
     icon: Play,
     labelKey: 'heritageFeatures.roleplay',
-    label: 'Sắp ra mắt',
+    description: 'Trải nghiệm nhập vai đang được phát triển.',
     disabled: true,
   },
-];
+]
 
 const HeritageFeatures = ({ handleFeatureClick, isAuthenticated }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
-    <>
-      {/* ── xl+: Fixed floating sidebar ── */}
-      <div className='pointer-events-none fixed inset-y-0 left-8 z-30 hidden items-center xl:flex'>
-        <div className='pointer-events-auto rounded-full border border-museum-gold/20 bg-museum-black/65 px-3 py-5 shadow-museum-card backdrop-blur-xl'>
-          <nav className='flex flex-col items-center space-y-8' aria-label='Tính năng tương tác'>
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              const needsAuth = !feature.disabled && !isAuthenticated;
-
-              return (
-                <button
-                  key={feature.value}
-                  type='button'
-                  disabled={feature.disabled}
-                  onClick={() => handleFeatureClick(feature.value)}
-                  className={cn(
-                    'group relative inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors',
-                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                    feature.disabled
-                      ? 'cursor-not-allowed text-museum-muted/50'
-                      : needsAuth
-                        ? 'text-museum-muted hover:bg-museum-ivory/10 hover:text-museum-gold-light'
-                        : 'text-museum-muted hover:bg-museum-ivory/10 hover:text-museum-gold-light'
-                  )}
-                  aria-label={t(feature.labelKey)}
-                >
-                  {needsAuth && (
-                    <Lock
-                      size={10}
-                      className='absolute -right-0.5 -top-0.5 rounded-full bg-museum-seal p-0.5 text-museum-ivory'
-                    />
-                  )}
-                  <Icon className='h-5 w-5' aria-hidden='true' />
-                  <span className='pointer-events-none absolute left-full ml-4 whitespace-nowrap rounded-full bg-museum-black/90 px-3 py-1 text-xs text-museum-ivory opacity-0 shadow-lg transition-opacity group-hover:opacity-100'>
-                    {t(feature.labelKey)}
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+    <section className='rounded-3xl border border-museum-gold/14 bg-museum-ivory/[0.04] p-5 text-museum-ivory sm:p-6'>
+      <div className='mb-5 max-w-2xl'>
+        <h2 className='font-display text-2xl font-semibold text-museum-ivory sm:text-3xl'>
+          Khám phá tương tác
+        </h2>
+        <p className='mt-2 text-sm leading-6 text-museum-muted'>
+          Các hoạt động này nối phần đọc tư liệu với kiểm tra, thảo luận và học tập theo ngữ cảnh.
+        </p>
       </div>
 
-      {/* ── < xl: Inline compact pill strip ── */}
-      <div className='-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 museum-scrollbar xl:hidden'>
+      <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         {features.map((feature) => {
-          const Icon = feature.icon;
-          const needsAuth = !feature.disabled && !isAuthenticated;
+          const Icon = feature.icon
+          const needsAuth = !feature.disabled && !isAuthenticated
 
           return (
             <button
@@ -90,23 +56,28 @@ const HeritageFeatures = ({ handleFeatureClick, isAuthenticated }) => {
               disabled={feature.disabled}
               onClick={() => handleFeatureClick(feature.value)}
               className={cn(
-                'inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200',
-                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                'group flex min-h-[150px] flex-col items-start rounded-2xl border p-4 text-left transition-colors duration-200',
+                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light',
                 feature.disabled
-                  ? 'cursor-not-allowed border border-museum-gold/10 bg-museum-ivory/3 text-museum-muted/60'
-                  : 'border border-museum-gold/20 bg-museum-ivory/7 text-museum-ivory hover:border-museum-gold/40 hover:bg-museum-gold/12 hover:text-museum-gold-light hover:shadow-museum-gold'
+                  ? 'cursor-not-allowed border-museum-gold/10 bg-museum-black/20 text-museum-muted/60'
+                  : 'border-museum-gold/16 bg-museum-black/24 text-museum-ivory hover:border-museum-gold/35 hover:bg-museum-gold/10',
               )}
               aria-label={t(feature.labelKey)}
             >
-              <Icon className='h-4 w-4' />
-              <span>{t(feature.labelKey)}</span>
-              {needsAuth && <Lock size={12} className='text-museum-seal' />}
+              <span className='flex h-11 w-11 items-center justify-center rounded-full bg-museum-gold/12 text-museum-gold-light'>
+                <Icon className='h-5 w-5' aria-hidden='true' />
+              </span>
+              <span className='mt-4 flex items-center gap-2 font-semibold'>
+                {t(feature.labelKey)}
+                {needsAuth && <Lock size={13} className='text-museum-seal' />}
+              </span>
+              <span className='mt-2 text-sm leading-6 text-museum-muted'>{feature.description}</span>
             </button>
-          );
+          )
         })}
       </div>
-    </>
-  );
-};
+    </section>
+  )
+}
 
-export default HeritageFeatures;
+export default HeritageFeatures

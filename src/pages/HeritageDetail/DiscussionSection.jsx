@@ -51,12 +51,17 @@ const DiscussionSection = ({ heritageId }) => {
   };
 
   return (
-    <div className=" mx-auto py-8">
-      <h2 className="mb-4 flex items-center font-display text-2xl font-semibold text-museum-gold-light">
-        <MessageSquare className="w-5 h-5 mr-2" />
-        Q&A
-      </h2>
-      <div className="museum-card rounded-[2rem] p-6 text-museum-ivory">
+    <section className="py-8">
+      <div className="mb-5 max-w-2xl">
+        <h2 className="flex items-center gap-2 font-display text-2xl font-semibold text-museum-ivory sm:text-3xl">
+          <MessageSquare className="h-5 w-5 text-museum-gold-light" />
+          Hỏi đáp cộng đồng
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-museum-muted">
+          Đặt câu hỏi, bổ sung tư liệu hoặc chia sẻ góc nhìn về di sản này.
+        </p>
+      </div>
+      <div className="rounded-3xl border border-museum-gold/14 bg-museum-ivory/[0.04] p-5 text-museum-ivory sm:p-6">
         {/* Comments List */}
         {isLoadingComments ? (
           <div className="flex justify-center">
@@ -69,8 +74,8 @@ const DiscussionSection = ({ heritageId }) => {
         ) : !topLevelComments ||
           !topLevelComments.discussArray ||
           topLevelComments.discussArray.length === 0 ? (
-          <p className="mb-6 text-center text-museum-muted">
-            No comments yet. Be the first to comment!
+          <p className="mb-6 rounded-2xl border border-dashed border-museum-gold/18 py-8 text-center text-museum-muted">
+            Chưa có thảo luận nào. Hãy là người mở đầu.
           </p>
         ) : (
           <div className="space-y-4">
@@ -92,7 +97,7 @@ const DiscussionSection = ({ heritageId }) => {
           className="mt-5 flex flex-col items-end"
         >
           <textarea
-            className="min-h-28 w-full rounded-2xl border border-museum-gold/20 bg-museum-ivory px-4 py-3 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none focus:ring-2 focus:ring-museum-gold-light"
+            className="min-h-28 w-full rounded-2xl border border-museum-gold/20 bg-museum-black/36 px-4 py-3 text-sm text-museum-ivory placeholder:text-museum-muted focus:outline-none focus:ring-2 focus:ring-museum-gold-light"
             placeholder={
               currentUser
                 ? "Share your thoughts..."
@@ -116,7 +121,7 @@ const DiscussionSection = ({ heritageId }) => {
           </Button>
         </form>
       </div>
-    </div>
+    </section>
   );
 };
 

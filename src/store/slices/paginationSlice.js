@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   heritages: {
     currentPage: 1,
-    itemsPerPage: 9,
+    itemsPerPage: 20,
     searchQuery: ''
   },
   favorites: {

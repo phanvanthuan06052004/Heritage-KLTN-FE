@@ -319,6 +319,64 @@
     border-top-color: rgba(var(--museum-black), 0.94);
     border-bottom-color: rgba(var(--museum-black), 0.94);
   }
+
+  .battle-control {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-full border border-museum-gold/15 bg-museum-ivory/5 text-museum-gold/75 transition hover:bg-museum-gold/10 hover:text-museum-gold disabled:cursor-not-allowed disabled:opacity-35;
+  }
+
+  .battle-camera-button {
+    @apply inline-flex h-9 items-center justify-center rounded-xl border border-museum-gold/10 bg-museum-ivory/5 text-museum-muted transition hover:border-museum-gold/30 hover:bg-museum-gold/10 hover:text-museum-gold;
+  }
+
+  .battle-view-button {
+    @apply rounded-xl border border-museum-gold/10 bg-museum-ivory/5 px-2 py-1.5 text-xs font-medium text-museum-muted transition hover:border-museum-gold/30 hover:bg-museum-gold/10 hover:text-museum-gold;
+  }
+
+  .battle-input {
+    @apply h-10 rounded-xl border border-museum-gold/10 bg-museum-black/55 px-3 text-sm text-museum-ivory transition focus:outline-none focus:ring-2 focus:ring-museum-gold/30;
+  }
+
+  .battle-input option {
+    @apply bg-museum-black text-museum-ivory;
+  }
+
+  .battle-driver-popover {
+    background: rgba(var(--museum-black), 0.96) !important;
+    border: 1px solid rgba(var(--museum-gold), 0.28) !important;
+    border-radius: 16px !important;
+    color: rgb(var(--museum-ivory)) !important;
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.48) !important;
+  }
+
+  .battle-driver-popover .driver-popover-title {
+    color: rgb(var(--museum-gold-light)) !important;
+    font-family: inherit !important;
+    font-size: 1rem !important;
+  }
+
+  .battle-driver-popover .driver-popover-description {
+    color: rgba(var(--museum-parchment), 0.78) !important;
+    line-height: 1.6 !important;
+  }
+
+  .battle-driver-popover .driver-popover-progress-text {
+    color: rgba(var(--museum-muted), 0.9) !important;
+  }
+
+  .battle-driver-popover .driver-popover-next-btn,
+  .battle-driver-popover .driver-popover-done-btn {
+    border: 1px solid rgba(var(--museum-gold), 0.35) !important;
+    background: rgba(var(--museum-gold), 0.18) !important;
+    color: rgb(var(--museum-gold-light)) !important;
+    text-shadow: none !important;
+  }
+
+  .battle-driver-popover .driver-popover-prev-btn {
+    border: 1px solid rgba(var(--museum-gold), 0.14) !important;
+    background: rgba(var(--museum-ivory), 0.05) !important;
+    color: rgba(var(--museum-parchment), 0.8) !important;
+    text-shadow: none !important;
+  }
 }
 
 @layer utilities {
