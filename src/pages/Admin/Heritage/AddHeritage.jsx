@@ -11,17 +11,21 @@ import {
     useCreateHeritageMediaMutation,
     useCreateHeritageMutation,
     useCreateHeritageTimelineMutation,
+    useCreateHeritageTranslationMutation,
     useUploadHeritageImgMutation,
 } from '~/store/apis/heritageApi'
 import {
+    buildTranslationPayload,
     buildHeritagePayload,
     buildLocationPayload,
     buildTimelinePayload,
     emptyHeritageForm,
     getResponseData,
+    hasTranslationContent,
     htmlToText,
     isValidTimelineEvent,
 } from './heritageFormMapper'
+import EnglishTranslationSection from './EnglishTranslationSection'
 
 const DEFAULT_CENTER = { lat: 16.047079, lng: 108.206230 }; // Da Nang, Vietnam
 
@@ -32,10 +36,12 @@ const AddHeritage = () => {
     const [createHeritageMedia] = useCreateHeritageMediaMutation()
     const [createHeritageLocation] = useCreateHeritageLocationMutation()
     const [createHeritageTimeline] = useCreateHeritageTimelineMutation()
+    const [createHeritageTranslation] = useCreateHeritageTranslationMutation()
     const [formData, setFormData] = useState(emptyHeritageForm)
     const [imagePreviews, setImagePreviews] = useState([])
     const [imageFiles, setImageFiles] = useState([])
     const [errors, setErrors] = useState({})
+    const [contentLanguage, setContentLanguage] = useState('vi')
 
     useEffect(() => {
         if (createError) {
@@ -228,6 +234,10 @@ const AddHeritage = () => {
                 ),
             )
 
+            if (hasTranslationContent(formData.translationEn)) {
+                await createHeritageTranslation(buildTranslationPayload(formData, heritageId)).unwrap()
+            }
+
             toast.success('Create heritage site successfully!')
             navigate('/admin/heritages')
         } catch (err) {
@@ -405,6 +415,28 @@ const AddHeritage = () => {
                             onChange={handleInputChange}
                         />
                     </div>
+                </div>
+
+                <div className="mt-8">
+                    <div className="admin-language-tabs">
+                        <button
+                            type="button"
+                            className={`admin-language-tab ${contentLanguage === 'vi' ? 'admin-language-tab-active' : ''}`}
+                            onClick={() => setContentLanguage('vi')}
+                        >
+                            Tiếng Việt
+                        </button>
+                        <button
+                            type="button"
+                            className={`admin-language-tab ${contentLanguage === 'en' ? 'admin-language-tab-active' : ''}`}
+                            onClick={() => setContentLanguage('en')}
+                        >
+                            English
+                        </button>
+                    </div>
+
+                    {contentLanguage === 'vi' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="col-span-2">
                         <Label htmlFor="description">Summary</Label>
                         <RichTextEditor
@@ -499,8 +531,7 @@ const AddHeritage = () => {
                             onChange={handleInputChange}
                         />
                     </div>
-                </div>
-                <div className="mt-6">
+                    <div className="col-span-2 mt-2">
                     <Label>Historical Events</Label>
                     {formData.additionalInfo.historicalEvents.map((event, index) => (
                         <div key={index} className="mt-4 p-4 border rounded">
@@ -548,6 +579,13 @@ const AddHeritage = () => {
                     >
                         + Add Historical Event
                     </Button>
+                    </div>
+                        </div>
+                    )}
+
+                    {contentLanguage === 'en' && (
+                        <EnglishTranslationSection formData={formData} setFormData={setFormData} />
+                    )}
                 </div>
                 <div className="mt-6 flex space-x-4">
                     <Button onClick={handleCreate} disabled={isCreating}>

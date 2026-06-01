@@ -29,6 +29,17 @@ export const emptyHeritageForm = {
     coordinates: { latitude: '', longitude: '' },
     status: 'ACTIVE',
     additionalInfo: { historicalEvents: [] },
+    translationEn: {
+        id: '',
+        title: '',
+        summary: '',
+        content: '',
+        seoTitle: '',
+        seoDescription: '',
+        architectural: '',
+        culturalFestival: '',
+        historicalEvents: [],
+    },
 }
 
 export const htmlToText = (value = '') =>
@@ -96,6 +107,45 @@ export const buildHeritagePayload = (formData) => {
     }
 }
 
+export const hasTranslationContent = (translation = {}) =>
+    Boolean(
+        translation.title?.trim() ||
+        htmlToText(translation.summary || '') ||
+        htmlToText(translation.content || '') ||
+        translation.seoTitle?.trim() ||
+        translation.seoDescription?.trim() ||
+        htmlToText(translation.architectural || '') ||
+        htmlToText(translation.culturalFestival || '') ||
+        translation.historicalEvents?.some(
+            (event) => event?.title?.trim() || htmlToText(event?.description || ''),
+        ),
+    )
+
+export const buildTranslationPayload = (formData, heritageId, languageCode = 'en') => {
+    const translation = formData.translationEn || {}
+    const historicalEvents = (translation.historicalEvents || [])
+        .filter((event) => event?.title?.trim() || htmlToText(event?.description || ''))
+        .map((event) => ({
+            title: event.title?.trim() || undefined,
+            description: normalizeHtml(event.description || ''),
+        }))
+
+    return {
+        heritageId,
+        languageCode,
+        title: translation.title?.trim() || undefined,
+        summary: normalizeHtml(translation.summary || ''),
+        content: normalizeHtml(translation.content || translation.summary || ''),
+        seoTitle: (translation.seoTitle || translation.title || '').trim() || undefined,
+        seoDescription: (translation.seoDescription || htmlToText(translation.summary || '')).trim() || undefined,
+        additionalInfo: {
+            architectural: normalizeHtml(translation.architectural || ''),
+            culturalFestival: normalizeHtml(translation.culturalFestival || ''),
+            historicalEvents,
+        },
+    }
+}
+
 export const buildLocationPayload = (formData, heritageId) => ({
     heritageId,
     name: formData.location.trim(),
@@ -123,3 +173,25 @@ export const toFormTimelineEvents = (timelines = []) =>
         eventDate: event.eventDate ? event.eventDate.toString().slice(0, 10) : '',
         description: event.description || '',
     }))
+
+export const toFormTranslation = (translations = [], languageCode = 'en') => {
+    const translation = translations.find(
+        (item) => item?.languageCode === languageCode || item?.language_code === languageCode,
+    )
+    const additionalInfo = translation?.additionalInfo || translation?.additional_info || {}
+
+    return {
+        id: translation?.id || '',
+        title: translation?.title || '',
+        summary: translation?.summary || '',
+        content: translation?.content || '',
+        seoTitle: translation?.seoTitle || '',
+        seoDescription: translation?.seoDescription || '',
+        architectural: additionalInfo.architectural || '',
+        culturalFestival: additionalInfo.culturalFestival || '',
+        historicalEvents: (additionalInfo.historicalEvents || []).map((event) => ({
+            title: event.title || '',
+            description: event.description || '',
+        })),
+    }
+}

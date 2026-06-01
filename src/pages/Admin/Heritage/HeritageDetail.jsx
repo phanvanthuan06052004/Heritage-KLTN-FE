@@ -10,25 +10,31 @@ import {
     useCreateHeritageLocationMutation,
     useCreateHeritageMediaMutation,
     useCreateHeritageTimelineMutation,
+    useCreateHeritageTranslationMutation,
     useDeleteHeritageMediaMutation,
     useDeleteHeritageTimelineMutation,
     useGetHeritagesByIdQuery,
     useUpdateHeritageLocationMutation,
     useUpdateHeritageMutation,
+    useUpdateHeritageTranslationMutation,
     useUploadHeritageImgMutation,
 } from '~/store/apis/heritageApi'
 import {
+    buildTranslationPayload,
     buildHeritagePayload,
     buildLocationPayload,
     buildTimelinePayload,
     emptyHeritageForm,
     formatJsonField,
     getResponseData,
+    hasTranslationContent,
     htmlToText,
     isValidTimelineEvent,
     toFormStatus,
     toFormTimelineEvents,
+    toFormTranslation,
 } from './heritageFormMapper'
+import EnglishTranslationSection from './EnglishTranslationSection'
 
 // Define center as a constant to ensure stable reference
 const DEFAULT_CENTER = { lat: 16.047079, lng: 108.206230 }; // Da Nang, Vietnam
@@ -45,6 +51,8 @@ const HeritageDetail = () => {
     const [updateHeritageLocation] = useUpdateHeritageLocationMutation()
     const [createHeritageTimeline] = useCreateHeritageTimelineMutation()
     const [deleteHeritageTimeline] = useDeleteHeritageTimelineMutation()
+    const [createHeritageTranslation] = useCreateHeritageTranslationMutation()
+    const [updateHeritageTranslation] = useUpdateHeritageTranslationMutation()
     const [formData, setFormData] = useState(emptyHeritageForm)
     const [imagePreviews, setImagePreviews] = useState([])
     const [imageFiles, setImageFiles] = useState([])
@@ -53,6 +61,7 @@ const HeritageDetail = () => {
     const [existingLocationId, setExistingLocationId] = useState(null)
     const [existingTimelineIds, setExistingTimelineIds] = useState([])
     const [errors, setErrors] = useState({})
+    const [contentLanguage, setContentLanguage] = useState('vi')
 
     // Initialize form with fetched data
     useEffect(() => {
@@ -93,6 +102,7 @@ const HeritageDetail = () => {
                 additionalInfo: {
                     historicalEvents: toFormTimelineEvents(heritage.timelines || []),
                 },
+                translationEn: toFormTranslation(heritage.translations || [], 'en'),
             })
             setImagePreviews(mediaItems.map((item) => item.url))
             setExistingImageItems(mediaItems)
@@ -316,6 +326,19 @@ const HeritageDetail = () => {
                 ),
             )
 
+            if (hasTranslationContent(formData.translationEn)) {
+                const translationPayload = buildTranslationPayload(formData, id)
+                if (formData.translationEn?.id) {
+                    const { heritageId: _heritageId, ...translationUpdatePayload } = translationPayload
+                    await updateHeritageTranslation({
+                        id: formData.translationEn.id,
+                        data: translationUpdatePayload,
+                    }).unwrap()
+                } else {
+                    await createHeritageTranslation(translationPayload).unwrap()
+                }
+            }
+
             toast.success('Heritage site updated successfully!')
             navigate('/admin/heritages')
         } catch (err) {
@@ -497,6 +520,28 @@ const HeritageDetail = () => {
                             onChange={handleInputChange}
                         />
                     </div>
+                </div>
+
+                <div className="mt-8">
+                    <div className="admin-language-tabs">
+                        <button
+                            type="button"
+                            className={`admin-language-tab ${contentLanguage === 'vi' ? 'admin-language-tab-active' : ''}`}
+                            onClick={() => setContentLanguage('vi')}
+                        >
+                            Tiếng Việt
+                        </button>
+                        <button
+                            type="button"
+                            className={`admin-language-tab ${contentLanguage === 'en' ? 'admin-language-tab-active' : ''}`}
+                            onClick={() => setContentLanguage('en')}
+                        >
+                            English
+                        </button>
+                    </div>
+
+                    {contentLanguage === 'vi' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="col-span-2">
                         <Label htmlFor="description">Summary</Label>
                         <RichTextEditor
@@ -591,8 +636,7 @@ const HeritageDetail = () => {
                             onChange={handleInputChange}
                         />
                     </div>
-                </div>
-                <div className="mt-6">
+                    <div className="col-span-2 mt-2">
                     <Label>Historical Events</Label>
                     {formData.additionalInfo.historicalEvents.map((event, index) => (
                         <div key={index} className="mt-4 p-4 border rounded">
@@ -640,6 +684,13 @@ const HeritageDetail = () => {
                     >
                         + Add Historical Event
                     </Button>
+                    </div>
+                        </div>
+                    )}
+
+                    {contentLanguage === 'en' && (
+                        <EnglishTranslationSection formData={formData} setFormData={setFormData} />
+                    )}
                 </div>
                 <div className="mt-6 flex space-x-4">
                     <Button onClick={handleUpdate} disabled={isUpdating || isFetching}>

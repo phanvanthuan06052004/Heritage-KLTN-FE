@@ -7,6 +7,9 @@ const getCurrentLanguage = () => {
   return localStorage.getItem('lang') || 'vi'
 }
 
+const getCurrentUserId = (state) =>
+  state?.auth?.userInfo?._id || state?.auth?.userInfo?.id || null
+
 export const favoriteSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getFavoritesByUserId: builder.query({
@@ -72,19 +75,51 @@ export const favoriteSlice = apiSlice.injectEndpoints({
     }),
 
     addToFavorites: builder.mutation({
-      query: ({ userId, heritageId }) => ({
-        url: `${BASE_URL}/favorites`,
-        method: 'POST',
-        body: { userId, heritageId },
-      }),
+      async queryFn({ userId, heritageId }, { getState }, _extraOptions, fetchWithBQ) {
+        const currentUserId = userId || getCurrentUserId(getState())
+
+        if (!currentUserId || !heritageId) {
+          return {
+            error: {
+              status: 400,
+              data: { message: 'Missing user or heritage id' },
+            },
+          }
+        }
+
+        const result = await fetchWithBQ({
+          url: `${BASE_URL}/favorites`,
+          method: 'POST',
+          body: { userId: currentUserId, heritageId },
+        })
+
+        if (result.error) return { error: result.error }
+        return { data: result.data }
+      },
       invalidatesTags: [{ type: 'Favorites', id: 'LIST' }],
     }),
 
     removeFromFavorites: builder.mutation({
-      query: ({ userId, heritageId }) => ({
-        url: `${BASE_URL}/favorites/user/${userId}/heritage/${heritageId}`,
-        method: 'DELETE',
-      }),
+      async queryFn({ userId, heritageId }, { getState }, _extraOptions, fetchWithBQ) {
+        const currentUserId = userId || getCurrentUserId(getState())
+
+        if (!currentUserId || !heritageId) {
+          return {
+            error: {
+              status: 400,
+              data: { message: 'Missing user or heritage id' },
+            },
+          }
+        }
+
+        const result = await fetchWithBQ({
+          url: `${BASE_URL}/favorites/${currentUserId}/${heritageId}`,
+          method: 'DELETE',
+        })
+
+        if (result.error) return { error: result.error }
+        return { data: result.data }
+      },
       invalidatesTags: [{ type: 'Favorites', id: 'LIST' }],
     }),
   }),

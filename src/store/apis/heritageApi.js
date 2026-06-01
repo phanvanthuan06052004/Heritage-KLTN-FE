@@ -4,6 +4,8 @@ const PLACEHOLDER_IMAGE = '/images/placeholder.webp'
 
 const getCurrentLanguage = () => localStorage.getItem('lang') || 'vi'
 
+const isVietnamese = (language) => !language || language.toLowerCase().startsWith('vi')
+
 const normalizeArg = (arg = {}) =>
   typeof arg === 'string' ? { id: arg } : arg || {}
 
@@ -26,6 +28,9 @@ const stripHtml = (value = '') =>
 
 const getBestMediaUrl = (media) => media?.url || media?.thumbnailUrl
 
+const getTranslatedAdditionalInfo = (translation) =>
+  translation?.additionalInfo || translation?.additional_info || null
+
 const getEmbeddedExtras = (heritage, language) => ({
   media: heritage?.media || [],
   locations: heritage?.locations || [],
@@ -42,6 +47,16 @@ const hasEmbeddedDetailExtras = (heritage) =>
   (Array.isArray(heritage?.timelines) || Array.isArray(heritage?.translations))
 
 const normalizeHistoricalEvents = (timelines = [], heritage) => {
+  const translatedEvents = heritage?.additionalInfo?.historicalEvents
+  if (Array.isArray(translatedEvents) && translatedEvents.length) {
+    return translatedEvents
+      .filter((event) => event?.title || event?.description)
+      .map((event) => ({
+        title: event.title || 'History',
+        description: stripHtml(event.description || ''),
+      }))
+  }
+
   const timelineEvents = timelines
     .filter((event) => event?.description)
     .map((event) => ({
@@ -72,6 +87,7 @@ const applyTranslation = (heritage, translations = [], language) => {
     title: translation.title || heritage.title,
     summary: translation.summary || heritage.summary,
     content: translation.content || heritage.content,
+    additionalInfo: getTranslatedAdditionalInfo(translation) || heritage.additionalInfo,
   }
 }
 
@@ -172,14 +188,19 @@ const fetchHeritageExtras = async (fetchWithBQ, heritageId, language) => {
 }
 
 const fetchHeritageCardExtras = async (fetchWithBQ, heritageId, language) => {
-  const [media, locations] = await Promise.all([
+  const shouldFetchTranslations = !isVietnamese(language)
+  const [media, locations, translations] = await Promise.all([
     fetchJson(fetchWithBQ, `/media/heritage/${heritageId}`),
     fetchJson(fetchWithBQ, `/location/heritage/${heritageId}`),
+    shouldFetchTranslations
+      ? fetchJson(fetchWithBQ, `/translation/heritage/${heritageId}`)
+      : Promise.resolve({ data: [] }),
   ])
 
   return {
     media: media.data || [],
     locations: locations.data || [],
+    translations: translations.data || [],
     language,
   }
 }
@@ -187,7 +208,10 @@ const fetchHeritageCardExtras = async (fetchWithBQ, heritageId, language) => {
 const enrichHeritageCards = async (fetchWithBQ, heritages, language) => {
   return Promise.all(
     heritages.map(async (heritage) => {
-      if (hasEmbeddedCardExtras(heritage)) {
+      const needsTranslationFetch =
+        !isVietnamese(language) && !Array.isArray(heritage?.translations)
+
+      if (hasEmbeddedCardExtras(heritage) && !needsTranslationFetch) {
         return normalizeHeritage(heritage, getEmbeddedExtras(heritage, language))
       }
 
@@ -274,8 +298,10 @@ export const heritageSlice = apiSlice.injectEndpoints({
 
         if (result.error) return { error: result.error }
 
-        const heritages = (result.data?.items || []).map((heritage) =>
-          normalizeHeritage(heritage, { language: language || getCurrentLanguage() }),
+        const heritages = await enrichHeritageCards(
+          fetchWithBQ,
+          result.data?.items || [],
+          language || getCurrentLanguage(),
         )
 
         return { data: heritages }
@@ -444,6 +470,26 @@ export const heritageSlice = apiSlice.injectEndpoints({
         method: 'DELETE',
       }),
     }),
+
+    createHeritageTranslation: builder.mutation({
+      query: (data) => ({
+        url: '/translation',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: (_result, _error, { heritageId }) => [{ type: 'Heritages', id: heritageId }],
+    }),
+
+    updateHeritageTranslation: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/translation/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: (_result, _error, arg) => [{ type: 'Heritages', id: arg?.data?.heritageId }],
+    }),
   }),
 })
 
@@ -465,5 +511,7 @@ export const {
   useCreateHeritageTimelineMutation,
   useUpdateHeritageTimelineMutation,
   useDeleteHeritageTimelineMutation,
+  useCreateHeritageTranslationMutation,
+  useUpdateHeritageTranslationMutation,
   useGetAllHeritageNamesQuery,
 } = heritageSlice
