@@ -1,9 +1,10 @@
-import React, { Suspense, Component } from "react";
+import React, { Suspense, Component, lazy } from "react";
 import AppRoutes from "./routes";
 import ToastProvider from "./components/ToastProvider/ToastProvider";
 import { useFavoriteInitializer } from "./hooks/useFavoriteInitializer";
 import LoadingScreen from "./components/common/LoadingScreen";
-import GlobalChatbot from "./components/GlobalChatbot/GlobalChatbot";
+
+const GlobalChatbot = lazy(() => import("./components/GlobalChatbot/GlobalChatbot"));
 
 // Error Boundary Component
 class ErrorBoundary extends Component {

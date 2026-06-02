@@ -106,6 +106,9 @@ const HeroCarousel = () => {
                     <img
                       src="/images/hero-artifact-temple.jpg"
                       alt="Van Mieu Quoc Tu Giam"
+                      width={520}
+                      height={390}
+                      loading="lazy"
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,10,7,0.02)_0%,rgba(11,10,7,0.18)_58%,rgba(11,10,7,0.62)_100%)]" />

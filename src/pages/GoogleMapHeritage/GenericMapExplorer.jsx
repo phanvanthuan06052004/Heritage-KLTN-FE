@@ -44,7 +44,6 @@ function GenericMapExplorer({
     const handleMarkerClick = useCallback(
         async ({ lat, lng }) => {
             if (typeof lat !== 'number' || typeof lng !== 'number') {
-                console.log('Invalid marker coordinates:', { lat, lng })
                 return
             }
 
@@ -94,7 +93,7 @@ function GenericMapExplorer({
         if (coordinates && typeof coordinates.lat === 'number' && typeof coordinates.lng === 'number') {
             // console.log(`Tọa độ: Lat: ${coordinates.lat.toFixed(6)}, Lng: ${coordinates.lng.toFixed(6)}`)
         } else {
-            console.log('Chưa chọn tọa độ hoặc tọa độ không hợp lệ:', coordinates)
+
         }
     }, [])
 

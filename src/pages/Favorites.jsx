@@ -1,7 +1,7 @@
 import { Heart, HeartOff, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import { selectCurrentUser } from "~/store/slices/authSlice";
@@ -77,6 +77,23 @@ const Favorites = () => {
     refetch();
   });
 
+  const favItemsRef = useRef(favoriteItems)
+  favItemsRef.current = favoriteItems
+  const currentPageRef = useRef(currentPage)
+  currentPageRef.current = currentPage
+  const totalPagesRef = useRef(totalPages)
+  totalPagesRef.current = totalPages
+
+  const handleFavoriteChange = useCallback((newState) => {
+    if (!newState && favItemsRef.current.length <= 1) {
+      if (currentPageRef.current > 1 && currentPageRef.current === totalPagesRef.current) {
+        dispatch(setFavoritesPage(currentPageRef.current - 1))
+      } else {
+        setTimeout(() => refetch(), 300)
+      }
+    }
+  }, [dispatch])
+
   if (!isAuthenticated) return null;
 
   const isLoading = isFavoritesLoading || isFavoritesFetching;
@@ -133,15 +150,7 @@ const Favorites = () => {
                   isFavorited={true}
                   isAuthenticated={true}
                   variant="museum"
-                  onFavoriteChange={(newState) => {
-                    if (!newState && favoriteItems.length <= 1) {
-                      if (currentPage > 1 && currentPage === totalPages) {
-                        dispatch(setFavoritesPage(currentPage - 1));
-                      } else {
-                        setTimeout(() => refetch(), 300);
-                      }
-                    }
-                  }}
+                   onFavoriteChange={handleFavoriteChange}
                 />
               ))}
             </div>

@@ -277,7 +277,7 @@ const useSocket = (userData, heritageId) => {
                     [recipientId]: formattedMessages,
                 }))
             } else {
-                console.log(`No recipientId found for dmRoomId ${dmRoomId}`)
+                if (import.meta.env.DEV) console.log(`No recipientId found for dmRoomId ${dmRoomId}`)
             }
         }
 

@@ -642,7 +642,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
             <X className='h-6 w-6' />
           </button>
           <figure className='max-h-full max-w-5xl'>
-            <img src={lightboxImage.url} alt={lightboxImage.caption || data?.name} className='max-h-[82vh] w-auto rounded-lg object-contain' />
+            <img src={lightboxImage.url} alt={lightboxImage.caption || data?.name} width={800} height={600} loading='lazy' className='max-h-[82vh] w-auto rounded-lg object-contain' />
             {lightboxImage.caption && <figcaption className='mt-4 text-center text-sm text-museum-ivory/80'>{lightboxImage.caption}</figcaption>}
           </figure>
         </div>

@@ -38,7 +38,7 @@ class SocketService {
 
     connect(userData) {
         if (this.socket && this.isConnected) {
-            console.log('Socket already connected, returning existing socket')
+            if (import.meta.env.DEV) console.log('Socket already connected, returning existing socket')
             return this.socket
         }
 
@@ -52,12 +52,12 @@ class SocketService {
         })
 
         this.socket.on(SOCKET_EVENTS.CONNECT, () => {
-            console.log('Socket connected')
+            if (import.meta.env.DEV) console.log('Socket connected')
             this.isConnected = true
         })
 
         this.socket.on(SOCKET_EVENTS.DISCONNECT, () => {
-            console.log('Socket disconnected')
+            if (import.meta.env.DEV) console.log('Socket disconnected')
             this.isConnected = false
             this.activeRooms.clear()
             this.activeDirectRooms.clear()
@@ -82,7 +82,7 @@ class SocketService {
 
     joinRoom(heritageId, userData) {
         if (!this.socket || !this.isConnected || this.activeRooms.has(heritageId)) {
-            console.log('Cannot join room:', { socket: !!this.socket, isConnected: this.isConnected, alreadyJoined: this.activeRooms.has(heritageId) })
+            if (import.meta.env.DEV) console.log('Cannot join room:', { socket: !!this.socket, isConnected: this.isConnected, alreadyJoined: this.activeRooms.has(heritageId) })
             return
         }
 
@@ -91,31 +91,31 @@ class SocketService {
             username: userData.username,
         }
 
-        console.log('Emitting join-room:', { heritageId, userData: user })
+        if (import.meta.env.DEV) console.log('Emitting join-room:', { heritageId, userData: user })
         this.socket.emit(SOCKET_EVENTS.JOIN_ROOM, { heritageId, userData: user })
         this.activeRooms.add(heritageId)
     }
 
     leaveRoom({ heritageId, userId }) {
         if (!this.socket || !this.isConnected) return
-        console.log('Emitting leave-room:', { heritageId, userId })
+        if (import.meta.env.DEV) console.log('Emitting leave-room:', { heritageId, userId })
         this.socket.emit(SOCKET_EVENTS.LEAVE_ROOM, { heritageId, userId })
         this.activeRooms.delete(heritageId)
     }
 
     joinDirectRoom(userId1, userId2, userData) {
         if (!this.socket || !this.isConnected) {
-            console.log('Cannot join direct room:', { socket: !!this.socket, isConnected: this.isConnected })
+            if (import.meta.env.DEV) console.log('Cannot join direct room:', { socket: !!this.socket, isConnected: this.isConnected })
             return
         }
 
         const roomKey = [userId1, userId2].sort().join('-')
         if (this.activeDirectRooms.has(roomKey)) {
-            console.log(`Already joined direct room ${roomKey}, skipping`)
+            if (import.meta.env.DEV) console.log(`Already joined direct room ${roomKey}, skipping`)
             return
         }
 
-        console.log('Emitting join-dm:', { userId1, userId2, userData })
+        if (import.meta.env.DEV) console.log('Emitting join-dm:', { userId1, userId2, userData })
         this.socket.emit(SOCKET_EVENTS.JOIN_DM, { userId1, userId2, userData })
         this.activeDirectRooms.add(roomKey)
     }
@@ -127,7 +127,7 @@ class SocketService {
 
     sendDirectMessage(dmRoomId, userId, message) {
         if (!this.socket || !this.isConnected) return
-        console.log('Emitting send-dm:', { dmRoomId, userId, message })
+        if (import.meta.env.DEV) console.log('Emitting send-dm:', { dmRoomId, userId, message })
         this.socket.emit(SOCKET_EVENTS.SEND_DM, { dmRoomId, userId, message })
     }
 
@@ -143,20 +143,20 @@ class SocketService {
 
     getMessages(roomId, limit = 50, lastMessageTimestamp = null) {
         if (!this.socket || !this.isConnected) return
-        console.log('Fetching messages:', { roomId, limit, lastMessageTimestamp })
+        if (import.meta.env.DEV) console.log('Fetching messages:', { roomId, limit, lastMessageTimestamp })
         this.socket.emit('get-messages', { roomId, limit, lastMessageTimestamp })
     }
 
     getDirectMessages(dmRoomId, limit = 50) {
         if (!this.socket || !this.isConnected) return
-        console.log('Fetching DM messages:', { dmRoomId, limit })
+        if (import.meta.env.DEV) console.log('Fetching DM messages:', { dmRoomId, limit })
         this.socket.emit(SOCKET_EVENTS.GET_DM_MESSAGES, { dmRoomId, limit })
     }
 
     on(event, callback) {
         if (!this.socket) return
         this.socket.on(event, (data) => {
-            console.log(`Received ${event}:`, data)
+            if (import.meta.env.DEV) console.log(`Received ${event}:`, data)
             callback(data)
         })
     }

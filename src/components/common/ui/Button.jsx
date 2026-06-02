@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, memo } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 
@@ -20,49 +20,46 @@ const buttonVariants = {
   },
 };
 
-const Button = forwardRef(
-  (
-    {
-      className,
-      variant = "default",
-      size = "default",
-      isLoading = false,
-      disabled,
-      children,
-      "aria-label": ariaLabel,
-      ...props
-    },
-    ref,
-  ) => {
-    const variantClasses =
-      buttonVariants.variant[variant] || buttonVariants.variant.default;
-    const sizeClasses =
-      buttonVariants.size[size] || buttonVariants.size.default;
+const Button = memo(forwardRef(function Button(props, ref) {
+  const {
+    className,
+    variant = "default",
+    size = "default",
+    isLoading = false,
+    disabled,
+    children,
+    "aria-label": ariaLabel,
+    ...rest
+  } = props;
 
-    return (
-      <button
-        ref={ref}
-        className={cn(
-          variantClasses,
-          sizeClasses,
-          "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors",
-          "disabled:pointer-events-none disabled:opacity-50",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-          className,
-        )}
-        disabled={disabled || isLoading}
-        aria-busy={isLoading ? "true" : undefined}
-        aria-label={ariaLabel}
-        {...props}
-      >
-        {isLoading && (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-        )}
-        {children}
-      </button>
-    );
-  },
-);
+  const variantClasses =
+    buttonVariants.variant[variant] || buttonVariants.variant.default;
+  const sizeClasses =
+    buttonVariants.size[size] || buttonVariants.size.default;
+
+  return (
+    <button
+      ref={ref}
+      className={cn(
+        variantClasses,
+        sizeClasses,
+        "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors",
+        "disabled:pointer-events-none disabled:opacity-50",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        className,
+      )}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading ? "true" : undefined}
+      aria-label={ariaLabel}
+      {...rest}
+    >
+      {isLoading && (
+        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+      )}
+      {children}
+    </button>
+  );
+}));
 
 Button.displayName = "Button";
 

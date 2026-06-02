@@ -104,7 +104,7 @@ const AdminLayout = () => {
               to="/admin"
               className="grid place-items-center w-10 h-10"
             >
-              <img src="/images/logo-mark.png" alt="Heritage" className="h-10 w-9 object-contain" />
+              <img src="/images/logo-mark.png" alt="Heritage" width={36} height={40} loading='lazy' className="h-10 w-9 object-contain" />
             </Link>
           )}
           <Button

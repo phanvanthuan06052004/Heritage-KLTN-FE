@@ -15,7 +15,6 @@ export const discussSlice = apiSlice.injectEndpoints({
         return `${BASE_URL}/discuss?${params.toString()}`
       },
       transformResponse: (response) => {
-        console.log("Raw API response:", response)
         return {
           discussArray: Array.isArray(response) ? response.map(discuss => ({
             ...discuss,

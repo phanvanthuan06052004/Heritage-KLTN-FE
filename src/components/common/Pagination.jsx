@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "~/lib/utils";
 
-export const Pagination = ({
+export const Pagination = memo(({
   currentPage,
   totalPages,
   paginationButtons,
@@ -98,4 +99,4 @@ export const Pagination = ({
       </button>
     </nav>
   );
-};
+});

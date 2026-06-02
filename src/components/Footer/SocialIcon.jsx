@@ -1,4 +1,6 @@
-const SocialIcon = ({ name, url, iconPath }) => (
+import { memo } from "react";
+
+const SocialIcon = memo(({ name, url, iconPath }) => (
   <a
     href={url}
     target='_blank'
@@ -18,6 +20,6 @@ const SocialIcon = ({ name, url, iconPath }) => (
       <path d={iconPath} />
     </svg>
   </a>
-)
+))
 
 export default SocialIcon

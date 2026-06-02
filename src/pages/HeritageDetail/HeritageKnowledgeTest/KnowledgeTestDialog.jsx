@@ -247,7 +247,7 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo, heritageName }) 
                       {current.content}
                     </h3>
                     {current.image && (
-                      <img src={current.image} alt='' className='mt-5 max-h-72 w-full rounded-2xl object-cover' loading='lazy' />
+                      <img src={current.image} alt='' width={400} height={288} className='mt-5 max-h-72 w-full rounded-2xl object-cover' loading='lazy' />
                     )}
                   </div>
 

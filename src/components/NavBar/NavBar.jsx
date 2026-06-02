@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -14,19 +14,33 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/store/slices/authSlice'
 import { navLinks, userMenuLinks } from './navData'
 
-const NavBar = () => {
+const NavBar = memo(() => {
   
   const [isScrolled, setIsScrolled] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const location = useLocation()
+  const scrollYRef = useRef(0)
 
   const userInfo = useSelector(selectCurrentUser)
   const isAuthenticated = !!userInfo
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', handleScroll)
+    const SCROLL_THRESHOLD = 10
+    const handleScroll = () => {
+      const currentY = window.scrollY
+      const wasAbove = scrollYRef.current <= SCROLL_THRESHOLD
+      const nowAbove = currentY <= SCROLL_THRESHOLD
+      scrollYRef.current = currentY
+      if (wasAbove !== nowAbove) {
+        setIsScrolled(!nowAbove)
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const toggleMobileMenu = useCallback(() => {
+    setShowMobileMenu((prev) => !prev)
   }, [])
 
   useEffect(() => {
@@ -59,6 +73,8 @@ const NavBar = () => {
             <img
               src='/images/logo-mark.png'
               alt='Heritage'
+              width={40}
+              height={48}
               className='h-12 w-10 object-contain'
             />
             <span className='flex flex-col leading-none'>
@@ -87,7 +103,7 @@ const NavBar = () => {
               }
             </div>
             <Button 
-              onClick={() => setShowMobileMenu(!showMobileMenu)} 
+              onClick={toggleMobileMenu}
               className='rounded-full border border-museum-gold/20 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold/10 lg:hidden'
               aria-label='Toggle-Menu'
               size='icon'
@@ -109,11 +125,11 @@ const NavBar = () => {
           isOpen
           navLinks={navLinks}
           userMenuLinks={userMenuLinks}
-          onClose={() => setShowMobileMenu(false)}
+          onClose={toggleMobileMenu}
         />
       )}
     </>
   )
-}
+})
 
 export default NavBar

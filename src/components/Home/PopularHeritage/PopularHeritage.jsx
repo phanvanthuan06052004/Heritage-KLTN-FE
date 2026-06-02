@@ -1,5 +1,5 @@
 import { ArrowRight, Landmark } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -14,7 +14,7 @@ import {
 import { useGetHeritagesQuery } from "~/store/apis/heritageApi";
 import { useLanguage, useLanguageChange } from "~/hooks/useLanguage";
 
-const PopularHeritage = () => {
+const PopularHeritage = memo(() => {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const [randomHeritages, setRandomHeritages] = useState([]);
@@ -81,6 +81,6 @@ const PopularHeritage = () => {
       </div>
     </section>
   );
-};
+});
 
 export default PopularHeritage;

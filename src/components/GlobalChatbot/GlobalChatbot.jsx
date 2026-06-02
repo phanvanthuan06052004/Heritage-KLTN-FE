@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { motion, useReducedMotion } from "motion/react";
 import { useLocation } from "react-router-dom";
@@ -492,7 +492,7 @@ const MarkdownContent = ({ content, isUser = false }) => {
   );
 };
 
-const ChatHeader = ({ isMinimized, onMinimize, onClose }) => (
+const ChatHeader = memo(({ isMinimized, onMinimize, onClose }) => (
   <div className="flex items-center justify-between border-b border-white/10 bg-[#7b2f14] px-4 py-3 text-white shadow-sm">
     <div className="flex min-w-0 items-center gap-3">
       <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/12 ring-1 ring-white/20">
@@ -525,7 +525,7 @@ const ChatHeader = ({ isMinimized, onMinimize, onClose }) => (
       </button>
     </div>
   </div>
-);
+));
 
 const SourcePanel = ({ sources = [], mode }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -762,7 +762,7 @@ const MessageBubble = ({ message, onAction }) => {
   );
 };
 
-const WelcomePrompts = ({ onPick }) => (
+const WelcomePrompts = memo(({ onPick }) => (
   <div className="rounded-xl border border-stone-200 bg-white/72 p-3 shadow-sm">
     <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-stone-600">
       <Sparkles className="h-3.5 w-3.5 text-[#a95620]" />
@@ -781,7 +781,7 @@ const WelcomePrompts = ({ onPick }) => (
       ))}
     </div>
   </div>
-);
+));
 
 const TypingIndicator = () => (
   <div className="flex justify-start">
@@ -804,7 +804,7 @@ const TypingIndicator = () => (
   </div>
 );
 
-const ChatInput = ({
+const ChatInput = memo(({
   value,
   disabled,
   inputRef,
@@ -842,7 +842,7 @@ const ChatInput = ({
       Thông tin chỉ mang tính tham khảo, được tư vấn bởi Trí Tuệ Nhân Tạo
     </p>
   </div>
-);
+));
 
 const GlobalChatbot = () => {
   const location = useLocation();

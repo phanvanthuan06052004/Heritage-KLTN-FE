@@ -76,9 +76,7 @@ const WriteReviewModal = ({ heritageId, onClose, onSubmit }) => {
     images.forEach((image) => formData.append('images', image))
 
     try {
-      console.log('Submitting comment...', { heritageId, rating, content, images: images.length })
       const newComment = await createNew(formData).unwrap()
-      console.log('Comment submitted:', newComment)
       toast.success('Review submitted successfully!')
       onSubmit({ rating, comment: content, images })
       onClose()

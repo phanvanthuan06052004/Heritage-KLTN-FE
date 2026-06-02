@@ -57,7 +57,6 @@ const HeritageChat = ({ heritageId, heritageName }) => {
     try {
       // Build context-aware question for RAG
       const contextualQuestion = `${question}`;
-      console.log("heritageData in chat:", heritageId);
       // Query RAG system
       const response = await queryRAG({
         question: contextualQuestion,

@@ -6,6 +6,7 @@ import App from '~/App.jsx'
 import './index.css'
 import { store } from './store'
 import './i18n/config'
+import { reportWebVitals } from './utils/webVitals'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -16,3 +17,5 @@ createRoot(document.getElementById('root')).render(
     </Provider>
   </StrictMode>,
 )
+
+reportWebVitals()

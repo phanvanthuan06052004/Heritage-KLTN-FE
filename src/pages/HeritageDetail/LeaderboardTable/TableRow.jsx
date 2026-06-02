@@ -8,7 +8,7 @@ const TableRow = ({ ranking, formatDate, getInitials, getRankIcon }) => {
       <div className='mx-3'>
         <div className='h-10 w-10 rounded-full bg-secondary flex items-center justify-center border border-border overflow-hidden'>
           {ranking?.avatarUrl ? (
-            <img loading='lazy' src={ranking?.avatar} alt={ranking?.displayName} className='h-full w-full object-cover' />
+            <img loading='lazy' src={ranking?.avatar} alt={ranking?.displayName} width={40} height={40} className='h-full w-full object-cover' />
           ) : (
             <span className='text-secondary-foreground font-medium'>
               {getInitials(ranking?.displayName)}

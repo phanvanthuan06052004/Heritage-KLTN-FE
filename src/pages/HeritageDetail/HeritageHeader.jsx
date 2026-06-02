@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import {
   ArrowLeft,
   Building2,
@@ -24,24 +24,36 @@ import { selectFavoriteMap } from '~/store/slices/favoriteSlice'
 
 const FALLBACK_HERO = 'https://placehold.co/1800x1200/5f3b1d/f8f1e7?text=Di+san+Viet+Nam'
 
-const HeritageHeader = ({ data, isAuthenticated }) => {
+const HeritageHeader = memo(({ data, isAuthenticated }) => {
   const dispatch = useDispatch()
   const favoriteMap = useSelector(selectFavoriteMap)
   const isFavorited = !!favoriteMap[data?._id]
   const { language, changeLanguage } = useLanguage()
-  const [scrollY, setScrollY] = useState(0)
+  const heroRef = useRef(null)
 
   const [addToFavorites] = useAddToFavoritesMutation()
   const [removeFromFavorites] = useRemoveFromFavoritesMutation()
 
   useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+
+    let rafId = null
     const handleScroll = () => {
-      window.requestAnimationFrame(() => setScrollY(window.scrollY))
+      if (rafId) return
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null
+        const y = window.scrollY
+        hero.style.setProperty('--scroll-y', `${y * 0.35}px`)
+        hero.style.transform = `translate3d(0, ${y * 0.25}px, 0)`
+      })
     }
 
-    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafId) window.cancelAnimationFrame(rafId)
+    }
   }, [])
 
   const handleShare = () => {
@@ -93,10 +105,10 @@ const HeritageHeader = ({ data, isAuthenticated }) => {
   return (
     <section className='relative h-[80vh] min-h-[520px] w-full overflow-hidden'>
       <div
+        ref={heroRef}
         className='absolute inset-0 bg-cover bg-center will-change-transform'
         style={{
           backgroundImage: `url(${heroImage})`,
-          transform: `translate3d(0, ${scrollY * 0.4}px, 0) scale(${1 + scrollY * 0.0004})`,
         }}
       />
       <div className='absolute inset-0 bg-gradient-to-b from-museum-black/35 via-museum-black/42 to-museum-black' />
@@ -165,6 +177,6 @@ const HeritageHeader = ({ data, isAuthenticated }) => {
       </div>
     </section>
   )
-}
+})
 
 export default HeritageHeader

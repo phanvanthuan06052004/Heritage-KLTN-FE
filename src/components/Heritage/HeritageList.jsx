@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { cn } from "~/lib/utils";
 import { useSelector } from "react-redux";
 import { Inbox } from "lucide-react";
@@ -24,7 +25,7 @@ const EmptyState = () => (
   </div>
 );
 
-const HeritageList = ({ heritages, className, cardVariant }) => {
+const HeritageList = memo(({ heritages, className, cardVariant }) => {
   const userInfo = useSelector(selectCurrentUser);
   const favoriteMap = useSelector(selectFavoriteMap);
   const isAuthenticated = !!userInfo;
@@ -55,6 +56,6 @@ const HeritageList = ({ heritages, className, cardVariant }) => {
       ))}
     </ul>
   );
-};
+});
 
 export default HeritageList;

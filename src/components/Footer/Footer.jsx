@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Landmark, Mail, MapPin } from "lucide-react";
 import { siFacebook, siInstagram } from "simple-icons";
@@ -25,7 +26,7 @@ const FOOTER_CONFIG = {
   ],
 };
 
-const Footer = () => {
+const Footer = memo(() => {
   const { t } = useTranslation();
 
   return (
@@ -118,6 +119,6 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
+});
 
 export default Footer;

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createSelector } from '@reduxjs/toolkit'
 import { favoriteSlice as favoriteApi } from '~/store/apis/favoritesSlice'
 
 const initialState = {
@@ -38,8 +38,18 @@ const favoritesSlice = createSlice({
 
 export const { setFavoriteStatus, resetFavorites } = favoritesSlice.actions
 
-export const selectFavoriteMap = (state) => state.favorites.favoriteMap
+const EMPTY_MAP = {}
+const selectRawFavoriteMap = (state) => state.favorites.favoriteMap
+export const selectFavoriteMap = createSelector(
+  [selectRawFavoriteMap],
+  (map) => map ?? EMPTY_MAP
+)
 export const selectIsFavoriteInitialized = (state) => state.favorites.isInitialized
-export const selectIsFavorited = (heritageId) => (state) => !!state.favorites.favoriteMap[heritageId]
+
+export const selectIsFavorited = (heritageId) =>
+  createSelector(
+    [selectRawFavoriteMap],
+    (map) => !!(map && map[heritageId])
+  )
 
 export default favoritesSlice.reducer

@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState, useCallback } from 'react'
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
 import { Button } from '~/components/common/ui/Button'
 import React from 'react'
+
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibmFtbGUwMjIwMDQiLCJhIjoiY205ejlmYm94MHI1djJqb2w5czloNDdrbyJ9.-P_PHQN7L283Z_qIGfgsOg'
 
 function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, onSelectCoordinates }) {
     const mapContainer = useRef(null)
@@ -20,7 +20,7 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
     const fetchAddress = useCallback(async (lng, lat) => {
         try {
             const response = await fetch(
-                `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}&country=vn`
+                `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}&country=vn`
             )
             const data = await response.json()
             setCurrentAddress(data.features?.[0]?.place_name || 'Address not found')
@@ -41,7 +41,7 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
             const response = await fetch(
                 `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
                     query
-                )}.json?access_token=${mapboxgl.accessToken}&country=vn&bbox=102.144,8.182,109.469,23.393&limit=5`
+                )}.json?access_token=${MAPBOX_TOKEN}&country=vn&bbox=102.144,8.182,109.469,23.393&limit=5`
             )
             const data = await response.json()
             setSuggestions(
@@ -68,10 +68,13 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
     }, [currentCoordinates, onSelectCoordinates])
 
     // Initialize map
-    const initializeMap = useCallback(() => {
+    const initializeMap = useCallback(async () => {
         if (!mapContainer.current) return
 
-        mapboxgl.accessToken = 'pk.eyJ1IjoibmFtbGUwMjIwMDQiLCJhIjoiY205ejlmYm94MHI1djJqb2w5czloNDdrbyJ9.-P_PHQN7L283Z_qIGfgsOg'
+        await import('mapbox-gl/dist/mapbox-gl.css')
+        const mapboxgl = (await import('mapbox-gl')).default
+
+        mapboxgl.accessToken = MAPBOX_TOKEN
 
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
@@ -186,7 +189,7 @@ function HeritageMapView({ center, markers: initialMarkers = [], onMarkerClick, 
                     const response = await fetch(
                         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
                             searchQuery
-                        )}.json?access_token=${mapboxgl.accessToken}&country=vn&bbox=102.144,8.182,109.469,23.393`
+                        )}.json?access_token=${MAPBOX_TOKEN}&country=vn&bbox=102.144,8.182,109.469,23.393`
                     )
                     const data = await response.json()
                     if (data.features && data.features.length > 0) {
