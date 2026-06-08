@@ -1,4 +1,5 @@
 import { Gavel } from 'lucide-react'
+import { sanitizeHtml } from '~/utils/htmlSanitizer'
 
 const HistoryTab = ({ historicalEvents = [] }) => {
   if (!historicalEvents || historicalEvents.length === 0) {
@@ -15,7 +16,10 @@ const HistoryTab = ({ historicalEvents = [] }) => {
             </div>
             <h3 className='ml-4 text-lg font-semibold text-museum-ivory'>{event?.title}</h3>
           </div>
-          <p className='text-justify leading-relaxed text-museum-parchment'>{event?.description}</p>
+          <div
+            className='space-y-3 text-justify leading-relaxed text-museum-parchment [&_a]:text-museum-gold-light [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-museum-gold/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_li]:ml-5 [&_ol]:list-decimal [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-museum-gold/20 [&_td]:p-2 [&_th]:border [&_th]:border-museum-gold/20 [&_th]:p-2 [&_ul]:list-disc'
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(event?.description || '') }}
+          />
         </li>
       ))}
     </ul>

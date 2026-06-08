@@ -3,13 +3,15 @@
     "home": "Home",
     "heritageSites": "Heritage Sites",
     "explore": "Explore",
+    "historicalMap": "Historical Map",
     "about": "About",
     "favorites": "Favorites",
     "profile": "Profile",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
-    "admin": "Administrator"
+    "admin": "Administrator",
+    "passport": "Passport"
   },
   "home": {
     "title": "Explore Vietnamese Heritage",
@@ -232,10 +234,10 @@
     "knowledgeTestDescription": "Test your knowledge about"
   },
   "heritageInfo": {
-      "titlee": "Detailed Information",
-      "address": "Address",
-      "title": "Title",
-      "coordinates": "Coordinates"
+    "titlee": "Detailed Information",
+    "address": "Address",
+    "title": "Title",
+    "coordinates": "Coordinates"
   },
   "heritageFeatures": {
     "leaderboard": "Leaderboard",
@@ -567,4 +569,3 @@
     }
   }
 }
-

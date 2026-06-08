@@ -10,6 +10,8 @@ const publicRoutes = [
   { path: "/profile", element: null },
   { path: "/favorites", element: null },
   { path: "/explore", element: null },
+  { path: "/historical-map", element: null },
+  { path: "/passport", element: null },
   { path: "/forgot-password", element: null, restricted: true },
 ];
 

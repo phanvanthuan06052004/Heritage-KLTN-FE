@@ -3,13 +3,15 @@
     "home": "Trang chủ",
     "heritageSites": "Di sản",
     "explore": "Khám phá",
+    "historicalMap": "Bản đồ Lịch sử",
     "about": "Giới thiệu",
     "favorites": "Yêu thích",
     "profile": "Hồ sơ",
     "login": "Đăng nhập",
     "register": "Đăng ký",
     "logout": "Đăng xuất",
-    "admin": "Quản trị viên"
+    "admin": "Quản trị viên",
+    "passport": "Hộ chiếu"
   },
   "home": {
     "title": "Khám Phá Di Sản Việt Nam",
@@ -232,10 +234,10 @@
     "knowledgeTestDescription": "Kiểm tra kiến thức của bạn về"
   },
   "heritageInfo": {
-      "titlee": "Thông tin chi tiết",
-      "address": "Địa chỉ",
-      "title": "Tiêu đề",
-      "coordinates": "Tọa độ"
+    "titlee": "Thông tin chi tiết",
+    "address": "Địa chỉ",
+    "title": "Tiêu đề",
+    "coordinates": "Tọa độ"
   },
   "heritageFeatures": {
     "leaderboard": "Bảng xếp hạng",
@@ -567,4 +569,3 @@
     }
   }
 }
-

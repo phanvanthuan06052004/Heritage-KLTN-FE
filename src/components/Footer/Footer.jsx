@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Landmark, Mail, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import { siFacebook, siInstagram } from "simple-icons";
 import { useTranslation } from "react-i18next";
 import SocialIcon from "./SocialIcon";
@@ -36,11 +36,13 @@ const Footer = () => {
         <div className="grid gap-10 md:grid-cols-[1.4fr_0.8fr_1fr] md:items-start">
           {/* Brand & Social */}
           <div className="flex flex-col items-center space-y-4 md:items-start">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-museum-gold text-museum-black">
-                <Landmark className="h-5 w-5" />
-              </span>
-              <h4 className="font-display text-2xl font-semibold text-museum-ivory">
+            <Link to="/" className="flex items-center gap-2.5">
+              <img
+                src="/images/logo-mark.png"
+                alt="Heritage"
+                className="h-12 w-10 object-contain"
+              />
+              <h4 className="font-display text-2xl font-semibold tracking-[0.12em] text-museum-ivory">
                 {t("footer.brand")}
               </h4>
             </Link>

@@ -12,10 +12,10 @@ const AuthButton = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="rounded-full text-museum-ivory hover:bg-museum-ivory/10 hover:text-museum-gold-light"
+          className="rounded-full whitespace-nowrap text-museum-ivory hover:bg-museum-ivory/10 hover:text-museum-gold-light"
         >
-          <LogIn size={18} />
-          <span>{t("auth.login")}</span>
+          <LogIn size={18} className="shrink-0" />
+          <span className="whitespace-nowrap">{t("auth.login")}</span>
         </Button>
       </Link>
       {/* <Link to="/register">

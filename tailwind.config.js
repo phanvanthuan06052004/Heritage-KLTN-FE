@@ -14,6 +14,7 @@ export default {
       },
       fontFamily: {
         sans: [
+          "Be Vietnam Pro",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",
@@ -21,7 +22,7 @@ export default {
           "Segoe UI Emoji",
           "Noto Color Emoji",
         ],
-        display: ["Georgia", "Cambria", "Times New Roman", "serif"],
+        display: ["Playfair Display", "Georgia", "Cambria", "serif"],
       },
       colors: {
         background: "hsl(var(--background))",

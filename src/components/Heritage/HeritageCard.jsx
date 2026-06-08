@@ -107,7 +107,7 @@ const HeritageCard = memo(({
         aria-label={`View details: ${name}`}
       >
         <article
-          className="museum-card flex h-full flex-col overflow-hidden rounded-[2rem] bg-museum-ivory/7 transition duration-300 hover:-translate-y-1 hover:border-museum-gold/45 hover:shadow-museum-gold"
+          className="museum-card flex h-full flex-col overflow-hidden rounded-[2rem] bg-museum-ivory/[0.07] transition duration-300 group-hover:-translate-y-1 group-hover:border-museum-gold/60 group-hover:bg-museum-ivory/[0.12] group-hover:shadow-[0_0_34px_rgba(216,162,74,0.42),0_16px_48px_-8px_rgba(216,162,74,0.5)]"
         >
           <div className="relative overflow-hidden">
             {imgError ? (
@@ -118,14 +118,17 @@ const HeritageCard = memo(({
               <img
                 src={imgSrcRef.current}
                 alt={name}
-                className="aspect-[4/3] w-full object-cover"
+                className="aspect-[4/3] w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04] group-hover:brightness-110"
                 loading="lazy"
                 width="600"
                 height="450"
                 onError={handleImageError}
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-museum-black via-museum-black/18 to-transparent" />
+            {/* Lớp tối đáy ảnh — mờ bớt khi hover để ảnh "sáng" lên */}
+            <div className="absolute inset-0 bg-gradient-to-t from-museum-black via-museum-black/18 to-transparent transition-opacity duration-300 group-hover:opacity-60" />
+            {/* Lớp ánh vàng nhẹ khi hover (bo góc theo ảnh, không tạo ô vuông) */}
+            <div className="pointer-events-none absolute inset-0 bg-museum-gold/0 transition-colors duration-300 group-hover:bg-museum-gold/[0.08]" />
             {(dynasty || province) && (
               <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                 {dynasty && (

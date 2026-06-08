@@ -1,4 +1,4 @@
-import { BookOpen, Headset, Heart, House, Map, UserPlus } from 'lucide-react'
+import { BookOpen, Headset, Heart, House, Map, Network, Stamp, UserPlus } from 'lucide-react'
 
 export const navLinks = [
   { 
@@ -11,12 +11,22 @@ export const navLinks = [
     to: '/heritages', 
     icon: () => <BookOpen className='h-5 w-5' /> 
   },
-  { 
+  {
     nameKey: 'nav.explore',
-    to: '/explore', 
-    icon: () => <Map className='h-5 w-5' /> 
+    to: '/explore',
+    icon: () => <Map className='h-5 w-5' />
   },
-  { 
+  {
+    nameKey: 'nav.historicalMap',
+    to: '/historical-map',
+    icon: () => <Network className='h-5 w-5' />
+  },
+  {
+    nameKey: 'nav.passport',
+    to: '/passport',
+    icon: () => <Stamp className='h-5 w-5' />
+  },
+  {
     nameKey: 'nav.about',
     to: '/about', 
     icon: () => <Headset className='h-5 w-5' /> 

@@ -73,16 +73,6 @@ const UserMenu = ({ userMenuLinks }) => {
         </Button>
       </Link>
 
-      {/* Admin link */}
-      {isAdmin && (
-        <Link to="/admin">
-          <Button variant="ghost" size="sm" className=" border border-museum-gold/20 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold/10 hover:text-museum-gold-light focus-visible:outline-museum-gold-light">
-            <Settings size={18} />
-            <span className="hidden lg:inline">Admin</span>
-          </Button>
-        </Link>
-      )}
-
       {/* User dropdown */}
       <div className="relative" ref={dropDownRef}>
         <Button
@@ -132,6 +122,17 @@ const UserMenu = ({ userMenuLinks }) => {
 
             {/* Menu items */}
             <div className="p-1.5">
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  role="menuitem"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-heritage hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
+                  <Settings size={18} />
+                  <span>{t("nav.admin")}</span>
+                </Link>
+              )}
               {userMenuLinks.map((item) => (
                 <Link
                   key={item.to}

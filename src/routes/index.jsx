@@ -22,6 +22,12 @@ const GenericMapExplorer = lazy(
 const HeritageDetail = lazy(
   () => import("~/pages/HeritageDetail/HeritageDetail"),
 );
+const HistoricalMap = lazy(
+  () => import("~/pages/HistoricalMap/HistoricalMap"),
+);
+const HeritagePassport = lazy(
+  () => import("~/pages/HeritagePassport/HeritagePassport"),
+);
 const Heritages = lazy(() => import("~/pages/Heritages"));
 const Login = lazy(() => import("~/pages/Login"));
 const Profile = lazy(() => import("~/pages/Profile"));
@@ -42,6 +48,8 @@ const routeComponents = {
   "/profile": <Profile />,
   "/favorites": <Favorites />,
   "/explore": <GenericMapExplorer />,
+  "/historical-map": <HistoricalMap />,
+  "/passport": <HeritagePassport />,
   "/forgot-password": <ForgotPassword />,
 };
 

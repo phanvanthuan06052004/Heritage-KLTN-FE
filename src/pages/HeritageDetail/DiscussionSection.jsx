@@ -23,6 +23,8 @@ const DiscussionSection = ({ heritageId }) => {
     parentId: null,
   });
 
+  console.log(topLevelComments);
+
   const [createComment, { isLoading: isCreating }] = useCreateDiscussMutation();
 
   const handleCommentSubmit = async (e) => {

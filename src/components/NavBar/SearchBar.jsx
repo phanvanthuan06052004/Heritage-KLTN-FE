@@ -60,7 +60,7 @@ const SearchBar = ({ className }) => {
         value={searchValue}
         className={cn(
           "h-11 rounded-full border border-museum-gold/20 bg-museum-ivory/8",
-          "w-full min-w-0 sm:w-[220px] lg:w-[280px]",
+          "w-full min-w-0 sm:w-[200px] xl:w-[190px] 2xl:w-[250px]",
           "pr-10 pl-11 text-sm text-museum-ivory shadow-inner",
           "placeholder:text-museum-muted/80",
           "focus:border-museum-gold/60 focus:ring-2 focus:ring-museum-gold/20 focus:outline-none",
