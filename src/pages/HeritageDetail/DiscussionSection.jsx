@@ -23,8 +23,6 @@ const DiscussionSection = ({ heritageId }) => {
     parentId: null,
   });
 
-  console.log(topLevelComments);
-
   const [createComment, { isLoading: isCreating }] = useCreateDiscussMutation();
 
   const handleCommentSubmit = async (e) => {
@@ -42,6 +40,7 @@ const DiscussionSection = ({ heritageId }) => {
       await createComment({
         heritageId,
         content: newComment,
+        userId: currentUser._id,
         parentId: null,
       }).unwrap();
       toast.success("Comment posted!");
