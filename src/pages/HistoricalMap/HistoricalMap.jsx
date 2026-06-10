@@ -133,7 +133,7 @@ export default function HistoricalMap() {
 
   return (
     <section className="museum-shell min-h-screen overflow-hidden pt-navbar-mobile sm:pt-navbar">
-      <div className="lcn-container relative">
+      <div className="lcn-container relative !max-w-[1720px]">
         <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
 
         <MuseumSectionHeader
@@ -205,7 +205,7 @@ export default function HistoricalMap() {
 
         {/* Bản đồ/Đồ thị + Panel chi tiết */}
         <div className="flex flex-col gap-5 lg:flex-row">
-          <div className="museum-card relative h-[62vh] min-h-[460px] flex-1 overflow-hidden rounded-[2rem] bg-museum-black/55 p-2.5 shadow-museum-card">
+          <div className="museum-card relative h-[78vh] min-h-[600px] flex-1 overflow-hidden rounded-[2rem] bg-museum-black/55 p-2.5 shadow-museum-card">
             <div className="relative h-full overflow-hidden rounded-[1.6rem] ring-1 ring-museum-gold/15">
               {view === "map" ? (
                 <>

@@ -82,12 +82,14 @@ export default function GraphExplorer({ data, activeId, onSelectNode }) {
   const runSearch = (e) => {
     e?.preventDefault?.();
     const q = query.trim().toLowerCase();
-    if (!q || !fgRef.current) return;
+    if (!q) return;
     const node = graph.nodes.find((n) => n.name?.toLowerCase().includes(q));
-    if (node && node.x != null) {
+    if (!node) return;
+    // Chọn node ở cả 2D lẫn 3D (3D: Graph3D tự lia camera theo activeId)
+    onSelectNode?.(node.id);
+    if (mode === "2d" && fgRef.current && node.x != null) {
       fgRef.current.centerAt(node.x, node.y, 800);
       fgRef.current.zoom(3, 800);
-      onSelectNode?.(node.id);
     }
   };
 
