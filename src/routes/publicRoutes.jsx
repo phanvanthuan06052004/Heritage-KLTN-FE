@@ -12,6 +12,9 @@ const publicRoutes = [
   { path: "/explore", element: null },
   { path: "/historical-map", element: null },
   { path: "/passport", element: null },
+  { path: "/passport/track", element: null },
+  { path: "/trips/:id", element: null },
+  { path: "/journeys", element: null },
   { path: "/forgot-password", element: null, restricted: true },
 ];
 

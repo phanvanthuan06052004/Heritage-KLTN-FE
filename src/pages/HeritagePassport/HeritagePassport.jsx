@@ -3,6 +3,7 @@ import { Compass } from "lucide-react";
 import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
 import PassportCollection, { useUserId } from "./PassportCollection";
 import CommunityFeed from "./CommunityFeed";
+import MyTrips from "~/pages/Trip/MyTrips";
 
 /**
  * Trang Hộ chiếu Di sản (/passport) — bộ sưu tập của user.
@@ -22,6 +23,8 @@ export default function HeritagePassport() {
         />
 
         <PassportCollection userId={userId} />
+
+        <MyTrips userId={userId} />
 
         <div className="mt-10">
           <CommunityFeed title="Cộng đồng khám phá" showHeritage limit={16} />

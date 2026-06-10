@@ -28,6 +28,9 @@ const HistoricalMap = lazy(
 const HeritagePassport = lazy(
   () => import("~/pages/HeritagePassport/HeritagePassport"),
 );
+const TripRecorder = lazy(() => import("~/pages/Trip/TripRecorder"));
+const TripDetail = lazy(() => import("~/pages/Trip/TripDetail"));
+const JourneysFeed = lazy(() => import("~/pages/Trip/JourneysFeed"));
 const Heritages = lazy(() => import("~/pages/Heritages"));
 const Login = lazy(() => import("~/pages/Login"));
 const Profile = lazy(() => import("~/pages/Profile"));
@@ -50,6 +53,9 @@ const routeComponents = {
   "/explore": <GenericMapExplorer />,
   "/historical-map": <HistoricalMap />,
   "/passport": <HeritagePassport />,
+  "/passport/track": <TripRecorder />,
+  "/trips/:id": <TripDetail />,
+  "/journeys": <JourneysFeed />,
   "/forgot-password": <ForgotPassword />,
 };
 
@@ -120,6 +126,7 @@ const AppRoutes = () => {
                 <SuspenseWrapper>
                   {path === "/profile" ||
                   path === "/favorites" ||
+                  path === "/passport/track" ||
                   path === "/chat/heritage/:nameSlug" ? (
                     <UserPrivateRoutes>
                       {routeComponents[path] || <NotFound />}
