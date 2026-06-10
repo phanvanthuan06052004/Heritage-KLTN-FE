@@ -139,7 +139,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
 
 export const apiSlice = createApi({
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['User', 'Users', 'Heritage', 'Heritages', 'Chat', 'Favorites', 'KnowledgeTests', 'Leaderboards', 'KnowledgeBase', 'Comments'],
+  tagTypes: ['User', 'Users', 'Heritage', 'Heritages', 'Chat', 'Favorites', 'KnowledgeTests', 'Leaderboards', 'KnowledgeBase', 'Comments', 'Friends'],
   keepUnusedDataFor: 60,
   refetchOnMountOrArgChange: true,
   refetchOnFocus: false,

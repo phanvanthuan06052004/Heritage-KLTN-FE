@@ -14,6 +14,8 @@ export const SOCKET_EVENTS = {
     USER_LEFT: 'user-left',
     ROOM_USERS: 'room-users',
     NEW_MESSAGE: 'new-message',
+    RECALL_MESSAGE: 'recall-message',
+    MESSAGE_RECALLED: 'message-recalled',
     TYPING: 'typing',
     USER_TYPING: 'user-typing',
     ROOM_MESSAGES: 'room-messages',
@@ -125,10 +127,15 @@ class SocketService {
         this.socket.emit(SOCKET_EVENTS.NEW_MESSAGE, { roomId, message })
     }
 
-    sendDirectMessage(dmRoomId, userId, message) {
+    recallMessage(messageId) {
         if (!this.socket || !this.isConnected) return
-        console.log('Emitting send-dm:', { dmRoomId, userId, message })
-        this.socket.emit(SOCKET_EVENTS.SEND_DM, { dmRoomId, userId, message })
+        this.socket.emit(SOCKET_EVENTS.RECALL_MESSAGE, { messageId })
+    }
+
+    sendDirectMessage(userId, otherUserId, message) {
+        if (!this.socket || !this.isConnected) return
+        console.log('Emitting send-dm:', { userId, otherUserId, message })
+        this.socket.emit(SOCKET_EVENTS.SEND_DM, { userId, otherUserId, message })
     }
 
     startTyping(roomId) {
@@ -147,10 +154,10 @@ class SocketService {
         this.socket.emit('get-messages', { roomId, limit, lastMessageTimestamp })
     }
 
-    getDirectMessages(dmRoomId, limit = 50) {
+    getDirectMessages(userId1, userId2, page = 1, limit = 50) {
         if (!this.socket || !this.isConnected) return
-        console.log('Fetching DM messages:', { dmRoomId, limit })
-        this.socket.emit(SOCKET_EVENTS.GET_DM_MESSAGES, { dmRoomId, limit })
+        console.log('Fetching DM messages:', { userId1, userId2, page, limit })
+        this.socket.emit(SOCKET_EVENTS.GET_DM_MESSAGES, { userId1, userId2, page, limit })
     }
 
     on(event, callback) {

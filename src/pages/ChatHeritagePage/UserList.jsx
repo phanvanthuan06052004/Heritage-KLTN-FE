@@ -1,6 +1,5 @@
-import { Users2, Search, X, Smile } from 'lucide-react'
-import { useState, useMemo, useEffect } from 'react'
-import { Button } from '~/components/common/ui/Button'
+import { Users2, Search, X, UserPlus, Bell } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { UserStatus } from './UserStatus'
 import { cn } from '~/lib/utils'
 
@@ -13,141 +12,159 @@ export function UserList({
   isCommunityActive,
   onlineUsers = [],
   isOpen = true,
-  // hasNewMessage = () => false,
+  onOpenAddFriend,
+  onOpenRequests,
+  incomingCount = 0,
 }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
 
-  // Cập nhật trạng thái online cho người dùng dựa trên socket
   const enhancedUsers = useMemo(() => {
     return users.map((user) => {
-      // Kiểm tra xem người dùng có online trong phòng chat không
-      const isOnlineInRoom = onlineUsers.some((onlineUser) => onlineUser.id === user.id)
-
-      // Nếu người dùng có trong danh sách online từ socket, luôn đánh dấu là online
+      const isOnlineInRoom = onlineUsers.some((o) => o.id === user.id)
       return isOnlineInRoom ? { ...user, status: 'online' } : user
     })
   }, [users, onlineUsers])
 
   const filteredUsers = useMemo(() => {
-    return enhancedUsers.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return enhancedUsers
+    return enhancedUsers.filter((u) => (u.name || '').toLowerCase().includes(q))
   }, [enhancedUsers, searchQuery])
 
-  // Đếm số người dùng online trong phòng community
   const onlineCount = onlineUsers.length
 
-  // Sắp xếp người dùng: online trước, sau đó là away, cuối cùng là offline
   const sortedUsers = useMemo(() => {
     return [...filteredUsers].sort((a, b) => {
-      const statusOrder = { online: 0, away: 1, offline: 2 }
-      return statusOrder[a.status] - statusOrder[b.status] || (b.unreadCount || 0) - (a.unreadCount || 0)
+      const order = { online: 0, away: 1, offline: 2 }
+      return order[a.status] - order[b.status] || (b.unreadCount || 0) - (a.unreadCount || 0)
     })
   }, [filteredUsers])
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('overflow-hidden')
-    } else {
-      document.body.classList.remove('overflow-hidden')
-    }
-
-    // Clean up when component unmount
-    return () => {
-      document.body.classList.remove('overflow-hidden')
-    }
-  }, [isOpen])
-
-  // Only render when sidebar is open and onSelectUser is provided
   if (!isOpen || !onSelectUser) return null
 
   return (
-    <div className='h-screen flex flex-col bg-sidebar text-white'>
-      <div className='p-4 border-b border-white/10'>
-        <h2 className='font-semibold text-lg mb-3'>Heritage Hub Chat</h2>
-        <div className={cn(
-          'flex items-center transition-all duration-200 bg-sidebar-accent rounded-lg px-4 py-2',
-          searchFocused ? 'ring-2 ring-primary/50' : ''
-        )}>
-          <Search className='h-4 w-4 text-white/50' />
+    <div className="flex h-full flex-col text-museum-ivory">
+      <div className="border-b border-museum-gold/12 p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-museum-gold-light">
+            <Users2 className="h-5 w-5" /> Cộng đồng Di sản
+          </h2>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onOpenRequests}
+              title="Lời mời kết bạn"
+              className="relative flex h-8 w-8 items-center justify-center rounded-full text-museum-gold-light/80 transition-colors hover:bg-museum-gold/12 hover:text-museum-gold-light"
+            >
+              <Bell className="h-[18px] w-[18px]" />
+              {incomingCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-museum-seal px-1 text-[10px] font-semibold text-white">
+                  {incomingCount > 9 ? '9+' : incomingCount}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={onOpenAddFriend}
+              title="Thêm bạn"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-museum-gold-light/80 transition-colors hover:bg-museum-gold/12 hover:text-museum-gold-light"
+            >
+              <UserPlus className="h-[18px] w-[18px]" />
+            </button>
+          </div>
+        </div>
+        <div
+          className={cn(
+            'flex items-center rounded-xl border border-museum-gold/20 bg-museum-black/45 px-3 py-2 transition-all',
+            searchFocused ? 'ring-2 ring-museum-gold/30' : '',
+          )}
+        >
+          <Search className="h-4 w-4 text-museum-gold-light/60" />
           <input
-            type='text'
-            placeholder='Search users...'
-            className='flex-1 pl-4 pr-2 bg-transparent text-sm focus:outline-none placeholder:text-white/50'
+            type="text"
+            placeholder="Tìm bạn bè…"
+            className="flex-1 bg-transparent px-3 text-sm text-museum-ivory placeholder:text-museum-muted focus:outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
           />
           {searchQuery && (
-            <button
-              className='text-white/70 hover:text-white'
-              onClick={() => setSearchQuery('')}
-            >
-              <X className='h-4 w-4' />
+            <button className="text-museum-muted hover:text-museum-parchment" onClick={() => setSearchQuery('')}>
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
       </div>
 
-      <div className='flex-1 overflow-y-auto scrollbar-custom min-h-0'>
-        <div className='p-3'>
-          <Button
-            variant='ghost'
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="p-3">
+          <button
+            type="button"
             className={cn(
-              'w-full justify-start mb-2 font-medium text-white hover:bg-sidebar-accent transition-all',
-              isCommunityActive ? 'bg-sidebar-accent' : '',
+              'mb-2 flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left font-medium transition-colors',
+              isCommunityActive ? 'bg-museum-gold/15 text-museum-gold-light' : 'text-museum-parchment hover:bg-museum-gold/10',
             )}
             onClick={onSelectCommunity}
           >
-            <div className='w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center mr-2'>
-              <Users2 className='h-4 w-4' />
-            </div>
-            <div className='flex-1 flex justify-between items-center'>
-              <span>Community Room</span>
-              {onlineCount > 0 && (
-                <span className='text-xs font-normal bg-primary/20 px-2 py-0.5 rounded-full'>{onlineCount} online</span>
-              )}
-            </div>
-          </Button>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-museum-gold/20 text-museum-gold-light">
+              <Users2 className="h-4 w-4" />
+            </span>
+            <span className="flex-1">Phòng cộng đồng</span>
+            {onlineCount > 0 && (
+              <span className="rounded-full bg-museum-gold/20 px-2 py-0.5 text-xs font-normal text-museum-gold-light">
+                {onlineCount} online
+              </span>
+            )}
+          </button>
 
-          <div className='mt-4'>
-            <div className='px-3 mb-2 text-xs font-semibold text-white/50 uppercase tracking-wider'>
-              Private Messages
+          <div className="mt-4">
+            <div className="mb-2 flex items-center justify-between px-2.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-museum-muted">Bạn bè</span>
+              <span className="text-xs text-museum-muted">{users.length}</span>
             </div>
-
-            <div className='space-y-1'>
+            <div className="space-y-1">
               {sortedUsers.map((user) => (
-                <Button
+                <button
                   key={user.id}
-                  variant='ghost'
+                  type="button"
                   className={cn(
-                    'w-full justify-start p-2 h-auto text-white hover:bg-sidebar-accent transition-all',
-                    activeUserId === user.id ? 'bg-sidebar-accent' : '',
+                    'flex w-full items-center gap-2 rounded-xl p-2 text-left transition-colors',
+                    activeUserId === user.id ? 'bg-museum-gold/15' : 'hover:bg-museum-gold/10',
                   )}
                   onClick={() => onSelectUser(user.id)}
                 >
-                  <UserStatus name={user.name} status={user.status} avatar={user.avatar} size='sm' />
+                  <UserStatus name={user.name} status={user.status} avatar={user.avatar} size="sm" />
                   {!!user.unreadCount && (
-                    <span className='ml-auto bg-primary text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center'>
+                    <span className="ml-auto min-w-[20px] rounded-full bg-museum-gold px-2 py-0.5 text-center text-xs text-museum-black">
                       {user.unreadCount}
                     </span>
                   )}
-                </Button>
+                </button>
               ))}
-
-              {filteredUsers.length === 0 && (
-                <div className='text-center py-4 text-white/50 text-sm'>No users found</div>
+              {users.length === 0 && (
+                <div className="flex flex-col items-center gap-2 py-6 text-center text-sm text-museum-muted">
+                  <span>Chưa có bạn bè nào.</span>
+                  <button
+                    type="button"
+                    onClick={onOpenAddFriend}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-museum-gold/15 px-3 py-1.5 text-xs font-medium text-museum-gold-light transition-colors hover:bg-museum-gold/25"
+                  >
+                    <UserPlus className="h-3.5 w-3.5" /> Tìm & thêm bạn
+                  </button>
+                </div>
+              )}
+              {users.length > 0 && filteredUsers.length === 0 && (
+                <div className="py-4 text-center text-sm text-museum-muted">Không tìm thấy bạn bè</div>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      <div className='p-4 border-t border-white/10 flex items-center justify-between sticky bottom-0 z-10 bg-sidebar'>
-        <UserStatus avatar={currentUser.avatar} name='Your Account' status='online' size='md' />
-        <Button variant='ghost' size='icon' className='h-8 w-8 text-white/70'>
-          <Smile className='h-4 w-4' />
-        </Button>
+      <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-museum-gold/12 bg-museum-black/55 p-4">
+        <UserStatus avatar={currentUser?.avatar} name={currentUser?.username || 'Bạn'} status="online" size="md" />
       </div>
     </div>
   )

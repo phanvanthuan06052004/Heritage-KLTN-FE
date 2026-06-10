@@ -5,8 +5,8 @@
  */
 const SystemMessage = ({ message }) => {
   return (
-    <div className='flex justify-center my-3 animate-fade-in'>
-      <div className='bg-accent text-accent-foreground text-xs px-4 py-2 rounded-full shadow-sm'>
+    <div className='my-3 flex justify-center animate-fade-in'>
+      <div className='rounded-full border border-museum-gold/20 bg-museum-gold/10 px-4 py-1.5 text-xs text-museum-gold-light'>
         <p>{message.content}</p>
       </div>
     </div>

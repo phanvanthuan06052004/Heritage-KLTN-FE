@@ -81,15 +81,16 @@ const useSocket = (userData, heritageId) => {
         const handleRoomJoined = (data) => {
             setRoomId(data.roomId)
             setSocketError(null)
+            const content = data.message || 'Bạn đã tham gia phòng chat.'
             const systemMessage = {
                 id: `system-${Date.now()}`,
-                content: data.message,
+                content,
                 sender: { id: 'system', name: 'System' },
                 timestamp: new Date().toISOString(),
                 isSystemMessage: true,
             }
             setMessages((prev) => {
-                if (prev.some(msg => msg.isSystemMessage && msg.content === data.message)) {
+                if (prev.some(msg => msg.isSystemMessage && msg.content === content)) {
                     return prev
                 }
                 return [...prev, systemMessage]
@@ -99,7 +100,7 @@ const useSocket = (userData, heritageId) => {
         const handleUserJoined = (data) => {
             const systemMessage = {
                 id: `system-${Date.now()}`,
-                content: `${data.username} joined the chat.`,
+                content: `${data.username} đã tham gia phòng.`,
                 sender: { id: 'system', name: 'System' },
                 timestamp: new Date().toISOString(),
                 isSystemMessage: true,
@@ -122,7 +123,7 @@ const useSocket = (userData, heritageId) => {
         const handleUserLeft = (data) => {
             const systemMessage = {
                 id: `system-${Date.now()}`,
-                content: `${data.username} left the chat.`,
+                content: `${data.username} đã rời phòng.`,
                 sender: { id: 'system', name: 'System' },
                 timestamp: new Date().toISOString(),
                 isSystemMessage: true,
@@ -146,15 +147,17 @@ const useSocket = (userData, heritageId) => {
         const handleNewMessage = (data) => {
             const sender = {
                 id: data.userId,
-                name: usersInRoom.find(user => user.id === data.userId)?.name || 'Unknown',
+                name: data.username || usersInRoom.find(user => user.id === data.userId)?.name || 'Ẩn danh',
+                avatar: data.avatarUrl || usersInRoom.find(user => user.id === data.userId)?.avatar || null,
             }
             const newMessage = {
-                id: data._id,
+                id: data.id || data._id,
                 content: data.content,
                 sender: sender,
-                timestamp: data.createAt || new Date().toISOString(),
+                timestamp: data.createdAt || data.createAt || new Date().toISOString(),
                 isCurrentUser: data.userId === userData.userId,
                 type: data.type,
+                imageUrl: data.imageUrl || null,
                 status: data.status,
             }
             setMessages((prev) => {
@@ -169,15 +172,17 @@ const useSocket = (userData, heritageId) => {
             const newMessages = data.messages.map((msg) => {
                 const sender = {
                     id: msg.userId,
-                    name: usersInRoom.find(user => user.id === msg.userId)?.name || 'Unknown',
+                    name: msg.username || usersInRoom.find(user => user.id === msg.userId)?.name || 'Ẩn danh',
+                    avatar: msg.avatarUrl || usersInRoom.find(user => user.id === msg.userId)?.avatar || null,
                 }
                 return {
-                    id: msg._id,
+                    id: msg.id || msg._id,
                     content: msg.content,
                     sender: sender,
-                    timestamp: msg.createAt,
+                    timestamp: msg.createdAt || msg.createAt,
                     isCurrentUser: msg.userId === userData.userId,
                     type: msg.type,
+                    imageUrl: msg.imageUrl || null,
                     status: msg.status,
                 }
             })
@@ -193,13 +198,10 @@ const useSocket = (userData, heritageId) => {
 
         const handleJoinDm = (data) => {
             const { dmRoomId } = data
-            const recipientId = currentRecipientIdRef.current
+            // Ưu tiên otherUserId server trả về (chống lệch khi bấm nhanh nhiều người)
+            const recipientId = data.otherUserId || currentRecipientIdRef.current
 
             if (!recipientId) {
-                return
-            }
-
-            if (fetchedDmMessagesRef.current.has(recipientId)) {
                 return
             }
 
@@ -208,24 +210,33 @@ const useSocket = (userData, heritageId) => {
                 [recipientId]: dmRoomId,
             }))
 
+            if (fetchedDmMessagesRef.current.has(recipientId)) {
+                return
+            }
             fetchedDmMessagesRef.current.set(recipientId, dmRoomId)
 
-            socketService.getDirectMessages(dmRoomId, limit)
+            socketService.getDirectMessages(userData.userId, recipientId, 1, limit)
         }
 
         const handleNewDm = (data) => {
             const sender = {
                 id: data.userId,
-                name: usersInRoom.find(user => user.id === data.userId)?.name || 'Unknown',
+                name: data.username || usersInRoom.find(user => user.id === data.userId)?.name || 'Ẩn danh',
+                avatar: data.avatarUrl || usersInRoom.find(user => user.id === data.userId)?.avatar || null,
             }
             const newMessage = {
-                id: data._id,
+                id: data.id || data._id,
                 content: data.content,
                 sender: sender,
-                timestamp: data.createAt || new Date().toISOString(),
+                timestamp: data.createdAt || data.createAt || new Date().toISOString(),
                 isCurrentUser: data.userId === userData.userId,
+                type: data.type,
+                imageUrl: data.imageUrl || null,
             }
-            const recipientId = data.userId === userData.userId ? data.recipientId : data.userId
+            // Khoá hội thoại = người còn lại trong members (khác mình)
+            const recipientId = Array.isArray(data.members)
+                ? data.members.find((id) => id !== userData.userId)
+                : (data.userId === userData.userId ? data.recipientId : data.userId)
 
             setPrivateMessages((prev) => {
                 const currentMessages = prev[recipientId] || []
@@ -257,20 +268,24 @@ const useSocket = (userData, heritageId) => {
         }
 
         const handleDmMessages = (data) => {
-            const { dmRoomId, messages } = data
-            const recipientId = Object.keys(dmRoomIds).find(
-                (key) => dmRoomIds[key] === dmRoomId
-            )
+            const { messages = [] } = data
+            // Khoá hội thoại = người còn lại trong members (khác mình)
+            const recipientId = Array.isArray(data.members)
+                ? data.members.find((id) => id !== userData.userId)
+                : Object.keys(dmRoomIds).find((key) => dmRoomIds[key] === data.dmRoomId)
             if (recipientId) {
                 const formattedMessages = messages.map((msg) => ({
-                    id: msg._id,
+                    id: msg.id || msg._id,
                     content: msg.content,
                     sender: {
                         id: msg.userId,
-                        name: usersInRoom.find(user => user.id === msg.userId)?.name || 'Unknown',
+                        name: msg.username || usersInRoom.find(user => user.id === msg.userId)?.name || 'Ẩn danh',
+                        avatar: msg.avatarUrl || usersInRoom.find(user => user.id === msg.userId)?.avatar || null,
                     },
-                    timestamp: msg.createAt || new Date().toISOString(),
+                    timestamp: msg.createdAt || msg.createAt || new Date().toISOString(),
                     isCurrentUser: msg.userId === userData.userId,
+                    type: msg.type,
+                    imageUrl: msg.imageUrl || null,
                 }))
                 setPrivateMessages((prev) => ({
                     ...prev,
@@ -281,7 +296,23 @@ const useSocket = (userData, heritageId) => {
             }
         }
 
+        const handleMessageRecalled = (data) => {
+            const recalledId = data.messageId
+            if (!recalledId) return
+            const patch = (msg) =>
+                msg.id === recalledId
+                    ? { ...msg, recalled: true, content: data.content || 'Tin nhắn đã được thu hồi', type: 'TEXT', imageUrl: null }
+                    : msg
+            setMessages((prev) => prev.map(patch))
+            setPrivateMessages((prev) => {
+                const next = {}
+                for (const key of Object.keys(prev)) next[key] = prev[key].map(patch)
+                return next
+            })
+        }
+
         socketService.on(SOCKET_EVENTS.ROOM_JOINED, handleRoomJoined)
+        socketService.on(SOCKET_EVENTS.MESSAGE_RECALLED, handleMessageRecalled)
         socketService.on(SOCKET_EVENTS.USER_JOINED, handleUserJoined)
         socketService.on(SOCKET_EVENTS.USER_LEFT, handleUserLeft)
         socketService.on(SOCKET_EVENTS.ROOM_USERS, handleRoomUsers)
@@ -293,6 +324,7 @@ const useSocket = (userData, heritageId) => {
 
         return () => {
             socketService.off(SOCKET_EVENTS.ROOM_JOINED, handleRoomJoined)
+            socketService.off(SOCKET_EVENTS.MESSAGE_RECALLED, handleMessageRecalled)
             socketService.off(SOCKET_EVENTS.USER_JOINED, handleUserJoined)
             socketService.off(SOCKET_EVENTS.USER_LEFT, handleUserLeft)
             socketService.off(SOCKET_EVENTS.ROOM_USERS, handleRoomUsers)
@@ -333,20 +365,23 @@ const useSocket = (userData, heritageId) => {
         socketService.getMessages(roomId, limit, lastMessageTimestamp)
     }, [roomId, messages, isLoadingMessages, hasMoreMessages])
 
-    // Gửi tin nhắn cộng đồng
-    const sendMessage = useCallback((content) => {
+    // Gửi tin nhắn cộng đồng (hỗ trợ ảnh: truyền { type:'IMAGE', imageUrl })
+    const sendMessage = useCallback((content, options = {}) => {
         if (!isConnected || !roomId) {
             return
         }
 
         const messageData = {
             content,
-            type: 'TEXT',
+            type: options.type || 'TEXT',
+            imageUrl: options.imageUrl || undefined,
             userId: userData.userId,
+            username: userData.username,
+            avatarUrl: userData.avatar || undefined,
         }
 
         socketService.sendMessage(roomId, messageData)
-    }, [isConnected, roomId])
+    }, [isConnected, roomId, userData])
 
     // Tham gia phòng chat riêng
     const joinDirectRoom = useCallback((recipientId) => {
@@ -363,31 +398,32 @@ const useSocket = (userData, heritageId) => {
         }))
     }, [isConnected, userData])
 
-    // Gửi tin nhắn riêng
-    const sendDirectMessage = useCallback((recipientId, content) => {
+    // Gửi tin nhắn riêng (hỗ trợ ảnh: truyền { type:'IMAGE', imageUrl })
+    const sendDirectMessage = useCallback((recipientId, content, options = {}) => {
         if (!isConnected) {
-            return
-        }
-
-        const dmRoomId = dmRoomIds[recipientId]
-        if (!dmRoomId) {
             return
         }
 
         const messageData = {
             content,
-            type: 'TEXT',
+            type: options.type || 'TEXT',
+            imageUrl: options.imageUrl || undefined,
+            username: userData.username,
+            avatarUrl: userData.avatar || undefined,
         }
 
-        socketService.sendDirectMessage(dmRoomId, userData.userId, messageData)
+        // Server tự tìm/khởi tạo phòng DM từ 2 userId -> không cần dmRoomId
+        socketService.sendDirectMessage(userData.userId, recipientId, messageData)
 
         // Thêm tin nhắn vào state ngay lập tức
         const newMessage = {
             id: `temp-${Date.now()}`,
             content,
-            sender: { id: userData.userId, name: userData.username },
+            sender: { id: userData.userId, name: userData.username, avatar: userData.avatar || null },
             timestamp: new Date().toISOString(),
             isCurrentUser: true,
+            type: options.type || 'TEXT',
+            imageUrl: options.imageUrl || null,
         }
         setPrivateMessages((prev) => {
             const currentMessages = prev[recipientId] || []
@@ -402,6 +438,23 @@ const useSocket = (userData, heritageId) => {
         })
     }, [isConnected, userData, dmRoomIds])
 
+    // Thu hồi tin nhắn (mọi người thấy "đã thu hồi") - chỉ người gửi
+    const recallMessage = useCallback((messageId) => {
+        if (!isConnected || !messageId) return
+        socketService.recallMessage(messageId)
+    }, [isConnected])
+
+    // Xoá tin nhắn ở phía mình (chỉ ẩn local, không ảnh hưởng người khác)
+    const deleteMessageLocal = useCallback((messageId) => {
+        if (!messageId) return
+        setMessages((prev) => prev.filter((m) => m.id !== messageId))
+        setPrivateMessages((prev) => {
+            const next = {}
+            for (const key of Object.keys(prev)) next[key] = prev[key].filter((m) => m.id !== messageId)
+            return next
+        })
+    }, [])
+
     return {
         isConnected,
         messages,
@@ -410,6 +463,8 @@ const useSocket = (userData, heritageId) => {
         sendMessage,
         joinDirectRoom,
         sendDirectMessage,
+        recallMessage,
+        deleteMessageLocal,
         roomId,
         socketError,
         isLoadingMessages,

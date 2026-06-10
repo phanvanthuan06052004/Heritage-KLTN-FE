@@ -3,10 +3,11 @@ import { useGetUserProfileQuery, useUpdateUserProfileMutation, useUploadAvatarMu
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/common/ui/Button'
-import { Camera, Check, Loader2, UserRound, X } from 'lucide-react'
+import { Camera, Check, Loader2, UserRound, X, Stamp } from 'lucide-react'
 import { toDateInputFormat } from '~/utils/dateHelpers'
 import { useDispatch } from 'react-redux'
 import { setUser } from '~/store/slices/authSlice'
+import PassportCollection from './HeritagePassport/PassportCollection'
 
 const DEFAULT_AVATAR = '/images/avatar-default.jpg'
 const fieldBaseClass =
@@ -31,6 +32,8 @@ const UserProfile = () => {
   )
 
   const [isEditing, setIsEditing] = useState(false)
+  const [profileTab, setProfileTab] = useState('info')
+  const userId = user?._id || user?.id
   const [formData, setFormData] = useState(initialFormData)
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || DEFAULT_AVATAR)
   const [isAvatarChanged, setIsAvatarChanged] = useState(false)
@@ -207,8 +210,40 @@ const UserProfile = () => {
             </div>
           </div>
 
+        {/* Tabs */}
+        <div className='flex gap-1 border-b border-museum-gold/15 px-6 sm:px-8'>
+          <button
+            type='button'
+            onClick={() => setProfileTab('info')}
+            className={`-mb-px flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
+              profileTab === 'info'
+                ? 'border-museum-gold text-museum-gold-light'
+                : 'border-transparent text-museum-muted hover:text-museum-parchment'
+            }`}
+          >
+            <UserRound className='h-4 w-4' /> {t('profile.personalInfo')}
+          </button>
+          <button
+            type='button'
+            onClick={() => setProfileTab('passport')}
+            className={`-mb-px flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
+              profileTab === 'passport'
+                ? 'border-museum-gold text-museum-gold-light'
+                : 'border-transparent text-museum-muted hover:text-museum-parchment'
+            }`}
+          >
+            <Stamp className='h-4 w-4' /> Hộ chiếu di sản
+          </button>
+        </div>
+
+        {profileTab === 'passport' && (
+          <div className='p-6 sm:p-8'>
+            <PassportCollection userId={userId} />
+          </div>
+        )}
+
         {/* Content */}
-        <form onSubmit={handleSubmit} className='space-y-8 p-6 text-museum-ivory sm:p-8'>
+        <form onSubmit={handleSubmit} className={`space-y-8 p-6 text-museum-ivory sm:p-8 ${profileTab === 'info' ? '' : 'hidden'}`}>
           <div className='flex flex-col items-center gap-6 border-b border-museum-gold/15 pb-7 sm:flex-row'>
             <div className='relative group'>
               <div className='h-24 w-24 overflow-hidden rounded-full border-4 border-museum-gold/35 bg-museum-black/40 shadow-museum-gold sm:h-32 sm:w-32'>

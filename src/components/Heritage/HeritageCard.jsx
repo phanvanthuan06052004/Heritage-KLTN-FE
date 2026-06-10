@@ -1,6 +1,8 @@
-import { ArrowRight, Heart, ImageOff, MapPin } from "lucide-react";
+import { ArrowRight, Heart, ImageOff, MapPin, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCurrentUser } from "~/store/slices/authSlice";
+import { useGetVisitedQuery } from "~/store/apis/gamificationApi";
 import { useState, memo, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -38,6 +40,10 @@ const HeritageCard = memo(({
   } = item || {};
 
   const dispatch = useDispatch();
+  const currentUser = useSelector(selectCurrentUser);
+  const visitorId = currentUser?._id || currentUser?.id;
+  const { data: visited = [] } = useGetVisitedQuery(visitorId, { skip: !visitorId });
+  const isVisited = !!_id && visited.includes(_id);
 
   const imgSrcRef = useRef(images[0] || CONFIG.placeholderImage);
   const [imgError, setImgError] = useState(false);
@@ -129,8 +135,13 @@ const HeritageCard = memo(({
             <div className="absolute inset-0 bg-gradient-to-t from-museum-black via-museum-black/18 to-transparent transition-opacity duration-300 group-hover:opacity-60" />
             {/* Lớp ánh vàng nhẹ khi hover (bo góc theo ảnh, không tạo ô vuông) */}
             <div className="pointer-events-none absolute inset-0 bg-museum-gold/0 transition-colors duration-300 group-hover:bg-museum-gold/[0.08]" />
-            {(dynasty || province) && (
+            {(dynasty || province || isVisited) && (
               <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                {isVisited && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-museum-gold px-2.5 py-1 text-xs font-semibold text-museum-black shadow">
+                    <ShieldCheck className="h-3 w-3" /> Đã ghé thăm
+                  </span>
+                )}
                 {dynasty && (
                   <span className="rounded-full bg-museum-seal px-3 py-1 text-xs font-semibold text-museum-ivory">
                     {dynasty}

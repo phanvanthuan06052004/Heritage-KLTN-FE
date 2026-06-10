@@ -118,7 +118,9 @@ const AppRoutes = () => {
               path={path}
               element={
                 <SuspenseWrapper>
-                  {path === "/profile" || path === "/favorites" ? (
+                  {path === "/profile" ||
+                  path === "/favorites" ||
+                  path === "/chat/heritage/:nameSlug" ? (
                     <UserPrivateRoutes>
                       {routeComponents[path] || <NotFound />}
                     </UserPrivateRoutes>

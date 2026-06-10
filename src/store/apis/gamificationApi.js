@@ -19,9 +19,30 @@ export const gamificationApi = apiSlice.injectEndpoints({
       query: (userId) => `/gamification/passport/${userId}`,
       transformResponse: (res) => res?.data?.items ?? [],
     }),
+    // Feed cộng đồng (lọc theo heritageId nếu có)
+    getCommunity: builder.query({
+      query: ({ heritageId, limit } = {}) => {
+        const p = new URLSearchParams();
+        if (heritageId) p.set("heritageId", heritageId);
+        if (limit) p.set("limit", limit);
+        const qs = p.toString();
+        return `/gamification/community${qs ? `?${qs}` : ""}`;
+      },
+      transformResponse: (res) => res?.data?.items ?? [],
+    }),
+    // Danh sách heritageId user đã ghé (cho badge)
+    getVisited: builder.query({
+      query: (userId) => `/gamification/visited/${userId}`,
+      transformResponse: (res) => res?.data?.heritageIds ?? [],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useCheckInMutation, useGetProgressQuery, useGetPassportQuery } =
-  gamificationApi;
+export const {
+  useCheckInMutation,
+  useGetProgressQuery,
+  useGetPassportQuery,
+  useGetCommunityQuery,
+  useGetVisitedQuery,
+} = gamificationApi;

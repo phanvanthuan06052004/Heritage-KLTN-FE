@@ -18,6 +18,8 @@ import {
 } from '~/components/lazyComponents'
 import DiscussionSection from './DiscussionSection'
 import ErrorBoundary from './ErrorBoundary'
+import HeritageCheckIn from './HeritageCheckIn'
+import CommunityFeed from '~/pages/HeritagePassport/CommunityFeed'
 import { useLanguage } from '~/hooks/useLanguage'
 
 
@@ -122,6 +124,9 @@ const HeritageDetail = () => {
                   </div>
                 )}
                 <div className='mt-10'>
+                  <CommunityFeed heritageId={id} />
+                </div>
+                <div className='mt-10'>
                   <h3 className='mb-4 font-display text-2xl font-semibold text-museum-gold-light'>{t('heritageDetail.relatedHeritages')}</h3>
                   <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
                     {getRandomRelatedHeritages.map((item) => (
@@ -132,6 +137,7 @@ const HeritageDetail = () => {
                 <DiscussionSection heritageId={id} />
               </div>
               <div className='space-y-8'>
+                <HeritageCheckIn id={id} data={data} />
                 <HeritageInfo data={data} />
               </div>
             </div>

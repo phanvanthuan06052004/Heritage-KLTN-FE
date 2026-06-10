@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { X, MapPin, Camera, Loader2, ShieldCheck, Globe, Lock, FlaskConical } from "lucide-react";
 import { BASE_URL } from "~/constants/fe.constant";
+import { selectCurrentUser } from "~/store/slices/authSlice";
 import { TypeIcon } from "~/pages/HistoricalMap/typeIcons";
 
 /**
@@ -34,6 +36,7 @@ async function downscaleImage(file, maxSize = 1280, quality = 0.82) {
 }
 
 export default function CheckInModal({ location, userId, onClose, onDone }) {
+  const currentUser = useSelector(selectCurrentUser);
   const [coords, setCoords] = useState(null); // {lat,lng,accuracy}
   const [locating, setLocating] = useState(false);
   const [demo, setDemo] = useState(false);
@@ -103,6 +106,8 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
         heritageId: location.id,
         heritageTitle: location.name,
         visibility,
+        ...(currentUser?.displayname ? { displayName: currentUser.displayname } : {}),
+        ...(currentUser?.avatar ? { avatarUrl: currentUser.avatar } : {}),
         ...(demo ? { demo: true } : { lat: coords.lat, lng: coords.lng, accuracy: coords.accuracy }),
         ...(photoUrl ? { photoUrl } : {}),
       };
