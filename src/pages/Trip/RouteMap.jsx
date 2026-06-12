@@ -15,11 +15,16 @@ const OSM_STYLE = {
   layers: [{ id: "osm", type: "raster", source: "osm" }],
 };
 
+const valid = (p) =>
+  p && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng));
+const clean = (points) =>
+  (points || []).filter(valid).map((p) => ({ lat: Number(p.lat), lng: Number(p.lng) }));
+
 const lineGeoJSON = (points) => ({
   type: "Feature",
   geometry: {
     type: "LineString",
-    coordinates: (points || []).map((p) => [p.lng, p.lat]),
+    coordinates: clean(points).map((p) => [p.lng, p.lat]),
   },
 });
 
@@ -30,6 +35,8 @@ const lineGeoJSON = (points) => ({
 export default function RouteMap({
   points = [],
   moments = [],
+  heritages = [],
+  ghostPoints = [],
   current = null,
   mode = "view",
   className = "",
@@ -38,22 +45,40 @@ export default function RouteMap({
   const mapRef = useRef(null);
   const meMarkerRef = useRef(null);
   const momentMarkersRef = useRef([]);
+  const heritageMarkersRef = useRef([]);
   const readyRef = useRef(false);
   const fittedRef = useRef(false);
 
   // init
   useEffect(() => {
     if (!ref.current || mapRef.current) return;
-    const first = points[0] || current || { lat: 16.0, lng: 107.5 };
+    const cps = clean(points);
+    const gps0 = clean(ghostPoints);
+    const first =
+      cps[0] || (valid(current) ? current : null) || gps0[0] || { lat: 16.0, lng: 107.5 };
     const map = new maplibregl.Map({
       container: ref.current,
       style: OSM_STYLE,
       center: [first.lng, first.lat],
-      zoom: points.length || current ? 15 : 5,
+      zoom: cps.length || valid(current) || gps0.length ? 14 : 5,
       attributionControl: false,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     map.on("load", () => {
+      // Tuyến mẫu (ghost) — vẽ TRƯỚC để nằm dưới tuyến thật
+      map.addSource("ghost", { type: "geojson", data: lineGeoJSON(ghostPoints) });
+      map.addLayer({
+        id: "ghost-line",
+        type: "line",
+        source: "ghost",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": "#8a6d3f",
+          "line-width": 4,
+          "line-opacity": 0.55,
+          "line-dasharray": [1.5, 1.5],
+        },
+      });
       map.addSource("route", { type: "geojson", data: lineGeoJSON(points) });
       map.addLayer({
         id: "route-line",
@@ -80,9 +105,11 @@ export default function RouteMap({
     if (!map || !readyRef.current) return;
     const src = map.getSource("route");
     if (src) src.setData(lineGeoJSON(points));
+    const ghostSrc = map.getSource("ghost");
+    if (ghostSrc) ghostSrc.setData(lineGeoJSON(ghostPoints));
 
     // marker vị trí hiện tại
-    if (current) {
+    if (valid(current)) {
       const el = meMarkerRef.current;
       if (!el) {
         const dot = document.createElement("div");
@@ -116,12 +143,43 @@ export default function RouteMap({
         });
     }
 
+    // marker di sản trên tuyến (đền/chùa/chiến tích)
+    if (heritages.length !== heritageMarkersRef.current.length) {
+      heritageMarkersRef.current.forEach((m) => m.remove());
+      heritageMarkersRef.current = heritages
+        .filter(valid)
+        .map((h) => {
+          const el = document.createElement("div");
+          el.style.cssText =
+            "width:26px;height:26px;border-radius:50%;background:#D8A24A;border:2.5px solid #5e4a2e;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(0,0,0,0.4);cursor:pointer";
+          el.innerHTML = '<span style="font-size:13px">🏛️</span>';
+          const link = h.slug
+            ? `<a href="/heritage/${h.slug}" style="color:#9c6b1f;font-weight:600;text-decoration:underline">Xem di tích →</a>`
+            : "";
+          const popup = new maplibregl.Popup({ offset: 18 }).setHTML(
+            `<div style="font:600 13px Inter;margin-bottom:2px">${h.name}</div>${link}`,
+          );
+          return new maplibregl.Marker({ element: el })
+            .setLngLat([h.lng, h.lat])
+            .setPopup(popup)
+            .addTo(map);
+        });
+    }
+
     // camera
-    if (mode === "live" && current) {
+    const cps = clean(points);
+    const gps = clean(ghostPoints);
+    if (mode === "live" && valid(current)) {
       map.easeTo({ center: [current.lng, current.lat], duration: 600 });
-    } else if (mode === "view" && points.length > 1 && !fittedRef.current) {
+    } else if (mode === "live" && !valid(current) && gps.length > 1 && !fittedRef.current) {
+      // follow mode chưa có GPS: fit theo tuyến mẫu để user thấy lộ trình cần đi
       const b = new maplibregl.LngLatBounds();
-      points.forEach((p) => b.extend([p.lng, p.lat]));
+      gps.forEach((p) => b.extend([p.lng, p.lat]));
+      map.fitBounds(b, { padding: 48, duration: 600, maxZoom: 16 });
+      fittedRef.current = true;
+    } else if (mode === "view" && (cps.length > 1 || gps.length > 1) && !fittedRef.current) {
+      const b = new maplibregl.LngLatBounds();
+      [...cps, ...gps].forEach((p) => b.extend([p.lng, p.lat]));
       map.fitBounds(b, { padding: 48, duration: 600, maxZoom: 16 });
       fittedRef.current = true;
     }
@@ -130,7 +188,7 @@ export default function RouteMap({
   useEffect(() => {
     updateData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points, current, moments, mode]);
+  }, [points, current, moments, heritages, ghostPoints, mode]);
 
   return <div ref={ref} className={className} />;
 }

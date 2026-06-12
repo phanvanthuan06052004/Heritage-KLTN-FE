@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom";
-import { Route, Clock, Flame, MapPin, Globe, Lock } from "lucide-react";
+import { Route, Clock, Flame, MapPin, Globe, Lock, Landmark } from "lucide-react";
 import { fmtDur, fmtKm, timeAgo } from "./tripFormat";
 
 /** Thẻ tóm tắt một hành trình. */
 export default function TripCard({ trip, showAuthor = true }) {
   const km = fmtKm(trip.distanceM);
+  const heritages = trip.heritages || [];
+  const heritageLine =
+    heritages.length > 2
+      ? `${heritages[0].name} · ${heritages[1].name} +${heritages.length - 2}`
+      : heritages.map((h) => h.name).join(" · ");
   return (
     <Link
       to={`/trips/${trip.id}`}
@@ -33,6 +38,11 @@ export default function TripCard({ trip, showAuthor = true }) {
             <span className="truncate">{trip.displayName || "Người dùng"}</span>
             <span>· {timeAgo(trip.createdAt)}</span>
           </div>
+        )}
+        {heritageLine && (
+          <p className="mt-1 flex items-center gap-1 truncate text-[11px] text-museum-gold-light/85">
+            <Landmark className="h-3 w-3 shrink-0" /> {heritageLine}
+          </p>
         )}
         <div className="mt-2.5 flex items-center gap-3 text-xs text-museum-parchment">
           <span className="flex items-center gap-1"><Route className="h-3.5 w-3.5 text-museum-gold-light" /> {km} km</span>

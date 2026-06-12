@@ -1,15 +1,28 @@
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
-  Play, Pause, Square, Camera, MapPin, Route, Clock, Flame, X, Loader2, Globe, Lock, Image as ImageIcon,
+  Play, Pause, Square, Camera, MapPin, Route, Clock, Flame, X, Loader2, Globe, Lock,
+  Image as ImageIcon, Repeat, Landmark,
 } from "lucide-react";
 import { selectCurrentUser } from "~/store/slices/authSlice";
 import { BASE_URL } from "~/constants/fe.constant";
-import { useCreateTripMutation } from "~/store/apis/tripApi";
+import { useCreateTripMutation, useGetTripQuery } from "~/store/apis/tripApi";
 import useTripTracker from "~/hooks/useTripTracker";
 import RouteMap from "./RouteMap";
+
+// khoảng cách (m) để coi là "đã đi qua" một điểm của tuyến mẫu
+const FOLLOW_HIT_M = 60;
+function havM(a, b) {
+  const R = 6371000;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const x =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
 
 const fmtDur = (s) => {
   const h = Math.floor(s / 3600);
@@ -62,6 +75,31 @@ export default function TripRecorder() {
   const user = useSelector(selectCurrentUser);
   const t = useTripTracker();
   const [createTrip, { isLoading: saving }] = useCreateTripMutation();
+
+  // ── Follow mode: trải nghiệm lại hành trình của người khác ──
+  const [searchParams] = useSearchParams();
+  const followId = searchParams.get("follow");
+  const { data: originalTrip } = useGetTripQuery(followId, { skip: !followId });
+  const ghostPoints = originalTrip?.points || [];
+  const ghostHeritages = originalTrip?.heritages || [];
+  const visitedRef = useRef(new Set());
+  const [followProgress, setFollowProgress] = useState(0); // % tuyến mẫu đã đi qua
+  const [offTrackM, setOffTrackM] = useState(null); // khoảng cách lệch tuyến
+
+  // Cập nhật tiến độ bám tuyến mỗi khi có điểm GPS mới
+  useEffect(() => {
+    if (!followId || ghostPoints.length === 0) return;
+    const cur = t.coords;
+    if (!cur) return;
+    let minD = Infinity;
+    ghostPoints.forEach((g, i) => {
+      const d = havM(cur, g);
+      if (d < minD) minD = d;
+      if (d <= FOLLOW_HIT_M) visitedRef.current.add(i);
+    });
+    setOffTrackM(Math.round(minD));
+    setFollowProgress(Math.round((visitedRef.current.size / ghostPoints.length) * 100));
+  }, [t.coords, followId, ghostPoints]);
 
   const [moments, setMoments] = useState([]);
   const [momentForm, setMomentForm] = useState(null); // {note, file, preview, uploading}
@@ -117,7 +155,7 @@ export default function TripRecorder() {
     const w = Number(weight);
     if (w > 0) localStorage.setItem("heritage_weight_kg", String(w));
     try {
-      const { trip, progress } = await createTrip({
+      const { trip, progress, followBonus } = await createTrip({
         userId: user._id || user.id,
         displayName: user.displayname || null,
         avatarUrl: user.avatar || null,
@@ -131,8 +169,13 @@ export default function TripRecorder() {
         coverPhoto: moments.find((m) => m.photoUrl)?.photoUrl || null,
         visibility,
         moments,
+        followedTripId: followId || undefined,
       }).unwrap();
-      toast.success(`Đã lưu hành trình! +${trip.xpAwarded} XP${progress?.leveledUp ? " · Lên cấp 🎉" : ""}`);
+      toast.success(
+        `Đã lưu hành trình! +${trip.xpAwarded} XP` +
+          (followBonus ? ` (gồm +${followBonus} thưởng trải nghiệm lại 🔁)` : "") +
+          (progress?.leveledUp ? " · Lên cấp 🎉" : ""),
+      );
       navigate(`/trips/${trip.id}`);
     } catch (e) {
       toast.error(e?.data?.message || "Lưu hành trình thất bại.");
@@ -153,8 +196,41 @@ export default function TripRecorder() {
       <div className="lcn-container-x py-6">
         <div className="mb-4 flex items-center gap-2">
           <Route className="h-6 w-6 text-museum-gold-light" />
-          <h1 className="font-display text-2xl font-bold text-museum-ivory">Ghi hành trình khám phá</h1>
+          <h1 className="font-display text-2xl font-bold text-museum-ivory">
+            {followId ? "Trải nghiệm lại hành trình" : "Ghi hành trình khám phá"}
+          </h1>
         </div>
+
+        {/* Banner follow mode */}
+        {followId && originalTrip && (
+          <div className="mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-museum-gold/25 bg-museum-gold/8 p-3.5">
+            <Repeat className="h-5 w-5 shrink-0 text-museum-gold-light" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-museum-parchment">
+                Đang đi theo tuyến{" "}
+                <Link to={`/trips/${followId}`} className="font-semibold text-museum-gold-light underline-offset-2 hover:underline">
+                  {originalTrip.title}
+                </Link>{" "}
+                của <span className="text-museum-ivory">{originalTrip.displayName || "người dùng"}</span>
+                {" · "}{(originalTrip.distanceM / 1000).toFixed(2)} km
+              </p>
+              {ghostHeritages.length > 0 && (
+                <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-museum-muted">
+                  <Landmark className="h-3.5 w-3.5 text-museum-gold-light/80" />
+                  Checkpoint: {ghostHeritages.map((h) => h.name).join(" · ")}
+                </p>
+              )}
+            </div>
+            {!t.isIdle && (
+              <div className="flex shrink-0 flex-col items-end">
+                <span className="font-display text-xl font-bold text-museum-gold-light tabular-nums">{followProgress}%</span>
+                <span className="text-[10px] uppercase tracking-wide text-museum-muted">
+                  bám tuyến{offTrackM != null ? ` · lệch ${offTrackM >= 1000 ? (offTrackM / 1000).toFixed(1) + " km" : offTrackM + " m"}` : ""}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {t.error && (
           <div className="mb-3 rounded-xl bg-museum-seal/15 p-3 text-sm text-museum-seal">{t.error}</div>
@@ -166,6 +242,8 @@ export default function TripRecorder() {
             points={t.points}
             current={t.coords}
             moments={moments}
+            ghostPoints={ghostPoints}
+            heritages={ghostHeritages}
             mode="live"
             className="h-full w-full overflow-hidden rounded-[1.6rem]"
           />
