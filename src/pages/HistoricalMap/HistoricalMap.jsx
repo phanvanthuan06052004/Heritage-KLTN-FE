@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Network, MapPin, ShieldCheck, Map as MapIcon, Share2, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Network, MapPin, ShieldCheck, Map as MapIcon, Share2, MessageCircle, Landmark, ChevronRight } from "lucide-react";
 import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
 import VietnamHistoryMap from "./VietnamHistoryMap";
 import RelationFlow from "./RelationFlow";
@@ -299,6 +300,17 @@ export default function HistoricalMap() {
                       <MessageCircle className="h-4 w-4" />
                       Trò chuyện cùng {selected.name}
                     </button>
+                  )}
+
+                  {selected.heritageSlug && (
+                    <Link
+                      to={`/heritage/${selected.heritageSlug}`}
+                      className="group mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-museum-gold px-4 py-2.5 text-sm font-semibold text-museum-black transition-colors hover:bg-museum-gold-light"
+                    >
+                      <Landmark className="h-4 w-4" />
+                      Xem trang di tích
+                      <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
                   )}
                 </div>
 

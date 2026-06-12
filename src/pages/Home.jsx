@@ -24,7 +24,7 @@ const Home = () => {
     <div className="museum-shell overflow-hidden">
       <Suspense
         fallback={
-          <LoadingScreen fullScreen={false} message="Loading hero..." />
+          <LoadingScreen fullScreen={false} message="Đang tải trang chủ…" />
         }
       >
         <HeroCarousel />
@@ -45,7 +45,7 @@ const Home = () => {
       <div className="lcn-container space-y-20 py-16 sm:space-y-24 sm:py-20">
         <Suspense
           fallback={
-            <LoadingScreen fullScreen={false} message="Loading features..." />
+            <LoadingScreen fullScreen={false} message="Đang tải nội dung…" />
           }
         >
           <FeatureHighlight />
