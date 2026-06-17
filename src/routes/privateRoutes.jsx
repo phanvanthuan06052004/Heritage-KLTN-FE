@@ -9,6 +9,7 @@ import UpdateKnowledgeTest from "~/pages/Admin/Knowledge/UpdateKnowledgeTest"
 import KnowledgeBase from "~/pages/Admin/KnowledgeBase/KnowledgeBase"
 import UserDetail from "~/pages/Admin/User/UserDetail"
 import UserManagement from "~/pages/Admin/User/UserManagement"
+import GraphManagement from "~/pages/Admin/Graph/GraphManagement"
 
 
 const privateRoutes = [
@@ -27,6 +28,7 @@ const privateRoutes = [
       { path: "/admin/knowledge-tests/:id", element: <UpdateKnowledgeTest /> },
       { path: "/admin/knowledge-tests/edit/:id", element: <UpdateKnowledgeTest /> },
       { path: "/admin/knowledge-base", element: <KnowledgeBase /> },
+      { path: "/admin/graph", element: <GraphManagement /> },
     ],
   },
 ]

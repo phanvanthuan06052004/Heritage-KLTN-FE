@@ -16,6 +16,7 @@ import {
   Home,
   Shield,
   Database,
+  Network,
   Moon,
   Sun,
 } from "lucide-react";
@@ -56,6 +57,7 @@ const AdminLayout = () => {
   const navItems = [
     { name: "User Management", path: "/admin/users", icon: Users },
     { name: "Heritage Management", path: "/admin/heritages", icon: Shield },
+    { name: "Bản đồ Lịch sử", path: "/admin/graph", icon: Network },
     { name: "Knowledge Test", path: "/admin/knowledge-tests", icon: BookOpen },
     { name: "Knowledge Base", path: "/admin/knowledge-base", icon: Database },
     { name: "AI Management", href: AI_MANAGEMENT_URL, icon: Brain, external: true },
