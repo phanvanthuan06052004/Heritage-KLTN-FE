@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { Flame, Award, ShieldCheck, Stamp, Trophy, Globe, Lock } from "lucide-react";
 import { selectCurrentUser } from "~/store/slices/authSlice";
 import { useGetProgressQuery, useGetPassportQuery } from "~/store/apis/gamificationApi";
@@ -24,6 +25,7 @@ export function useUserId() {
  * Dùng chung cho trang /passport và tab "Hộ chiếu di sản" trong Profile.
  */
 export default function PassportCollection({ userId }) {
+  const { t } = useTranslation();
   const { data: progress } = useGetProgressQuery(userId, { skip: !userId });
   const { data: stamps = [] } = useGetPassportQuery(userId, { skip: !userId });
 
@@ -38,10 +40,10 @@ export default function PassportCollection({ userId }) {
         <div className="museum-card rounded-2xl border border-museum-gold/20 bg-museum-black/55 p-5">
           <div className="flex items-center gap-2 text-museum-gold-light">
             <Award className="h-5 w-5" />
-            <span className="text-sm font-semibold">Cấp {progress?.level ?? 1}</span>
+            <span className="text-sm font-semibold">{t("passport.level", { level: progress?.level ?? 1 })}</span>
           </div>
           <p className="mt-1 font-display text-2xl font-bold text-museum-ivory">
-            {progress?.title ?? "Tân binh"}
+            {progress?.title ?? t("passport.rookie")}
           </p>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-museum-gold/15">
             <div
@@ -57,27 +59,27 @@ export default function PassportCollection({ userId }) {
         <div className="museum-card flex flex-col justify-center rounded-2xl border border-museum-gold/20 bg-museum-black/55 p-5">
           <div className="flex items-center gap-2 text-orange-400">
             <Flame className="h-5 w-5" />
-            <span className="text-sm font-semibold">Chuỗi ngày khám phá</span>
+            <span className="text-sm font-semibold">{t("passport.streakTitle")}</span>
           </div>
           <p className="mt-1 font-display text-3xl font-bold text-museum-ivory">
             {progress?.streakCount ?? 0}
-            <span className="ml-1 text-base font-normal text-museum-muted">ngày</span>
+            <span className="ml-1 text-base font-normal text-museum-muted">{t("passport.days")}</span>
           </p>
           <p className="mt-1 font-mono text-[11px] text-museum-muted">
-            Dài nhất: {progress?.longestStreak ?? 0} ngày
+            {t("passport.longestStreak", { count: progress?.longestStreak ?? 0 })}
           </p>
         </div>
 
         <div className="museum-card flex flex-col justify-center rounded-2xl border border-museum-gold/20 bg-museum-black/55 p-5">
           <div className="flex items-center gap-2 text-museum-gold-light">
             <Trophy className="h-5 w-5" />
-            <span className="text-sm font-semibold">Tổng quan</span>
+            <span className="text-sm font-semibold">{t("passport.overview")}</span>
           </div>
           <p className="mt-1 font-display text-3xl font-bold text-museum-ivory">
             {progress?.xp ?? 0} <span className="text-base font-normal text-museum-muted">XP</span>
           </p>
           <p className="mt-1 font-mono text-[11px] text-museum-muted">
-            {progress?.distinctHeritages ?? 0} di tích · {progress?.totalCheckIns ?? 0} lượt điểm danh
+            {t("passport.heritageCount", { count: progress?.distinctHeritages ?? 0 })} · {t("passport.checkInCount", { count: progress?.totalCheckIns ?? 0 })}
           </p>
         </div>
       </div>
@@ -86,14 +88,14 @@ export default function PassportCollection({ userId }) {
       <div className="mb-3 flex items-center gap-2 text-museum-gold-light">
         <Stamp className="h-4 w-4" />
         <span className="text-[11px] font-semibold uppercase tracking-wider">
-          Con tem đã sưu tầm ({stamps.length})
+          {t("passport.collectedStamps", { count: stamps.length })}
         </span>
         <span className="ml-auto h-px flex-1 bg-gradient-to-r from-museum-gold/30 to-transparent" />
       </div>
 
       {stamps.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-museum-gold/20 bg-museum-black/40 p-6 text-center text-sm text-museum-muted">
-          Chưa có con tem nào. Hãy ghé một trang di tích và <span className="text-museum-gold-light">điểm danh tại đó</span> để bắt đầu hành trình!
+          {t("passport.emptyStampsBefore")} <span className="text-museum-gold-light">{t("passport.emptyStampsCheckIn")}</span> {t("passport.emptyStampsAfter")}
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -116,17 +118,17 @@ export default function PassportCollection({ userId }) {
                 )}
                 {s.verified && (
                   <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-museum-gold px-1.5 py-0.5 text-[9px] font-bold text-museum-black shadow">
-                    <ShieldCheck className="h-3 w-3" /> Đã đến
+                    <ShieldCheck className="h-3 w-3" /> {t("passport.visited")}
                   </span>
                 )}
                 <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] text-museum-parchment">
                   {s.visibility === "public" ? <Globe className="h-2.5 w-2.5" /> : <Lock className="h-2.5 w-2.5" />}
-                  {s.visibility === "public" ? "Công khai" : "Riêng tư"}
+                  {s.visibility === "public" ? t("passport.public") : t("passport.private")}
                 </span>
               </div>
               <p className="truncate text-sm font-semibold text-museum-ivory">{s.heritageTitle || s.heritageId}</p>
               <p className="mt-0.5 font-mono text-[10px] text-museum-muted">
-                {s.visits} lượt · {new Date(s.firstVisit).toLocaleDateString("vi-VN")}
+                {t("passport.visitCount", { count: s.visits })} · {new Date(s.firstVisit).toLocaleDateString("vi-VN")}
               </p>
             </div>
           ))}

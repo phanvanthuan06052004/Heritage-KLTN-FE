@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -41,6 +42,7 @@ export default function RouteMap({
   mode = "view",
   className = "",
 }) {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const mapRef = useRef(null);
   const meMarkerRef = useRef(null);
@@ -134,7 +136,7 @@ export default function RouteMap({
             "width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#9c2b2b;border:2px solid #f3e6c6;display:flex;align-items:center;justify-content:center";
           el.innerHTML = '<span style="transform:rotate(45deg);font-size:11px">📷</span>';
           const popup = new maplibregl.Popup({ offset: 18 }).setHTML(
-            `${m.photoUrl ? `<img src="${m.photoUrl}" style="width:160px;border-radius:8px;display:block;margin-bottom:4px"/>` : ""}<div style="font:500 12px Inter">${m.note || "Khoảnh khắc"}</div>`,
+            `${m.photoUrl ? `<img src="${m.photoUrl}" style="width:160px;border-radius:8px;display:block;margin-bottom:4px"/>` : ""}<div style="font:500 12px Inter">${m.note || t("trip.moment")}</div>`,
           );
           return new maplibregl.Marker({ element: el })
             .setLngLat([m.lng, m.lat])
@@ -154,7 +156,7 @@ export default function RouteMap({
             "width:26px;height:26px;border-radius:50%;background:#D8A24A;border:2.5px solid #5e4a2e;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(0,0,0,0.4);cursor:pointer";
           el.innerHTML = '<span style="font-size:13px">🏛️</span>';
           const link = h.slug
-            ? `<a href="/heritage/${h.slug}" style="color:#9c6b1f;font-weight:600;text-decoration:underline">Xem di tích →</a>`
+            ? `<a href="/heritage/${h.slug}" style="color:#9c6b1f;font-weight:600;text-decoration:underline">${t("trip.viewSiteArrow")}</a>`
             : "";
           const popup = new maplibregl.Popup({ offset: 18 }).setHTML(
             `<div style="font:600 13px Inter;margin-bottom:2px">${h.name}</div>${link}`,

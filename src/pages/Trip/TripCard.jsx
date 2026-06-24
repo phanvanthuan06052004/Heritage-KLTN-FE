@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Route, Clock, Flame, MapPin, Globe, Lock, Landmark } from "lucide-react";
 import { fmtDur, fmtKm, timeAgo } from "./tripFormat";
 
 /** Thẻ tóm tắt một hành trình. */
 export default function TripCard({ trip, showAuthor = true }) {
+  const { t } = useTranslation();
   const km = fmtKm(trip.distanceM);
   const heritages = trip.heritages || [];
   const heritageLine =
@@ -25,17 +27,17 @@ export default function TripCard({ trip, showAuthor = true }) {
         )}
         <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-museum-black/70 px-2 py-0.5 text-[10px] font-medium text-museum-gold-light backdrop-blur">
           {trip.visibility === "public" ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-          {trip.visibility === "public" ? "Công khai" : "Riêng tư"}
+          {trip.visibility === "public" ? t("trip.public") : t("trip.private")}
         </span>
       </div>
       <div className="p-3.5">
-        <h3 className="truncate font-display text-base font-semibold text-museum-ivory">{trip.title || "Hành trình khám phá"}</h3>
+        <h3 className="truncate font-display text-base font-semibold text-museum-ivory">{trip.title || t("trip.defaultTitle")}</h3>
         {showAuthor && (
           <div className="mt-1 flex items-center gap-1.5 text-xs text-museum-muted">
             {trip.avatarUrl ? (
               <img src={trip.avatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
             ) : null}
-            <span className="truncate">{trip.displayName || "Người dùng"}</span>
+            <span className="truncate">{trip.displayName || t("trip.user")}</span>
             <span>· {timeAgo(trip.createdAt)}</span>
           </div>
         )}

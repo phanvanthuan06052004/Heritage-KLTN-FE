@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Play, Pause, RotateCcw } from "lucide-react";
 
 /**
@@ -8,10 +9,10 @@ import { Play, Pause, RotateCcw } from "lucide-react";
  */
 
 const PRESETS = [
-  { label: "Toàn bộ", from: 1225, to: 1300 },
-  { label: "Lần 1 · 1258", from: 1258, to: 1258 },
-  { label: "Lần 2 · 1285", from: 1284, to: 1285 },
-  { label: "Lần 3 · 1288", from: 1287, to: 1288 },
+  { key: "map.slider.all", from: 1225, to: 1300 },
+  { key: "map.slider.war1", from: 1258, to: 1258 },
+  { key: "map.slider.war2", from: 1284, to: 1285 },
+  { key: "map.slider.war3", from: 1287, to: 1288 },
 ];
 
 export default function TimeSlider({
@@ -23,6 +24,7 @@ export default function TimeSlider({
   playing,
   onTogglePlay,
 }) {
+  const { t } = useTranslation();
   const setFrom = useCallback(
     (v) => {
       const nv = Math.min(Number(v), to);
@@ -46,7 +48,7 @@ export default function TimeSlider({
     <div className="rounded-2xl border border-museum-gold/20 bg-museum-black/55 px-4 py-3.5 sm:px-5">
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-museum-gold-light">
-          Dòng thời gian
+          {t("map.slider.timeline")}
         </span>
         <span className="rounded-full border border-museum-gold/25 bg-museum-black/50 px-2.5 py-0.5 font-mono text-xs text-museum-parchment">
           {from} – {to}
@@ -57,16 +59,16 @@ export default function TimeSlider({
             type="button"
             onClick={onTogglePlay}
             className="flex items-center gap-1.5 rounded-full border border-museum-gold/30 bg-museum-gold/10 px-3 py-1 text-xs font-medium text-museum-gold-light transition-colors hover:bg-museum-gold/20"
-            aria-label={playing ? "Tạm dừng" : "Tự chạy dòng thời gian"}
+            aria-label={playing ? t("map.slider.pause") : t("map.slider.autoplay")}
           >
             {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-            {playing ? "Dừng" : "Chạy"}
+            {playing ? t("map.slider.stop") : t("map.slider.play")}
           </button>
           <button
             type="button"
             onClick={() => onChange({ from: min, to: max })}
             className="flex items-center gap-1 rounded-full border border-museum-gold/20 px-2.5 py-1 text-xs text-museum-muted transition-colors hover:border-museum-gold/40 hover:text-museum-parchment"
-            aria-label="Đặt lại toàn bộ"
+            aria-label={t("map.slider.reset")}
           >
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
@@ -87,7 +89,7 @@ export default function TimeSlider({
           value={from}
           onChange={(e) => setFrom(e.target.value)}
           className="ts-range"
-          aria-label="Năm bắt đầu"
+          aria-label={t("map.slider.yearStart")}
         />
         <input
           type="range"
@@ -96,7 +98,7 @@ export default function TimeSlider({
           value={to}
           onChange={(e) => setTo(e.target.value)}
           className="ts-range"
-          aria-label="Năm kết thúc"
+          aria-label={t("map.slider.yearEnd")}
         />
       </div>
 
@@ -108,10 +110,10 @@ export default function TimeSlider({
       {/* Presets */}
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {PRESETS.map((p) => {
-          const active = activePreset?.label === p.label;
+          const active = activePreset?.key === p.key;
           return (
             <button
-              key={p.label}
+              key={p.key}
               type="button"
               onClick={() => onChange({ from: p.from, to: p.to })}
               className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
@@ -120,7 +122,7 @@ export default function TimeSlider({
                   : "border-museum-gold/20 bg-museum-black/40 text-museum-parchment hover:border-museum-gold/40"
               }`}
             >
-              {p.label}
+              {t(p.key)}
             </button>
           );
         })}

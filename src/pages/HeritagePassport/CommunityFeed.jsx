@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Users, ShieldCheck, MapPin, X, Clock } from "lucide-react";
 import { useGetCommunityQuery } from "~/store/apis/gamificationApi";
 
@@ -7,13 +8,13 @@ import { useGetCommunityQuery } from "~/store/apis/gamificationApi";
  * - heritageId: nếu có → chỉ hiện check-in tại di tích đó (dùng ở Heritage Detail).
  * - không có → feed toàn cục (dùng ở /passport).
  */
-function timeAgo(iso) {
+function timeAgo(iso, t) {
   const d = new Date(iso);
   const diff = (Date.now() - d.getTime()) / 1000;
-  if (diff < 60) return "vừa xong";
-  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} ngày trước`;
+  if (diff < 60) return t("passport.timeJustNow");
+  if (diff < 3600) return t("passport.timeMinutesAgo", { count: Math.floor(diff / 60) });
+  if (diff < 86400) return t("passport.timeHoursAgo", { count: Math.floor(diff / 3600) });
+  if (diff < 604800) return t("passport.timeDaysAgo", { count: Math.floor(diff / 86400) });
   return d.toLocaleDateString("vi-VN");
 }
 
@@ -24,14 +25,16 @@ function fullDate(iso) {
   });
 }
 
-export default function CommunityFeed({ heritageId, title = "Cộng đồng đã ghé thăm", limit = 12, showHeritage = false }) {
+export default function CommunityFeed({ heritageId, title, limit = 12, showHeritage = false }) {
+  const { t } = useTranslation();
   const { data: items = [] } = useGetCommunityQuery({ heritageId, limit });
   const [selected, setSelected] = useState(null);
+  const headerTitle = title ?? t("passport.communityVisited");
 
   if (!items.length) {
     return (
       <div className="rounded-2xl border border-dashed border-museum-gold/20 bg-museum-black/30 p-5 text-center text-sm text-museum-muted">
-        Chưa có ai chia sẻ chuyến ghé thăm công khai. Hãy là người đầu tiên!
+        {t("passport.communityEmpty")}
       </div>
     );
   }
@@ -41,7 +44,7 @@ export default function CommunityFeed({ heritageId, title = "Cộng đồng đã
       <div className="mb-3 flex items-center gap-2 text-museum-gold-light">
         <Users className="h-4 w-4" />
         <span className="text-[11px] font-semibold uppercase tracking-wider">
-          {title} ({items.length})
+          {headerTitle} ({items.length})
         </span>
         <span className="ml-auto h-px flex-1 bg-gradient-to-r from-museum-gold/30 to-transparent" />
       </div>
@@ -64,7 +67,7 @@ export default function CommunityFeed({ heritageId, title = "Cộng đồng đã
               )}
               {it.verified && (
                 <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-museum-gold px-1.5 py-0.5 text-[9px] font-bold text-museum-black">
-                  <ShieldCheck className="h-3 w-3" /> Đã đến
+                  <ShieldCheck className="h-3 w-3" /> {t("passport.visited")}
                 </span>
               )}
             </div>
@@ -82,7 +85,7 @@ export default function CommunityFeed({ heritageId, title = "Cộng đồng đã
               {showHeritage && it.heritageTitle && (
                 <p className="mt-1 truncate text-[11px] text-museum-gold-light/80">{it.heritageTitle}</p>
               )}
-              <p className="mt-0.5 text-[10px] text-museum-muted">{timeAgo(it.createdAt)}</p>
+              <p className="mt-0.5 text-[10px] text-museum-muted">{timeAgo(it.createdAt, t)}</p>
             </div>
           </button>
         ))}
@@ -93,7 +96,7 @@ export default function CommunityFeed({ heritageId, title = "Cộng đồng đã
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
           <button
             type="button"
-            aria-label="Đóng"
+            aria-label={t("passport.close")}
             className="absolute inset-0 bg-black/75 backdrop-blur-sm"
             onClick={() => setSelected(null)}
           />
@@ -114,7 +117,7 @@ export default function CommunityFeed({ heritageId, title = "Cộng đồng đã
               )}
               {selected.verified && (
                 <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-museum-gold px-2.5 py-1 text-[11px] font-bold text-museum-black">
-                  <ShieldCheck className="h-3.5 w-3.5" /> Đã đến tận nơi
+                  <ShieldCheck className="h-3.5 w-3.5" /> {t("passport.visitedInPerson")}
                 </span>
               )}
             </div>
@@ -138,7 +141,7 @@ export default function CommunityFeed({ heritageId, title = "Cộng đồng đã
                 <div className="mt-4 flex items-start gap-2 rounded-xl border border-museum-gold/15 bg-museum-black/50 p-3">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-museum-gold-light" />
                   <div>
-                    <p className="text-[10px] uppercase tracking-wide text-museum-muted">Di tích đã ghé</p>
+                    <p className="text-[10px] uppercase tracking-wide text-museum-muted">{t("passport.heritageVisitedLabel")}</p>
                     <p className="font-medium text-museum-parchment">{selected.heritageTitle}</p>
                   </div>
                 </div>

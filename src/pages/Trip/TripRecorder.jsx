@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useTranslation, Trans } from "react-i18next";
 import { toast } from "react-toastify";
 import {
   Play, Pause, Square, Camera, MapPin, Route, Clock, Flame, X, Loader2, Globe, Lock,
@@ -71,9 +72,10 @@ async function uploadPhoto(file) {
 }
 
 export default function TripRecorder() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSelector(selectCurrentUser);
-  const t = useTripTracker();
+  const tracker = useTripTracker();
   const [createTrip, { isLoading: saving }] = useCreateTripMutation();
 
   // ── Follow mode: trải nghiệm lại hành trình của người khác ──
@@ -89,7 +91,7 @@ export default function TripRecorder() {
   // Cập nhật tiến độ bám tuyến mỗi khi có điểm GPS mới
   useEffect(() => {
     if (!followId || ghostPoints.length === 0) return;
-    const cur = t.coords;
+    const cur = tracker.coords;
     if (!cur) return;
     let minD = Infinity;
     ghostPoints.forEach((g, i) => {
@@ -99,7 +101,7 @@ export default function TripRecorder() {
     });
     setOffTrackM(Math.round(minD));
     setFollowProgress(Math.round((visitedRef.current.size / ghostPoints.length) * 100));
-  }, [t.coords, followId, ghostPoints]);
+  }, [tracker.coords, followId, ghostPoints]);
 
   const [moments, setMoments] = useState([]);
   const [momentForm, setMomentForm] = useState(null); // {note, file, preview, uploading}
@@ -110,7 +112,7 @@ export default function TripRecorder() {
   const fileRef = useRef(null);
 
   const openMoment = () => {
-    if (!t.coords) return toast.error("Chưa có vị trí GPS.");
+    if (!tracker.coords) return toast.error(t("trip.noGps"));
     setMomentForm({ note: "", file: null, preview: null, uploading: false });
   };
 
@@ -127,23 +129,23 @@ export default function TripRecorder() {
       try {
         photoUrl = await uploadPhoto(momentForm.file);
       } catch {
-        toast.error("Tải ảnh thất bại.");
+        toast.error(t("trip.photoUploadFailed"));
         setMomentForm((m) => ({ ...m, uploading: false }));
         return;
       }
     }
     setMoments((prev) => [
       ...prev,
-      { lat: t.coords.lat, lng: t.coords.lng, photoUrl, note: momentForm.note?.trim() || null },
+      { lat: tracker.coords.lat, lng: tracker.coords.lng, photoUrl, note: momentForm.note?.trim() || null },
     ]);
     setMomentForm(null);
-    toast.success("Đã thêm khoảnh khắc");
+    toast.success(t("trip.momentAdded"));
   };
 
   const handleStop = () => {
-    const s = t.stop();
+    const s = tracker.stop();
     if (s.points.length < 2) {
-      toast.info("Hành trình quá ngắn để lưu.");
+      toast.info(t("trip.tooShort"));
       return;
     }
     setSummary(s);
@@ -151,7 +153,7 @@ export default function TripRecorder() {
   };
 
   const handleSave = async () => {
-    if (!user) return toast.error("Vui lòng đăng nhập.");
+    if (!user) return toast.error(t("trip.pleaseLogin"));
     const w = Number(weight);
     if (w > 0) localStorage.setItem("heritage_weight_kg", String(w));
     try {
@@ -172,13 +174,13 @@ export default function TripRecorder() {
         followedTripId: followId || undefined,
       }).unwrap();
       toast.success(
-        `Đã lưu hành trình! +${trip.xpAwarded} XP` +
-          (followBonus ? ` (gồm +${followBonus} thưởng trải nghiệm lại 🔁)` : "") +
-          (progress?.leveledUp ? " · Lên cấp 🎉" : ""),
+        t("trip.saved", { xp: trip.xpAwarded }) +
+          (followBonus ? t("trip.followBonus", { bonus: followBonus }) : "") +
+          (progress?.leveledUp ? t("trip.leveledUp") : ""),
       );
       navigate(`/trips/${trip.id}`);
     } catch (e) {
-      toast.error(e?.data?.message || "Lưu hành trình thất bại.");
+      toast.error(e?.data?.message || t("trip.saveFailed"));
     }
   };
 
@@ -197,7 +199,7 @@ export default function TripRecorder() {
         <div className="mb-4 flex items-center gap-2">
           <Route className="h-6 w-6 text-museum-gold-light" />
           <h1 className="font-display text-2xl font-bold text-museum-ivory">
-            {followId ? "Trải nghiệm lại hành trình" : "Ghi hành trình khám phá"}
+            {followId ? t("trip.reliveTitle") : t("trip.recordTitle")}
           </h1>
         </div>
 
@@ -207,40 +209,57 @@ export default function TripRecorder() {
             <Repeat className="h-5 w-5 shrink-0 text-museum-gold-light" />
             <div className="min-w-0 flex-1">
               <p className="text-sm text-museum-parchment">
-                Đang đi theo tuyến{" "}
-                <Link to={`/trips/${followId}`} className="font-semibold text-museum-gold-light underline-offset-2 hover:underline">
-                  {originalTrip.title}
-                </Link>{" "}
-                của <span className="text-museum-ivory">{originalTrip.displayName || "người dùng"}</span>
-                {" · "}{(originalTrip.distanceM / 1000).toFixed(2)} km
+                <Trans
+                  i18nKey="trip.followingRoute"
+                  values={{
+                    name: originalTrip.displayName || t("trip.user"),
+                    km: (originalTrip.distanceM / 1000).toFixed(2),
+                  }}
+                  components={{
+                    routeLink: (
+                      <Link
+                        to={`/trips/${followId}`}
+                        className="font-semibold text-museum-gold-light underline-offset-2 hover:underline"
+                      >
+                        {originalTrip.title}
+                      </Link>
+                    ),
+                    author: <span className="text-museum-ivory" />,
+                  }}
+                />
               </p>
               {ghostHeritages.length > 0 && (
                 <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-museum-muted">
                   <Landmark className="h-3.5 w-3.5 text-museum-gold-light/80" />
-                  Checkpoint: {ghostHeritages.map((h) => h.name).join(" · ")}
+                  {t("trip.checkpoint")}: {ghostHeritages.map((h) => h.name).join(" · ")}
                 </p>
               )}
             </div>
-            {!t.isIdle && (
+            {!tracker.isIdle && (
               <div className="flex shrink-0 flex-col items-end">
                 <span className="font-display text-xl font-bold text-museum-gold-light tabular-nums">{followProgress}%</span>
                 <span className="text-[10px] uppercase tracking-wide text-museum-muted">
-                  bám tuyến{offTrackM != null ? ` · lệch ${offTrackM >= 1000 ? (offTrackM / 1000).toFixed(1) + " km" : offTrackM + " m"}` : ""}
+                  {t("trip.onTrack")}
+                  {offTrackM != null
+                    ? ` · ${t("trip.offBy", {
+                        dist: offTrackM >= 1000 ? (offTrackM / 1000).toFixed(1) + " km" : offTrackM + " m",
+                      })}`
+                    : ""}
                 </span>
               </div>
             )}
           </div>
         )}
 
-        {t.error && (
-          <div className="mb-3 rounded-xl bg-museum-seal/15 p-3 text-sm text-museum-seal">{t.error}</div>
+        {tracker.error && (
+          <div className="mb-3 rounded-xl bg-museum-seal/15 p-3 text-sm text-museum-seal">{tracker.error}</div>
         )}
 
         {/* Bản đồ live */}
         <div className="museum-card relative h-[58vh] min-h-[440px] overflow-hidden rounded-[2rem] bg-museum-black/55 p-2.5 shadow-museum-card">
           <RouteMap
-            points={t.points}
-            current={t.coords}
+            points={tracker.points}
+            current={tracker.coords}
             moments={moments}
             ghostPoints={ghostPoints}
             heritages={ghostHeritages}
@@ -249,39 +268,39 @@ export default function TripRecorder() {
           />
           {/* Stats overlay */}
           <div className="pointer-events-none absolute inset-x-3 top-3 z-10 flex justify-around rounded-2xl border border-museum-gold/25 bg-museum-black/80 px-4 py-3 backdrop-blur">
-            {stat(Route, "Quãng đường", `${fmtKm(t.distanceM)} km`)}
-            {stat(Clock, "Thời gian", fmtDur(t.durationSec))}
-            {stat(MapPin, "Tốc độ", fmtPace(t.distanceM, t.durationSec))}
+            {stat(Route, t("trip.distance"), `${fmtKm(tracker.distanceM)} km`)}
+            {stat(Clock, t("trip.duration"), fmtDur(tracker.durationSec))}
+            {stat(MapPin, t("trip.pace"), fmtPace(tracker.distanceM, tracker.durationSec))}
           </div>
         </div>
 
         {/* Controls */}
         <div className="mt-4 flex items-center justify-center gap-3">
-          {t.isIdle && (
-            <button onClick={t.start} className="flex items-center gap-2 rounded-full bg-museum-gold px-7 py-3 font-semibold text-museum-black transition-colors hover:bg-museum-gold-light">
-              <Play className="h-5 w-5" /> Bắt đầu
+          {tracker.isIdle && (
+            <button onClick={tracker.start} className="flex items-center gap-2 rounded-full bg-museum-gold px-7 py-3 font-semibold text-museum-black transition-colors hover:bg-museum-gold-light">
+              <Play className="h-5 w-5" /> {t("trip.start")}
             </button>
           )}
-          {t.isTracking && (
+          {tracker.isTracking && (
             <>
               <button onClick={openMoment} className="flex items-center gap-2 rounded-full border border-museum-gold/40 bg-museum-gold/12 px-5 py-3 font-medium text-museum-gold-light hover:bg-museum-gold/20">
-                <Camera className="h-5 w-5" /> Khoảnh khắc
+                <Camera className="h-5 w-5" /> {t("trip.moment")}
               </button>
-              <button onClick={t.pause} className="flex items-center gap-2 rounded-full border border-museum-gold/30 bg-museum-black/60 px-5 py-3 font-medium text-museum-parchment hover:bg-museum-black/80">
-                <Pause className="h-5 w-5" /> Tạm dừng
+              <button onClick={tracker.pause} className="flex items-center gap-2 rounded-full border border-museum-gold/30 bg-museum-black/60 px-5 py-3 font-medium text-museum-parchment hover:bg-museum-black/80">
+                <Pause className="h-5 w-5" /> {t("trip.pause")}
               </button>
               <button onClick={handleStop} className="flex items-center gap-2 rounded-full bg-museum-seal px-5 py-3 font-semibold text-white hover:bg-museum-seal/85">
-                <Square className="h-5 w-5" /> Kết thúc
+                <Square className="h-5 w-5" /> {t("trip.finish")}
               </button>
             </>
           )}
-          {t.isPaused && (
+          {tracker.isPaused && (
             <>
-              <button onClick={t.resume} className="flex items-center gap-2 rounded-full bg-museum-gold px-6 py-3 font-semibold text-museum-black hover:bg-museum-gold-light">
-                <Play className="h-5 w-5" /> Tiếp tục
+              <button onClick={tracker.resume} className="flex items-center gap-2 rounded-full bg-museum-gold px-6 py-3 font-semibold text-museum-black hover:bg-museum-gold-light">
+                <Play className="h-5 w-5" /> {t("trip.resume")}
               </button>
               <button onClick={handleStop} className="flex items-center gap-2 rounded-full bg-museum-seal px-5 py-3 font-semibold text-white hover:bg-museum-seal/85">
-                <Square className="h-5 w-5" /> Kết thúc
+                <Square className="h-5 w-5" /> {t("trip.finish")}
               </button>
             </>
           )}
@@ -290,7 +309,7 @@ export default function TripRecorder() {
         {moments.length > 0 && (
           <p className="mt-3 text-center text-xs text-museum-muted">
             <ImageIcon className="mr-1 inline h-3.5 w-3.5" />
-            {moments.length} khoảnh khắc đã ghi dọc đường
+            {t("trip.momentsRecorded", { count: moments.length })}
           </p>
         )}
       </div>
@@ -298,25 +317,25 @@ export default function TripRecorder() {
       {/* Form khoảnh khắc */}
       {momentForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <button className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMomentForm(null)} aria-label="Đóng" />
+          <button className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMomentForm(null)} aria-label={t("trip.close")} />
           <div className="relative z-10 w-full max-w-sm rounded-2xl border border-museum-gold/20 bg-museum-black p-5 shadow-museum-card">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-display text-lg font-semibold text-museum-ivory">Khoảnh khắc dọc đường</h3>
+              <h3 className="font-display text-lg font-semibold text-museum-ivory">{t("trip.momentsAlongWay")}</h3>
               <button onClick={() => setMomentForm(null)} className="text-museum-muted hover:text-museum-parchment"><X className="h-5 w-5" /></button>
             </div>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pickPhoto} />
             <button onClick={() => fileRef.current?.click()} className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-museum-gold/30 bg-museum-black/50 py-6 text-sm text-museum-gold-light hover:bg-museum-gold/8">
-              {momentForm.preview ? <img src={momentForm.preview} alt="" className="max-h-40 rounded-lg object-cover" /> : <><Camera className="h-5 w-5" /> Thêm ảnh (tuỳ chọn)</>}
+              {momentForm.preview ? <img src={momentForm.preview} alt="" className="max-h-40 rounded-lg object-cover" /> : <><Camera className="h-5 w-5" /> {t("trip.addPhotoOptional")}</>}
             </button>
             <textarea
               value={momentForm.note}
               onChange={(e) => setMomentForm((m) => ({ ...m, note: e.target.value }))}
-              placeholder="Cảm nhận của bạn tại đây…"
+              placeholder={t("trip.feelingPlaceholder")}
               className="mb-3 w-full resize-none rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none"
               rows={3}
             />
             <button onClick={addMoment} disabled={momentForm.uploading} className="flex w-full items-center justify-center gap-2 rounded-full bg-museum-gold py-2.5 font-semibold text-museum-black hover:bg-museum-gold-light disabled:opacity-60">
-              {momentForm.uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />} Ghi lại
+              {momentForm.uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />} {t("trip.saveMoment")}
             </button>
           </div>
         </div>
@@ -325,10 +344,10 @@ export default function TripRecorder() {
       {/* Tổng kết & lưu */}
       {summary && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <button className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setSummary(null)} aria-label="Đóng" />
+          <button className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setSummary(null)} aria-label={t("trip.close")} />
           <div className="relative z-10 flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-museum-gold/20 bg-museum-black shadow-museum-card">
             <div className="flex items-center justify-between border-b border-museum-gold/15 p-4">
-              <h3 className="font-display text-lg font-semibold text-museum-ivory">Tổng kết hành trình</h3>
+              <h3 className="font-display text-lg font-semibold text-museum-ivory">{t("trip.summaryTitle")}</h3>
               <button onClick={() => setSummary(null)} className="text-museum-muted hover:text-museum-parchment"><X className="h-5 w-5" /></button>
             </div>
             <div className="overflow-y-auto p-4">
@@ -336,29 +355,29 @@ export default function TripRecorder() {
                 <RouteMap points={summary.points} moments={moments} mode="view" className="h-full w-full" />
               </div>
               <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-museum-gold/15 bg-museum-black/50 p-3">
-                {stat(Route, "Quãng đường", `${fmtKm(summary.distanceM)} km`)}
-                {stat(Clock, "Thời gian", fmtDur(summary.durationSec))}
-                {stat(Flame, "Kcal", weight ? Math.round((3.5 * Number(weight) * summary.durationSec) / 3600) : "--")}
+                {stat(Route, t("trip.distance"), `${fmtKm(summary.distanceM)} km`)}
+                {stat(Clock, t("trip.duration"), fmtDur(summary.durationSec))}
+                {stat(Flame, t("trip.kcal"), weight ? Math.round((3.5 * Number(weight) * summary.durationSec) / 3600) : "--")}
               </div>
 
-              <label className="mt-4 block text-xs font-medium text-museum-muted">Tên hành trình</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="VD: Dạo quanh chùa Vĩnh Nghiêm" className="mt-1 w-full rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none" />
+              <label className="mt-4 block text-xs font-medium text-museum-muted">{t("trip.tripName")}</label>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("trip.tripNamePlaceholder")} className="mt-1 w-full rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none" />
 
-              <label className="mt-3 block text-xs font-medium text-museum-muted">Cân nặng (kg) — để ước tính kcal</label>
-              <input value={weight} onChange={(e) => setWeight(e.target.value)} type="number" placeholder="VD: 60" className="mt-1 w-32 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none" />
+              <label className="mt-3 block text-xs font-medium text-museum-muted">{t("trip.weightLabel")}</label>
+              <input value={weight} onChange={(e) => setWeight(e.target.value)} type="number" placeholder={t("trip.weightPlaceholder")} className="mt-1 w-32 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none" />
 
               <div className="mt-4 flex gap-2">
                 <button onClick={() => setVisibility("public")} className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-sm ${visibility === "public" ? "border-museum-gold/50 bg-museum-gold/15 text-museum-gold-light" : "border-museum-gold/15 text-museum-muted"}`}>
-                  <Globe className="h-4 w-4" /> Công khai
+                  <Globe className="h-4 w-4" /> {t("trip.public")}
                 </button>
                 <button onClick={() => setVisibility("private")} className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-sm ${visibility === "private" ? "border-museum-gold/50 bg-museum-gold/15 text-museum-gold-light" : "border-museum-gold/15 text-museum-muted"}`}>
-                  <Lock className="h-4 w-4" /> Riêng tư
+                  <Lock className="h-4 w-4" /> {t("trip.private")}
                 </button>
               </div>
             </div>
             <div className="border-t border-museum-gold/15 p-4">
               <button onClick={handleSave} disabled={saving} className="flex w-full items-center justify-center gap-2 rounded-full bg-museum-gold py-3 font-semibold text-museum-black hover:bg-museum-gold-light disabled:opacity-60">
-                {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Route className="h-5 w-5" />} Lưu vào Hộ chiếu
+                {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Route className="h-5 w-5" />} {t("trip.saveToPassport")}
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { X, MapPin, Camera, Loader2, ShieldCheck, Globe, Lock, FlaskConical } from "lucide-react";
 import { BASE_URL } from "~/constants/fe.constant";
@@ -36,6 +37,7 @@ async function downscaleImage(file, maxSize = 1280, quality = 0.82) {
 }
 
 export default function CheckInModal({ location, userId, onClose, onDone }) {
+  const { t } = useTranslation();
   const currentUser = useSelector(selectCurrentUser);
   const [coords, setCoords] = useState(null); // {lat,lng,accuracy}
   const [locating, setLocating] = useState(false);
@@ -48,7 +50,7 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
 
   const requestLocation = () => {
     if (!navigator.geolocation) {
-      toast.error("Trình duyệt không hỗ trợ định vị.");
+      toast.error(t("passport.geoUnsupported"));
       return;
     }
     setLocating(true);
@@ -63,7 +65,7 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
       },
       (err) => {
         setLocating(false);
-        toast.error(`Không lấy được vị trí: ${err.message}. Có thể dùng chế độ demo.`);
+        toast.error(t("passport.geoFailed", { message: err.message }));
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -98,7 +100,7 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
         try {
           photoUrl = await uploadPhoto();
         } catch {
-          toast.warn("Tải ảnh thất bại, vẫn điểm danh nhưng không kèm ảnh.");
+          toast.warn(t("passport.photoUploadFailed"));
         }
       }
       const body = {
@@ -118,21 +120,21 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
       });
       const data = (await res.json())?.data;
       if (data?.rejected) {
-        toast.error(data.message || "Bạn đang ở quá xa di tích.");
+        toast.error(data.message || t("passport.tooFar"));
         setSubmitting(false);
         return;
       }
       if (data?.alreadyToday) {
-        toast.info("Hôm nay bạn đã điểm danh di tích này rồi.");
+        toast.info(t("passport.alreadyToday"));
       } else if (data?.leveledUp) {
-        toast.success(`🎖️ Thăng cấp! Đạt "${data.title}" (cấp ${data.level}) · +${data.xpAwarded} XP`);
+        toast.success(t("passport.leveledUp", { title: data.title, level: data.level, xp: data.xpAwarded }));
       } else {
-        toast.success(`✅ Đã xác thực check-in tại ${location.name}! +${data?.xpAwarded ?? 0} XP`);
+        toast.success(t("passport.checkInSuccess", { name: location.name, xp: data?.xpAwarded ?? 0 }));
       }
       onDone?.(data);
       onClose?.();
     } catch {
-      toast.error("Điểm danh thất bại, thử lại sau.");
+      toast.error(t("passport.checkInFailed"));
       setSubmitting(false);
     }
   };
@@ -151,10 +153,10 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
           <div className="min-w-0 flex-1">
             <h3 className="truncate font-display text-lg font-bold text-museum-ivory">{location.name}</h3>
             <p className="flex items-center gap-1 text-[11px] text-museum-muted">
-              <MapPin className="h-3 w-3" /> {location.province || "Điểm danh tại hiện trường"}
+              <MapPin className="h-3 w-3" /> {location.province || t("passport.checkInOnSite")}
             </p>
           </div>
-          <button onClick={onClose} className="rounded-full p-1.5 text-museum-muted hover:bg-museum-gold/10 hover:text-museum-parchment" aria-label="Đóng">
+          <button onClick={onClose} className="rounded-full p-1.5 text-museum-muted hover:bg-museum-gold/10 hover:text-museum-parchment" aria-label={t("passport.close")}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -163,12 +165,12 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
           {/* GPS */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-museum-gold-light">
-              1 · Xác thực vị trí (GPS)
+              {t("passport.stepGps")}
             </p>
             {coords ? (
               <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-300">
                 <ShieldCheck className="h-4 w-4" />
-                Đã lấy vị trí (±{coords.accuracy}m)
+                {t("passport.locationAcquired", { accuracy: coords.accuracy })}
               </div>
             ) : (
               <button
@@ -178,19 +180,19 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-museum-gold/30 bg-museum-gold/10 px-4 py-2.5 text-sm font-medium text-museum-gold-light hover:bg-museum-gold/20 disabled:opacity-50"
               >
                 {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
-                {locating ? "Đang định vị..." : "Lấy vị trí hiện tại"}
+                {locating ? t("passport.locating") : t("passport.getCurrentLocation")}
               </button>
             )}
             <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-museum-muted">
               <input type="checkbox" checked={demo} onChange={(e) => setDemo(e.target.checked)} className="accent-museum-gold" />
-              <FlaskConical className="h-3.5 w-3.5" /> Chế độ demo (giả lập đang ở di tích — để thử nghiệm)
+              <FlaskConical className="h-3.5 w-3.5" /> {t("passport.demoMode")}
             </label>
           </div>
 
           {/* Ảnh */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-museum-gold-light">
-              2 · Ảnh kỷ niệm (tuỳ chọn)
+              {t("passport.stepPhoto")}
             </p>
             <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={onPickPhoto} className="hidden" />
             {photoPreview ? (
@@ -209,7 +211,7 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
                 onClick={() => fileRef.current?.click()}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-museum-gold/30 px-4 py-3 text-sm text-museum-muted hover:border-museum-gold/50 hover:text-museum-parchment"
               >
-                <Camera className="h-4 w-4" /> Chụp / chọn ảnh
+                <Camera className="h-4 w-4" /> {t("passport.takeOrPickPhoto")}
               </button>
             )}
           </div>
@@ -217,7 +219,7 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
           {/* Quyền riêng tư */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-museum-gold-light">
-              3 · Chia sẻ
+              {t("passport.stepShare")}
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -229,7 +231,7 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
                     : "border-museum-gold/20 text-museum-muted hover:border-museum-gold/40"
                 }`}
               >
-                <Globe className="h-4 w-4" /> Công khai
+                <Globe className="h-4 w-4" /> {t("passport.public")}
               </button>
               <button
                 type="button"
@@ -240,7 +242,7 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
                     : "border-museum-gold/20 text-museum-muted hover:border-museum-gold/40"
                 }`}
               >
-                <Lock className="h-4 w-4" /> Riêng tư
+                <Lock className="h-4 w-4" /> {t("passport.private")}
               </button>
             </div>
           </div>
@@ -255,11 +257,11 @@ export default function CheckInModal({ location, userId, onClose, onDone }) {
             className="flex w-full items-center justify-center gap-2 rounded-full bg-museum-gold px-4 py-3 text-sm font-semibold text-museum-black transition-colors hover:bg-museum-gold-light disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-            {submitting ? "Đang xác thực..." : "Xác nhận điểm danh"}
+            {submitting ? t("passport.verifying") : t("passport.confirmCheckIn")}
           </button>
           {!demo && !coords && (
             <p className="mt-2 text-center text-[11px] text-museum-muted">
-              Cần lấy vị trí GPS (hoặc bật demo) để xác thực bạn đã đến di tích.
+              {t("passport.gpsRequiredHint")}
             </p>
           )}
         </div>

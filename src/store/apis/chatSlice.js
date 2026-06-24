@@ -5,18 +5,20 @@ export const chatSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Heritage LLM Wiki query through NestJS BE
     queryRAG: builder.mutation({
-      query: ({ question, heritageId, topK, collectionName }) => {
+      query: ({ question, heritageId, topK, collectionName, language }) => {
         const body = {
           question,
           topK: topK || 5,
           collectionName: collectionName || "heritage_documents",
+          // Ngôn ngữ câu trả lời theo cờ hiện tại; fallback localStorage 'lang'
+          language: language || localStorage.getItem("lang") || "vi",
         };
-        
+
         // Only include heritageId if it's provided
         if (heritageId) {
           body.heritageId = heritageId;
         }
-        
+
         return {
           url: "/rag/query",
           method: "POST",

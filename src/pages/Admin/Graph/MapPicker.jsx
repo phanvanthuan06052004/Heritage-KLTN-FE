@@ -16,8 +16,8 @@ const OSM_STYLE = {
 };
 
 /**
- * Chọn toạ độ bằng cách click lên bản đồ. value = {lat,lng} | null.
- * onPick(lat, lng) được gọi khi click.
+ * Pick coordinates by clicking on the map. value = {lat,lng} | null.
+ * onPick(lat, lng) is called on click.
  */
 export default function MapPicker({ value, onPick }) {
   const ref = useRef(null);
@@ -45,7 +45,7 @@ export default function MapPicker({ value, onPick }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Đồng bộ marker theo value
+  // Keep the marker in sync with value
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -64,8 +64,8 @@ export default function MapPicker({ value, onPick }) {
     <div className="space-y-1">
       <div ref={ref} className="h-56 w-full overflow-hidden rounded-lg border border-border" />
       <p className="text-xs text-muted-foreground">
-        Click lên bản đồ để chọn toạ độ.{" "}
-        {value?.lat != null ? `Đang chọn: ${value.lat}, ${value.lng}` : "Chưa chọn."}
+        Click on the map to pick coordinates.{" "}
+        {value?.lat != null ? `Selected: ${value.lat}, ${value.lng}` : "None selected."}
       </p>
     </div>
   );

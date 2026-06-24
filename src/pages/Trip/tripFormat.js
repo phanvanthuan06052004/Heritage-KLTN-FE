@@ -1,3 +1,5 @@
+import i18n from "~/i18n/config";
+
 export const fmtDur = (s = 0) => {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
@@ -9,14 +11,20 @@ export const fmtDur = (s = 0) => {
 export const fmtKm = (m = 0) => (m / 1000).toFixed(2);
 
 export const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "";
+  d
+    ? new Date(d).toLocaleDateString(i18n.language === "en" ? "en-GB" : "vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : "";
 
 export const timeAgo = (d) => {
   if (!d) return "";
   const diff = (Date.now() - new Date(d).getTime()) / 1000;
-  if (diff < 60) return "vừa xong";
-  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} ngày trước`;
+  if (diff < 60) return i18n.t("trip.timeJustNow");
+  if (diff < 3600) return i18n.t("trip.timeMinutesAgo", { count: Math.floor(diff / 60) });
+  if (diff < 86400) return i18n.t("trip.timeHoursAgo", { count: Math.floor(diff / 3600) });
+  if (diff < 604800) return i18n.t("trip.timeDaysAgo", { count: Math.floor(diff / 86400) });
   return fmtDate(d);
 };

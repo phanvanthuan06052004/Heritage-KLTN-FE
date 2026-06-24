@@ -15,14 +15,14 @@ import {
 import MapPicker from "./MapPicker";
 
 const NODE_TYPES = [
-  { value: "dynasty", label: "Triều đại" },
-  { value: "person", label: "Nhân vật" },
-  { value: "enemy", label: "Đối phương" },
-  { value: "event", label: "Sự kiện" },
-  { value: "battle", label: "Trận chiến" },
-  { value: "capital", label: "Kinh đô" },
-  { value: "heritage", label: "Di sản" },
-  { value: "artifact", label: "Di vật" },
+  { value: "dynasty", label: "Dynasty" },
+  { value: "person", label: "Figure" },
+  { value: "enemy", label: "Adversary" },
+  { value: "event", label: "Event" },
+  { value: "battle", label: "Battle" },
+  { value: "capital", label: "Capital" },
+  { value: "heritage", label: "Heritage" },
+  { value: "artifact", label: "Artifact" },
 ];
 const REL_SUGGESTIONS = ["PRECEDED", "RELATED_TO", "COMMANDED", "PART_OF", "FOUGHT_AT", "LOCATED_IN", "HAPPENED_AT"];
 
@@ -64,18 +64,18 @@ function NodeModal({ open, onClose, initial, heritageOptions }) {
     try {
       if (isEdit) {
         await updateNode({ id: initial.id, ...payload }).unwrap();
-        toast.success("Đã cập nhật node");
+        toast.success("Node updated");
       } else {
         if (!/^[a-z0-9_]+$/.test(form.id)) {
-          toast.error("ID chỉ gồm chữ thường, số và dấu _ (vd bach_dang_1288)");
+          toast.error("ID may only contain lowercase letters, digits and underscores (e.g. bach_dang_1288)");
           return;
         }
         await createNode({ id: form.id.trim(), ...payload }).unwrap();
-        toast.success("Đã tạo node");
+        toast.success("Node created");
       }
       onClose();
     } catch (err) {
-      toast.error(err?.data?.message || "Lỗi lưu node");
+      toast.error(err?.data?.message || "Failed to save node");
     }
   };
 
@@ -83,7 +83,7 @@ function NodeModal({ open, onClose, initial, heritageOptions }) {
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
       <form onSubmit={submit} className="my-8 w-full max-w-2xl rounded-xl border border-border bg-card p-5 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">{isEdit ? "Sửa node" : "Thêm node"}</h3>
+          <h3 className="text-lg font-semibold text-foreground">{isEdit ? "Edit node" : "Add node"}</h3>
           <button type="button" onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-accent/20">
             <X className="h-5 w-5" />
           </button>
@@ -91,65 +91,65 @@ function NodeModal({ open, onClose, initial, heritageOptions }) {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className={labelCls}>ID {isEdit && "(không sửa)"}</label>
+            <label className={labelCls}>ID {isEdit && "(read-only)"}</label>
             <input className={field} value={form.id} disabled={isEdit}
               onChange={(e) => set("id", e.target.value)} placeholder="bach_dang_1288" />
           </div>
           <div>
-            <label className={labelCls}>Loại *</label>
+            <label className={labelCls}>Type *</label>
             <select className={field} value={form.type} onChange={(e) => set("type", e.target.value)}>
               {NODE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
           <div>
-            <label className={labelCls}>Tên *</label>
+            <label className={labelCls}>Name *</label>
             <input className={field} value={form.name} onChange={(e) => set("name", e.target.value)} required />
           </div>
           <div>
-            <label className={labelCls}>Tên tiếng Anh</label>
+            <label className={labelCls}>English name</label>
             <input className={field} value={form.nameEn} onChange={(e) => set("nameEn", e.target.value)} />
           </div>
           <div>
-            <label className={labelCls}>Năm (hiển thị)</label>
+            <label className={labelCls}>Year (display)</label>
             <input className={field} value={form.year} onChange={(e) => set("year", e.target.value)} placeholder="1288" />
           </div>
           <div>
-            <label className={labelCls}>Tỉnh / địa phương</label>
+            <label className={labelCls}>Province / locality</label>
             <input className={field} value={form.province} onChange={(e) => set("province", e.target.value)} />
           </div>
           <div>
-            <label className={labelCls}>Năm bắt đầu</label>
+            <label className={labelCls}>Start year</label>
             <input type="number" className={field} value={form.yearStart} onChange={(e) => set("yearStart", e.target.value)} />
           </div>
           <div>
-            <label className={labelCls}>Năm kết thúc</label>
+            <label className={labelCls}>End year</label>
             <input type="number" className={field} value={form.yearEnd} onChange={(e) => set("yearEnd", e.target.value)} />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelCls}>Tóm tắt</label>
+            <label className={labelCls}>Summary</label>
             <textarea className={field} rows={3} value={form.summary} onChange={(e) => set("summary", e.target.value)} />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelCls}>Liên kết trang di tích (heritageSlug)</label>
+            <label className={labelCls}>Linked heritage page (heritageSlug)</label>
             <select className={field} value={form.heritageSlug} onChange={(e) => set("heritageSlug", e.target.value)}>
-              <option value="">— Không liên kết —</option>
+              <option value="">— Not linked —</option>
               {heritageOptions.map((h) => <option key={h.slug} value={h.slug}>{h.title} ({h.slug})</option>)}
             </select>
           </div>
 
           <label className="flex items-center gap-2 text-sm text-foreground sm:col-span-2">
             <input type="checkbox" checked={!!form.mapPoint} onChange={(e) => set("mapPoint", e.target.checked)} />
-            Hiển thị trên bản đồ (cần có toạ độ)
+            Show on map (requires coordinates)
           </label>
 
           {form.mapPoint && (
             <>
               <div>
-                <label className={labelCls}>Vĩ độ (lat)</label>
+                <label className={labelCls}>Latitude</label>
                 <input type="number" step="any" className={field} value={form.lat} onChange={(e) => set("lat", e.target.value)} />
               </div>
               <div>
-                <label className={labelCls}>Kinh độ (lng)</label>
+                <label className={labelCls}>Longitude</label>
                 <input type="number" step="any" className={field} value={form.lng} onChange={(e) => set("lng", e.target.value)} />
               </div>
               <div className="sm:col-span-2">
@@ -163,10 +163,10 @@ function NodeModal({ open, onClose, initial, heritageOptions }) {
         </div>
 
         <div className="mt-5 flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>Huỷ</Button>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
           <Button type="submit" disabled={creating || updating}>
             {(creating || updating) && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-            {isEdit ? "Cập nhật" : "Tạo node"}
+            {isEdit ? "Update" : "Create node"}
           </Button>
         </div>
       </form>
@@ -182,14 +182,14 @@ function EdgeModal({ open, onClose, nodes }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!form.fromId || !form.toId) return toast.error("Chọn node nguồn và đích");
-    if (form.fromId === form.toId) return toast.error("Không thể nối node với chính nó");
+    if (!form.fromId || !form.toId) return toast.error("Choose a source and a target node");
+    if (form.fromId === form.toId) return toast.error("A node cannot link to itself");
     try {
       await createEdge({ fromId: form.fromId, toId: form.toId, relation: form.relation.trim() || "RELATED_TO" }).unwrap();
-      toast.success("Đã tạo cạnh");
+      toast.success("Edge created");
       onClose();
     } catch (err) {
-      toast.error(err?.data?.message || "Lỗi tạo cạnh");
+      toast.error(err?.data?.message || "Failed to create edge");
     }
   };
 
@@ -197,38 +197,38 @@ function EdgeModal({ open, onClose, nodes }) {
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4">
       <form onSubmit={submit} className="my-12 w-full max-w-lg rounded-xl border border-border bg-card p-5 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">Thêm cạnh (quan hệ)</h3>
+          <h3 className="text-lg font-semibold text-foreground">Add edge (relation)</h3>
           <button type="button" onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-accent/20">
             <X className="h-5 w-5" />
           </button>
         </div>
         <div className="space-y-3">
           <div>
-            <label className={labelCls}>Node nguồn *</label>
+            <label className={labelCls}>Source node *</label>
             <select className={field} value={form.fromId} onChange={(e) => set("fromId", e.target.value)}>
-              <option value="">— Chọn —</option>
+              <option value="">— Choose —</option>
               {nodes.map((n) => <option key={n.id} value={n.id}>{n.name} ({n.id})</option>)}
             </select>
           </div>
           <div>
-            <label className={labelCls}>Quan hệ</label>
+            <label className={labelCls}>Relation</label>
             <input className={field} list="rel-suggestions" value={form.relation} onChange={(e) => set("relation", e.target.value)} />
             <datalist id="rel-suggestions">
               {REL_SUGGESTIONS.map((r) => <option key={r} value={r} />)}
             </datalist>
           </div>
           <div>
-            <label className={labelCls}>Node đích *</label>
+            <label className={labelCls}>Target node *</label>
             <select className={field} value={form.toId} onChange={(e) => set("toId", e.target.value)}>
-              <option value="">— Chọn —</option>
+              <option value="">— Choose —</option>
               {nodes.map((n) => <option key={n.id} value={n.id}>{n.name} ({n.id})</option>)}
             </select>
           </div>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>Huỷ</Button>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Tạo cạnh
+            {isLoading && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}Create edge
           </Button>
         </div>
       </form>
@@ -256,14 +256,14 @@ export default function GraphManagement() {
   const nodeName = useMemo(() => Object.fromEntries(nodes.map((n) => [n.id, n.name])), [nodes]);
 
   const onDeleteNode = async (n) => {
-    if (!window.confirm(`Xoá node "${n.name}" và mọi cạnh liên quan?`)) return;
-    try { await deleteNode(n.id).unwrap(); toast.success("Đã xoá node"); }
-    catch (e) { toast.error(e?.data?.message || "Lỗi xoá"); }
+    if (!window.confirm(`Delete node "${n.name}" and all related edges?`)) return;
+    try { await deleteNode(n.id).unwrap(); toast.success("Node deleted"); }
+    catch (e) { toast.error(e?.data?.message || "Delete failed"); }
   };
   const onDeleteEdge = async (ed) => {
-    if (!window.confirm("Xoá cạnh này?")) return;
-    try { await deleteEdge(ed.id).unwrap(); toast.success("Đã xoá cạnh"); }
-    catch (e) { toast.error(e?.data?.message || "Lỗi xoá"); }
+    if (!window.confirm("Delete this edge?")) return;
+    try { await deleteEdge(ed.id).unwrap(); toast.success("Edge deleted"); }
+    catch (e) { toast.error(e?.data?.message || "Delete failed"); }
   };
 
   return (
@@ -271,19 +271,19 @@ export default function GraphManagement() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-semibold text-foreground">
-            <Network className="h-5 w-5 text-heritage" /> Bản đồ Lịch sử
+            <Network className="h-5 w-5 text-heritage" /> Historical Map
           </h1>
-          <p className="text-sm text-muted-foreground">Quản lý node (nhân vật, trận đánh, di sản…) và quan hệ trên bản đồ.</p>
+          <p className="text-sm text-muted-foreground">Manage nodes (figures, battles, heritage…) and relations on the map.</p>
         </div>
         {tab === "nodes" ? (
-          <Button onClick={() => setNodeModal({})}><Plus className="mr-1.5 h-4 w-4" /> Thêm node</Button>
+          <Button onClick={() => setNodeModal({})}><Plus className="mr-1.5 h-4 w-4" /> Add node</Button>
         ) : (
-          <Button onClick={() => setEdgeModal(true)}><Plus className="mr-1.5 h-4 w-4" /> Thêm cạnh</Button>
+          <Button onClick={() => setEdgeModal(true)}><Plus className="mr-1.5 h-4 w-4" /> Add edge</Button>
         )}
       </div>
 
       <div className="flex gap-1 rounded-lg border border-border bg-card p-1 w-fit">
-        {[["nodes", `Node (${nodes.length})`], ["edges", `Cạnh (${edges.length})`]].map(([k, lbl]) => (
+        {[["nodes", `Nodes (${nodes.length})`], ["edges", `Edges (${edges.length})`]].map(([k, lbl]) => (
           <button key={k} onClick={() => setTab(k)}
             className={`rounded-md px-4 py-1.5 text-sm font-medium ${tab === k ? "bg-heritage/15 text-heritage-dark" : "text-muted-foreground hover:text-foreground"}`}>
             {lbl}
@@ -296,14 +296,14 @@ export default function GraphManagement() {
           <table className="w-full text-sm">
             <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Tên</th><th className="px-4 py-3">Loại</th>
-                <th className="px-4 py-3">Bản đồ</th><th className="px-4 py-3">Di tích</th>
-                <th className="px-4 py-3 text-right">Thao tác</th>
+                <th className="px-4 py-3">Name</th><th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Map</th><th className="px-4 py-3">Heritage</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {nodesLoading ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">Đang tải…</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">Loading…</td></tr>
               ) : nodes.map((n) => (
                 <tr key={n.id} className="border-b border-border/60 hover:bg-accent/5">
                   <td className="px-4 py-2.5">
@@ -315,8 +315,8 @@ export default function GraphManagement() {
                   <td className="px-4 py-2.5">{n.heritageSlug ? <span className="inline-flex items-center gap-1 text-xs text-heritage"><Landmark className="h-3 w-3" />{n.heritageSlug}</span> : <span className="text-muted-foreground">—</span>}</td>
                   <td className="px-4 py-2.5">
                     <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => setNodeModal({ ...n, __edit: true })} title="Sửa"><Pencil className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => onDeleteNode(n)} title="Xoá"><Trash2 className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => setNodeModal({ ...n, __edit: true })} title="Edit"><Pencil className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => onDeleteNode(n)} title="Delete"><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </td>
                 </tr>
@@ -328,11 +328,11 @@ export default function GraphManagement() {
         <div className="overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
-              <tr><th className="px-4 py-3">Nguồn</th><th className="px-4 py-3">Quan hệ</th><th className="px-4 py-3">Đích</th><th className="px-4 py-3 text-right">Thao tác</th></tr>
+              <tr><th className="px-4 py-3">Source</th><th className="px-4 py-3">Relation</th><th className="px-4 py-3">Target</th><th className="px-4 py-3 text-right">Actions</th></tr>
             </thead>
             <tbody>
               {edgesLoading ? (
-                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Đang tải…</td></tr>
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Loading…</td></tr>
               ) : edges.map((ed) => (
                 <tr key={ed.id} className="border-b border-border/60 hover:bg-accent/5">
                   <td className="px-4 py-2.5 text-foreground">{nodeName[ed.fromId] || ed.fromId}</td>
@@ -340,7 +340,7 @@ export default function GraphManagement() {
                   <td className="px-4 py-2.5 text-foreground">{nodeName[ed.toId] || ed.toId}</td>
                   <td className="px-4 py-2.5">
                     <div className="flex justify-end">
-                      <Button size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => onDeleteEdge(ed)} title="Xoá"><Trash2 className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => onDeleteEdge(ed)} title="Delete"><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </td>
                 </tr>

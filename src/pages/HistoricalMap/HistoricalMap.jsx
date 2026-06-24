@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Network, MapPin, ShieldCheck, Map as MapIcon, Share2, MessageCircle, Landmark, ChevronRight } from "lucide-react";
 import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
 import VietnamHistoryMap from "./VietnamHistoryMap";
@@ -64,20 +65,54 @@ export default function HistoricalMap() {
   const [selectedId, setSelectedId] = useState(null);
   const [playing, setPlaying] = useState(false);
   const [personaChat, setPersonaChat] = useState(null); // {id,name,summary} | null
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language?.startsWith("en") ? "en" : "vi";
+  // Chọn tên/summary theo ngôn ngữ (fallback về tiếng Việt nếu thiếu bản EN)
+  const pickName = (o) => (lang === "en" && o?.nameEn ? o.nameEn : o?.name);
+  const pickSummary = (o) => (lang === "en" && o?.summaryEn ? o.summaryEn : o?.summary);
 
-  // ── Dữ liệu (API Neo4j, fallback offline) ──
+  // ── Dữ liệu (API → Postgres, fallback offline) ──
   const { data: locData } = useGetMapLocationsQuery({});
-  const allLocations = locData?.items?.length ? locData.items : FALLBACK_MAP_LOCATIONS;
+  const allLocationsRaw = locData?.items?.length ? locData.items : FALLBACK_MAP_LOCATIONS;
 
   const { data: ovData } = useGetGraphOverviewQuery();
   const overview = ovData?.length ? ovData : FALLBACK_OVERVIEW;
 
   const { data: tlData } = useGetGraphTimelineQuery();
-  const timeline = tlData?.length ? tlData : FALLBACK_TIMELINE;
+  const timelineRaw = tlData?.length ? tlData : FALLBACK_TIMELINE;
 
   const { data: fgData } = useGetFullGraphQuery();
-  const fullGraph =
+  const fullGraphRaw =
     fgData?.nodes?.length ? { nodes: fgData.nodes, links: fgData.links } : FALLBACK_FULL_GRAPH;
+
+  // ── Bản địa hoá tên/summary theo cờ; downstream dùng các biến này ──
+  const allLocations = useMemo(
+    () =>
+      allLocationsRaw.map((l) => ({
+        ...l,
+        name: pickName(l),
+        summary: pickSummary(l),
+        neighbors: (l.neighbors || []).map((nb) => ({
+          ...nb,
+          node: { ...nb.node, name: pickName(nb.node) },
+        })),
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allLocationsRaw, lang],
+  );
+  const timeline = useMemo(
+    () => timelineRaw.map((e) => ({ ...e, name: pickName(e), summary: pickSummary(e) })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [timelineRaw, lang],
+  );
+  const fullGraph = useMemo(
+    () => ({
+      nodes: fullGraphRaw.nodes.map((n) => ({ ...n, name: pickName(n), summary: pickSummary(n) })),
+      links: fullGraphRaw.links,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fullGraphRaw, lang],
+  );
 
   // ── Lọc theo cửa sổ thời gian (client-side cho mượt) ──
   const filtered = useMemo(
@@ -138,9 +173,9 @@ export default function HistoricalMap() {
         <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
 
         <MuseumSectionHeader
-          eyebrow="Vietnam Historical Universe"
-          title="Hào khí Đông A — Nhà Trần chống Nguyên Mông"
-          description="Khám phá ba lần kháng chiến chống Nguyên Mông (1258 · 1285 · 1288) qua bản đồ động và mạng lưới tri thức nhân vật – sự kiện – di tích. Kéo dòng thời gian hoặc mở chế độ đồ thị để thấy mọi mối liên hệ."
+          eyebrow={t("map.eyebrow")}
+          title={t("map.title")}
+          description={t("map.description")}
           align="center"
         />
 
@@ -156,7 +191,7 @@ export default function HistoricalMap() {
                 {s.value}
               </span>
               <span className="text-[11px] font-medium tracking-wide text-museum-muted">
-                {s.label}
+                {t(`map.stats.${s.key}`, s.label)}
               </span>
             </div>
           ))}
@@ -174,7 +209,7 @@ export default function HistoricalMap() {
                   : "text-museum-muted hover:text-museum-parchment"
               }`}
             >
-              <MapIcon className="h-4 w-4" /> Bản đồ
+              <MapIcon className="h-4 w-4" /> {t("map.tabMap")}
             </button>
             <button
               type="button"
@@ -185,7 +220,7 @@ export default function HistoricalMap() {
                   : "text-museum-muted hover:text-museum-parchment"
               }`}
             >
-              <Share2 className="h-4 w-4" /> Đồ thị tri thức
+              <Share2 className="h-4 w-4" /> {t("map.tabGraph")}
             </button>
           </div>
 
@@ -218,12 +253,12 @@ export default function HistoricalMap() {
                   />
                   <div className="absolute bottom-4 left-4 z-10 flex max-w-[70%] flex-col gap-1.5 rounded-xl border border-[#8a6d3f]/40 bg-[#f3e6c6]/90 px-3.5 py-2 backdrop-blur">
                     <div className="flex flex-wrap gap-x-3 gap-y-1">
-                      {legendTypes.map((t) => {
-                        const m = NODE_TYPE_META[t];
+                      {legendTypes.map((lt) => {
+                        const m = NODE_TYPE_META[lt];
                         return (
-                          <span key={t} className="flex items-center gap-1.5 text-[11px] font-medium text-[#4a3a1f]">
+                          <span key={lt} className="flex items-center gap-1.5 text-[11px] font-medium text-[#4a3a1f]">
                             <span className="h-2.5 w-2.5 rounded-full border border-[#5e4a2e]/50" style={{ background: m.color }} />
-                            {m.label}
+                            {t(`map.nodeType.${lt}`, m.label)}
                           </span>
                         );
                       })}
@@ -241,7 +276,7 @@ export default function HistoricalMap() {
                   </div>
                   <div className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-full border border-[#8a6d3f]/45 bg-[#f3e6c6]/90 px-3 py-1.5 text-[10px] font-semibold text-[#5e4a2e] backdrop-blur">
                     <ShieldCheck className="h-3.5 w-3.5" />
-                    Có Hoàng Sa &amp; Trường Sa
+                    {t("map.sovereigntyBadge")}
                   </div>
                 </>
               ) : (
@@ -264,10 +299,10 @@ export default function HistoricalMap() {
                       className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide"
                       style={{ background: `${meta.color}22`, color: meta.color, border: `1px solid ${meta.color}55` }}
                     >
-                      <TypeIcon type={selected.type} className="h-3 w-3" /> {meta.label}
+                      <TypeIcon type={selected.type} className="h-3 w-3" /> {t(`map.nodeType.${selected.type}`, meta.label)}
                     </span>
                     <span className="rounded-full border border-museum-gold/20 bg-museum-black/40 px-2.5 py-1 text-[10px] font-mono text-museum-muted">
-                      {selected.neighbors?.length ?? 0} quan hệ
+                      {t("map.relationsCount", { count: selected.neighbors?.length ?? 0 })}
                     </span>
                   </div>
                   <h3 className="font-display text-2xl font-bold leading-tight text-museum-ivory">
@@ -298,7 +333,7 @@ export default function HistoricalMap() {
                       className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-museum-gold/35 bg-museum-gold/12 px-4 py-2.5 text-sm font-medium text-museum-gold-light transition-colors hover:bg-museum-gold/20"
                     >
                       <MessageCircle className="h-4 w-4" />
-                      Trò chuyện cùng {selected.name}
+                      {t("map.chatWith", { name: selected.name })}
                     </button>
                   )}
 
@@ -308,7 +343,7 @@ export default function HistoricalMap() {
                       className="group mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-museum-gold px-4 py-2.5 text-sm font-semibold text-museum-black transition-colors hover:bg-museum-gold-light"
                     >
                       <Landmark className="h-4 w-4" />
-                      Xem trang di tích
+                      {t("map.viewHeritage")}
                       <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                   )}
@@ -317,7 +352,7 @@ export default function HistoricalMap() {
                 <div className="flex items-center gap-2 px-5 pt-4 text-museum-gold-light">
                   <Network className="h-4 w-4" />
                   <span className="text-[11px] font-semibold uppercase tracking-wider">
-                    Mạng lưới quan hệ
+                    {t("map.relationNetwork")}
                   </span>
                   <span className="ml-auto h-px flex-1 bg-gradient-to-r from-museum-gold/30 to-transparent" />
                 </div>
@@ -330,9 +365,7 @@ export default function HistoricalMap() {
               <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center text-museum-muted">
                 <span className="text-4xl opacity-60">🧭</span>
                 <p className="text-sm">
-                  {view === "graph"
-                    ? "Chọn một nút trên đồ thị để xem mạng lưới quan hệ."
-                    : "Chọn một địa điểm trên bản đồ để xem mạng lưới quan hệ lịch sử."}
+                  {view === "graph" ? t("map.emptyGraph") : t("map.emptyMap")}
                 </p>
               </div>
             )}
@@ -377,8 +410,7 @@ export default function HistoricalMap() {
 
         <p className="mt-6 flex items-center justify-center gap-2 text-center text-[11px] text-museum-muted">
           <ShieldCheck className="h-3.5 w-3.5 text-museum-gold/70" />
-          Bản đồ thể hiện đầy đủ hai quần đảo Hoàng Sa và Trường Sa thuộc chủ quyền
-          Việt Nam. Dữ liệu lịch sử lấy từ knowledge graph (Neo4j) qua API.
+          {t("map.footerNote")}
         </p>
       </div>
 

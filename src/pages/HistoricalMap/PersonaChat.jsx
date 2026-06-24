@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X, Send, Sparkles } from "lucide-react";
 import { BASE_URL } from "~/constants/fe.constant";
 import PersonaAvatar from "./PersonaAvatar";
@@ -8,13 +9,10 @@ import PersonaAvatar from "./PersonaAvatar";
  * Stream câu trả lời (SSE) từ BE: POST /graph/persona/:id/chat.
  * Dùng fetch + ReadableStream để hiển thị từng cụm chữ (D1 — streaming UX).
  */
-const SUGGESTIONS = [
-  "Ngài đã đánh bại quân Nguyên Mông như thế nào?",
-  "Bí quyết giữ nước của ngài là gì?",
-  "Xin kể về trận đánh ngài tâm đắc nhất.",
-];
+const SUGGESTION_KEYS = ["map.persona.q1", "map.persona.q2", "map.persona.q3"];
 
 export default function PersonaChat({ persona, onClose }) {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([]); // {role, text}
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -78,7 +76,7 @@ export default function PersonaChat({ persona, onClose }) {
       if (e.name !== "AbortError") {
         setMessages((m) => {
           const copy = [...m];
-          copy[copy.length - 1] = { role: "persona", text: "(Xin lỗi, ta chưa thể đáp lúc này.)" };
+          copy[copy.length - 1] = { role: "persona", text: t("map.persona.errorReply") };
           return copy;
         });
       }
@@ -101,14 +99,14 @@ export default function PersonaChat({ persona, onClose }) {
             </h3>
             <p className="flex items-center gap-1.5 text-[11px] text-museum-muted">
               <Sparkles className="h-3 w-3 text-museum-gold-light" />
-              Nhập vai lịch sử {mode === "offline" ? "· chế độ grounded" : mode === "llm" ? "· LLM" : ""}
+              {t("map.persona.roleplay")} {mode === "offline" ? t("map.persona.modeGrounded") : mode === "llm" ? t("map.persona.modeLlm") : ""}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-full p-1.5 text-museum-muted transition-colors hover:bg-museum-gold/10 hover:text-museum-parchment"
-            aria-label="Đóng"
+            aria-label={t("common.close")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -118,9 +116,9 @@ export default function PersonaChat({ persona, onClose }) {
         <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
           {messages.length === 0 && (
             <div className="rounded-2xl border border-museum-gold/15 bg-museum-black/50 p-4 text-sm leading-relaxed text-museum-parchment">
-              <p className="mb-2 text-museum-gold-light">Kính chào! Ta là {persona.name}.</p>
+              <p className="mb-2 text-museum-gold-light">{t("map.persona.greeting", { name: persona.name })}</p>
               <p className="text-museum-muted">{persona.summary}</p>
-              <p className="mt-2 text-xs text-museum-muted">Hãy hỏi ta về thời cuộc, binh nghiệp hay non sông Đại Việt.</p>
+              <p className="mt-2 text-xs text-museum-muted">{t("map.persona.greetingHint")}</p>
             </div>
           )}
           {messages.map((m, i) => (
@@ -141,14 +139,14 @@ export default function PersonaChat({ persona, onClose }) {
         {/* Suggestions */}
         {messages.length === 0 && (
           <div className="flex flex-wrap gap-1.5 px-4 pb-2">
-            {SUGGESTIONS.map((s) => (
+            {SUGGESTION_KEYS.map((k) => (
               <button
-                key={s}
+                key={k}
                 type="button"
-                onClick={() => ask(s)}
+                onClick={() => ask(t(k))}
                 className="rounded-full border border-museum-gold/20 bg-museum-black/40 px-2.5 py-1 text-[11px] text-museum-parchment transition-colors hover:border-museum-gold/45"
               >
-                {s}
+                {t(k)}
               </button>
             ))}
           </div>
@@ -165,7 +163,7 @@ export default function PersonaChat({ persona, onClose }) {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Hỏi ${persona.name}...`}
+            placeholder={t("map.persona.inputPlaceholder", { name: persona.name })}
             disabled={streaming}
             className="flex-1 rounded-full border border-museum-gold/25 bg-museum-black/50 px-4 py-2.5 text-sm text-museum-ivory placeholder:text-museum-muted focus:border-museum-gold/50 focus:outline-none"
           />
@@ -173,7 +171,7 @@ export default function PersonaChat({ persona, onClose }) {
             type="submit"
             disabled={streaming || !input.trim()}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-museum-gold/20 text-museum-gold-light transition-colors hover:bg-museum-gold/30 disabled:opacity-40"
-            aria-label="Gửi"
+            aria-label={t("chat.send")}
           >
             <Send className="h-4 w-4" />
           </button>

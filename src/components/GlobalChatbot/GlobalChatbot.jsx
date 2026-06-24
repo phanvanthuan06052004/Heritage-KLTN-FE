@@ -19,37 +19,35 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import { useQueryRAGMutation } from "~/store/apis/chatSlice";
 import { cn } from "~/lib/utils";
 
-const sampleQuestions = [
-  "Hoàng thành Thăng Long nằm ở đâu?",
-  "Địa đạo Củ Chi có giá trị lịch sử gì?",
-  "Quần thể Di tích Cố đô Huế được UNESCO công nhận năm nào?",
-  "Bạch Đằng gắn với chiến thắng lịch sử nào?",
+const SAMPLE_QUESTION_KEYS = [
+  "chatbot.q1",
+  "chatbot.q2",
+  "chatbot.q3",
+  "chatbot.q4",
 ];
 
-const actionTemplates = [
+const ACTION_TEMPLATES = [
   {
     id: "verify",
-    label: "Kiểm chứng nguồn",
+    labelKey: "chatbot.verifyLabel",
+    promptKey: "chatbot.verifyPrompt",
     icon: FileSearch,
-    buildPrompt: (message) =>
-      `Hãy kiểm chứng câu trả lời này bằng các nguồn trong kho tri thức. Nêu rõ phần nào chắc chắn, phần nào cần thêm tài liệu:\n\n${message.content}`,
   },
   {
     id: "deeper",
-    label: "Đào sâu thêm",
+    labelKey: "chatbot.deeperLabel",
+    promptKey: "chatbot.deeperPrompt",
     icon: Layers,
-    buildPrompt: (message) =>
-      `Hãy giải thích sâu hơn câu trả lời này, vẫn chỉ dựa trên kho tri thức hiện có:\n\n${message.content}`,
   },
   {
     id: "shorter",
-    label: "Tóm tắt 3 ý",
+    labelKey: "chatbot.shorterLabel",
+    promptKey: "chatbot.shorterPrompt",
     icon: Sparkles,
-    buildPrompt: (message) =>
-      `Tóm tắt câu trả lời này thành 3 ý chính, ngắn gọn và dễ hiểu:\n\n${message.content}`,
   },
 ];
 
@@ -173,6 +171,7 @@ const RobotModel = ({ isMotionReduced = false, isWaving = false }) => {
 };
 
 const ChatbotLauncher = ({ onClick }) => {
+  const { t } = useTranslation();
   const prefersReducedMotion = useReducedMotion();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -190,7 +189,7 @@ const ChatbotLauncher = ({ onClick }) => {
       whileTap={{ scale: 0.96 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="fixed bottom-5 right-3 z-50 h-[108px] w-[96px] bg-transparent p-0 text-left outline-none transition focus-visible:ring-4 focus-visible:ring-cyan-300/45 sm:bottom-6 sm:right-6 sm:h-[124px] sm:w-[112px]"
-      aria-label="Open Heritage Assistant"
+      aria-label={t("chatbot.fabAria")}
     >
       <MotionSpan
         initial={prefersReducedMotion ? false : { opacity: 0, y: 46, scale: 0.96 }}
@@ -216,14 +215,14 @@ const ChatbotLauncher = ({ onClick }) => {
             <Sparkles className="h-4 w-4" />
           </span>
           <span className="truncate text-sm font-semibold text-[#7b2f14]">
-            Heritage Assistant
+            {t("chatbot.title")}
           </span>
         </span>
         <span className="block text-sm leading-5">
-          Em sẵn lòng hỗ trợ Anh/Chị tìm hiểu di sản Việt Nam.
+          {t("chatbot.tagline")}
         </span>
         <span className="mt-1 block text-xs leading-4 text-stone-500">
-          Hỏi em về di tích, triều đại hoặc nhân vật lịch sử.
+          {t("chatbot.askHint")}
         </span>
       </MotionSpan>
       <MotionSpan
@@ -237,7 +236,7 @@ const ChatbotLauncher = ({ onClick }) => {
         className="pointer-events-none absolute bottom-[104px] right-[4px] z-30 rounded-full border border-cyan-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-cyan-950 shadow-[0_12px_28px_rgba(15,23,42,0.18)] sm:bottom-[120px]"
         aria-hidden="true"
       >
-        Xin chào!
+        {t("chatbot.greeting")}
       </MotionSpan>
       <span className="absolute inset-0 z-20 block drop-shadow-[0_20px_28px_rgba(15,23,42,0.34)]">
         <span className="absolute inset-x-5 bottom-2 h-5 rounded-full bg-slate-950/25 blur-md" />
@@ -315,7 +314,7 @@ const getModeLabel = (mode) => {
   return mode;
 };
 
-const normalizeResponse = (response) => {
+const normalizeResponse = (response, cannotAnswerText) => {
   const data = response?.data || response || {};
   const citations = (data.citations || []).map((citation) => ({
     ...citation,
@@ -330,7 +329,9 @@ const normalizeResponse = (response) => {
 
   return {
     answer: stripInternalLabels(
-      data.answer || "Sorry, I cannot answer this question at the moment.",
+      data.answer ||
+        cannotAnswerText ||
+        "Sorry, I cannot answer this question at the moment.",
     ),
     mode: data.mode || "general",
     sources: data.sources || [],
@@ -492,7 +493,9 @@ const MarkdownContent = ({ content, isUser = false }) => {
   );
 };
 
-const ChatHeader = ({ isMinimized, onMinimize, onClose }) => (
+const ChatHeader = ({ isMinimized, onMinimize, onClose }) => {
+  const { t } = useTranslation();
+  return (
   <div className="flex items-center justify-between border-b border-white/10 bg-[#7b2f14] px-4 py-3 text-white shadow-sm">
     <div className="flex min-w-0 items-center gap-3">
       <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/12 ring-1 ring-white/20">
@@ -500,10 +503,10 @@ const ChatHeader = ({ isMinimized, onMinimize, onClose }) => (
         <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-[#7b2f14]" />
       </div>
       <div className="min-w-0">
-        <h3 className="truncate text-sm font-semibold">Heritage Assistant</h3>
+        <h3 className="truncate text-sm font-semibold">{t("chatbot.title")}</h3>
         {!isMinimized && (
           <p className="truncate text-xs text-white/72">
-            Wiki answers with source-aware follow-ups
+            {t("chatbot.headerSubtitle")}
           </p>
         )}
       </div>
@@ -512,22 +515,24 @@ const ChatHeader = ({ isMinimized, onMinimize, onClose }) => (
       <button
         className="rounded-md p-2 text-white/75 transition hover:bg-white/12 hover:text-white"
         onClick={onMinimize}
-        aria-label={isMinimized ? "Expand" : "Minimize"}
+        aria-label={isMinimized ? t("chatbot.expand") : t("chatbot.minimize")}
       >
         <Minimize2 className="h-4 w-4" />
       </button>
       <button
         className="rounded-md p-2 text-white/75 transition hover:bg-white/12 hover:text-white"
         onClick={onClose}
-        aria-label="Close chatbot"
+        aria-label={t("chatbot.close")}
       >
         <X className="h-4 w-4" />
       </button>
     </div>
   </div>
-);
+  );
+};
 
 const SourcePanel = ({ sources = [], mode }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const visibleSources = sources.slice(0, isExpanded ? 6 : 2);
   const modeLabel = getModeLabel(mode);
@@ -536,7 +541,7 @@ const SourcePanel = ({ sources = [], mode }) => {
     return (
       <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
         <Search className="h-3.5 w-3.5 shrink-0" />
-        <span>Chưa có nguồn đủ rõ để hiển thị.</span>
+        <span>{t("chatbot.noSources")}</span>
       </div>
     );
   }
@@ -551,7 +556,7 @@ const SourcePanel = ({ sources = [], mode }) => {
         <span className="flex min-w-0 items-center gap-2 text-xs font-semibold text-stone-700">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-700" />
           <span className="truncate">
-            Dựa trên {sources.length} trang wiki
+            {t("chatbot.basedOnWiki", { count: sources.length })}
             {modeLabel ? ` • ${modeLabel}` : ""}
           </span>
         </span>
@@ -572,10 +577,10 @@ const SourcePanel = ({ sources = [], mode }) => {
               <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#a95620]" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-stone-800">
-                  {source.title || "Untitled source"}
+                  {source.title || t("chatbot.untitledSource")}
                 </p>
                 <p className="truncate text-stone-500">
-                  {source.slug || source.pageType || "wiki-page"}
+                  {source.slug || source.pageType || t("chatbot.wikiPage")}
                 </p>
               </div>
               {typeof source.similarity === "number" && (
@@ -592,7 +597,9 @@ const SourcePanel = ({ sources = [], mode }) => {
             onClick={() => setIsExpanded((prev) => !prev)}
             className="text-xs font-medium text-[#9b461c] hover:text-[#703012]"
           >
-            {isExpanded ? "Thu gọn nguồn" : `Xem thêm ${sources.length - 2} nguồn`}
+            {isExpanded
+              ? t("chatbot.collapseSources")
+              : t("chatbot.showMoreSources", { count: sources.length - 2 })}
           </button>
         )}
       </div>
@@ -601,6 +608,7 @@ const SourcePanel = ({ sources = [], mode }) => {
 };
 
 const EvidencePanel = ({ citations = [], rawSources = [] }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!citations.length && !rawSources.length) {
@@ -621,7 +629,7 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
         <span className="flex min-w-0 items-center gap-2 font-semibold">
           <FileSearch className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">
-            Tài liệu gốc {total ? `(${total})` : ""}
+            {t("chatbot.rawDocuments")} {total ? `(${total})` : ""}
           </span>
         </span>
         <ChevronDown
@@ -638,11 +646,11 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
             className="mx-3 rounded-md bg-white/80 px-2.5 py-2 ring-1 ring-emerald-100 last:mb-3"
           >
             <p className="font-semibold text-emerald-950">
-              {citation.title || citation.sourceTitle || "Nguồn tài liệu"}
+              {citation.title || citation.sourceTitle || t("chatbot.citationSource")}
             </p>
             {(citation.page || citation.pageNumber) && (
               <p className="mt-0.5 text-emerald-700">
-                Trang {citation.page || citation.pageNumber}
+                {t("chatbot.page", { page: citation.page || citation.pageNumber })}
               </p>
             )}
             {citation.snippet && (
@@ -659,7 +667,7 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
             className="mx-3 rounded-md bg-white/80 px-2.5 py-2 ring-1 ring-emerald-100 last:mb-3"
           >
             <p className="font-semibold text-emerald-950">
-              {source.title || source.fileName || "Raw source"}
+              {source.title || source.fileName || t("chatbot.rawSource")}
             </p>
             {source.url && (
               <a
@@ -678,9 +686,11 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
   );
 };
 
-const FollowUpActions = ({ message, onAction }) => (
+const FollowUpActions = ({ message, onAction }) => {
+  const { t } = useTranslation();
+  return (
   <div className="mt-3 flex flex-wrap gap-2">
-    {actionTemplates.map((action) => (
+    {ACTION_TEMPLATES.map((action) => (
       <button
         key={action.id}
         type="button"
@@ -688,11 +698,12 @@ const FollowUpActions = ({ message, onAction }) => (
         className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm transition hover:border-[#a95620]/40 hover:bg-[#fff7ed] hover:text-[#7b2f14]"
       >
         <action.icon className="h-3.5 w-3.5" />
-        {action.label}
+        {t(action.labelKey)}
       </button>
     ))}
   </div>
-);
+  );
+};
 
 const MessageBubble = ({ message, onAction }) => {
   const isUser = message.sender === "user";
@@ -762,28 +773,36 @@ const MessageBubble = ({ message, onAction }) => {
   );
 };
 
-const WelcomePrompts = ({ onPick }) => (
+const WelcomePrompts = ({ onPick }) => {
+  const { t } = useTranslation();
+  return (
   <div className="rounded-xl border border-stone-200 bg-white/72 p-3 shadow-sm">
     <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-stone-600">
       <Sparkles className="h-3.5 w-3.5 text-[#a95620]" />
-      Gợi ý bắt đầu
+      {t("chatbot.startSuggestions")}
     </div>
     <div className="flex flex-wrap gap-2">
-      {sampleQuestions.map((question) => (
-        <button
-          key={question}
-          type="button"
-          onClick={() => onPick(question)}
-          className="rounded-full border border-stone-200 bg-white px-3 py-2 text-left text-xs text-stone-600 transition hover:border-[#a95620]/40 hover:bg-[#fff7ed] hover:text-[#7b2f14]"
-        >
-          {question}
-        </button>
-      ))}
+      {SAMPLE_QUESTION_KEYS.map((questionKey) => {
+        const question = t(questionKey);
+        return (
+          <button
+            key={questionKey}
+            type="button"
+            onClick={() => onPick(question)}
+            className="rounded-full border border-stone-200 bg-white px-3 py-2 text-left text-xs text-stone-600 transition hover:border-[#a95620]/40 hover:bg-[#fff7ed] hover:text-[#7b2f14]"
+          >
+            {question}
+          </button>
+        );
+      })}
     </div>
   </div>
-);
+  );
+};
 
-const TypingIndicator = () => (
+const TypingIndicator = () => {
+  const { t } = useTranslation();
+  return (
   <div className="flex justify-start">
     <div className="flex items-start gap-2">
       <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#a95620] text-white">
@@ -792,7 +811,7 @@ const TypingIndicator = () => (
       <div className="rounded-2xl rounded-tl-md border border-stone-200 bg-white px-3.5 py-3 shadow-sm">
         <div className="flex items-center gap-2 text-sm text-stone-600">
           <Loader2 className="h-4 w-4 animate-spin text-[#a95620]" />
-          Đang tìm trong kho tri thức
+          {t("chatbot.searching")}
           <span className="flex gap-1">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620]" />
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620] [animation-delay:150ms]" />
@@ -802,7 +821,8 @@ const TypingIndicator = () => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const ChatInput = ({
   value,
@@ -811,7 +831,9 @@ const ChatInput = ({
   onChange,
   onSubmit,
   onKeyDown,
-}) => (
+}) => {
+  const { t } = useTranslation();
+  return (
   <div className="border-t border-stone-200 bg-white p-3">
     <div className="flex items-end gap-2 rounded-xl border border-stone-200 bg-stone-50 p-2 shadow-inner transition focus-within:border-[#a95620] focus-within:ring-2 focus-within:ring-[#a95620]/15">
       <textarea
@@ -819,7 +841,7 @@ const ChatInput = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder="Hỏi về di tích lịch sử Việt Nam..."
+        placeholder={t("chatbot.inputPlaceholder")}
         rows={1}
         disabled={disabled}
         className="max-h-28 min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-5 text-stone-900 outline-none placeholder:text-stone-400 disabled:cursor-not-allowed disabled:opacity-60"
@@ -829,7 +851,7 @@ const ChatInput = ({
         disabled={disabled || !value.trim()}
         size="icon"
         className="h-10 w-10 shrink-0 rounded-lg bg-[#a95620] text-white hover:bg-[#7b2f14]"
-        aria-label="Send message"
+        aria-label={t("chatbot.send")}
       >
         {disabled ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -839,12 +861,14 @@ const ChatInput = ({
       </Button>
     </div>
     <p className="mt-2 text-center text-[10px] leading-4 text-stone-400">
-      Thông tin chỉ mang tính tham khảo, được tư vấn bởi Trí Tuệ Nhân Tạo
+      {t("chatbot.disclaimer")}
     </p>
   </div>
-);
+  );
+};
 
 const GlobalChatbot = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -860,14 +884,13 @@ const GlobalChatbot = () => {
     () => ({
       id: "welcome",
       sender: "ai",
-      content:
-        "Xin chào, em là Heritage Assistant. Anh có thể hỏi về di tích lịch sử Việt Nam, em sẽ trả lời kèm nguồn wiki và tài liệu gốc để kiểm chứng.",
+      content: t("chatbot.welcomeLong"),
       timestamp: getTime(),
       sources: [],
       mode: "ready",
       isWelcome: true,
     }),
-    [],
+    [t],
   );
 
   useEffect(() => {
@@ -889,7 +912,7 @@ const GlobalChatbot = () => {
   const sendQuestion = async (question, options = {}) => {
     const cleanQuestion = question.trim();
     if (!cleanQuestion) {
-      toast.error("Please enter a message!");
+      toast.error(t("chatbot.enterMessage"));
       return;
     }
 
@@ -911,7 +934,7 @@ const GlobalChatbot = () => {
         collectionName: "heritage_documents",
       }).unwrap();
 
-      const normalized = normalizeResponse(response);
+      const normalized = normalizeResponse(response, t("chatbot.cannotAnswer"));
       const aiMessage = {
         id: `${Date.now()}-ai`,
         sender: "ai",
@@ -926,7 +949,7 @@ const GlobalChatbot = () => {
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
-      toast.error("Error receiving AI response!");
+      toast.error(t("chatbot.errorResponse"));
       console.error("RAG API Error:", error);
 
       setMessages((prev) => [
@@ -934,8 +957,7 @@ const GlobalChatbot = () => {
         {
           id: `${Date.now()}-error`,
           sender: "ai",
-          content:
-            "Sorry, an error occurred while searching the heritage knowledge base. Please try again later.",
+          content: t("chatbot.errorMessage"),
           timestamp: getTime(),
           sources: [],
           mode: "error",
@@ -949,8 +971,8 @@ const GlobalChatbot = () => {
   const handleSendMessage = () => sendQuestion(inputText);
 
   const handleFollowUpAction = (action, message) => {
-    sendQuestion(action.buildPrompt(message), {
-      displayText: action.label,
+    sendQuestion(t(action.promptKey, { content: message.content }), {
+      displayText: t(action.labelKey),
     });
   };
 

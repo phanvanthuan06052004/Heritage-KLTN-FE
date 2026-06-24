@@ -1,10 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Home, ArrowLeft, Compass, MapPinned } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.error("404 Error: User accessed non-existent path:", location.pathname);
@@ -32,15 +34,14 @@ const NotFound = () => {
         </div>
 
         <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-museum-gold/25 bg-museum-gold/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-museum-gold-light">
-          <MapPinned className="h-3.5 w-3.5" /> Lạc lối trong dòng lịch sử
+          <MapPinned className="h-3.5 w-3.5" /> {t("notFound.eyebrow")}
         </span>
 
         <h2 className="font-display text-3xl font-bold text-museum-ivory sm:text-4xl">
-          Không tìm thấy trang
+          {t("notFound.title")}
         </h2>
         <p className="mt-3 max-w-md text-sm leading-relaxed text-museum-parchment/80 sm:text-base">
-          Trang anh/chị tìm không tồn tại hoặc đã được dời đi. Hãy quay lại và
-          tiếp tục hành trình khám phá di sản Việt Nam.
+          {t("notFound.message")}
         </p>
 
         {/* Hành động */}
@@ -49,20 +50,20 @@ const NotFound = () => {
             to="/"
             className="group flex items-center gap-2 rounded-full bg-museum-gold px-6 py-3 text-sm font-semibold text-museum-black shadow-museum-gold transition-colors hover:bg-museum-gold-light"
           >
-            <Home className="h-4 w-4" /> Về trang chủ
+            <Home className="h-4 w-4" /> {t("notFound.backToHome")}
           </Link>
           <button
             type="button"
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 rounded-full border border-museum-gold/35 bg-museum-black/50 px-6 py-3 text-sm font-medium text-museum-gold-light transition-colors hover:bg-museum-gold/12"
           >
-            <ArrowLeft className="h-4 w-4" /> Quay lại
+            <ArrowLeft className="h-4 w-4" /> {t("notFound.goBack")}
           </button>
           <Link
             to="/historical-map"
             className="flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-museum-muted transition-colors hover:text-museum-gold-light"
           >
-            <Compass className="h-4 w-4" /> Bản đồ Lịch sử
+            <Compass className="h-4 w-4" /> {t("nav.historicalMap")}
           </Link>
         </div>
 

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Compass } from "lucide-react";
 import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
 import PassportCollection, { useUserId } from "./PassportCollection";
@@ -10,6 +11,7 @@ import MyTrips from "~/pages/Trip/MyTrips";
  * Việc điểm danh đã chuyển vào từng trang di tích (Heritage Detail).
  */
 export default function HeritagePassport() {
+  const { t } = useTranslation();
   const userId = useUserId();
 
   return (
@@ -17,8 +19,8 @@ export default function HeritagePassport() {
       <div className="lcn-container">
         <MuseumSectionHeader
           eyebrow="Heritage Passport"
-          title="Hộ chiếu Di sản"
-          description="Tích luỹ XP, giữ chuỗi ngày khám phá và sưu tầm những con tem di sản bạn đã ghé thăm."
+          title={t("passport.title")}
+          description={t("passport.description")}
           align="center"
         />
 
@@ -27,20 +29,20 @@ export default function HeritagePassport() {
         <MyTrips userId={userId} />
 
         <div className="mt-10">
-          <CommunityFeed title="Cộng đồng khám phá" showHeritage limit={16} />
+          <CommunityFeed title={t("passport.communityTitle")} showHeritage limit={16} />
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-museum-gold/25 bg-museum-black/35 p-6 text-center">
           <Compass className="h-6 w-6 text-museum-gold-light" />
           <p className="text-sm text-museum-parchment">
-            Muốn thêm con tem mới? Hãy mở một <span className="text-museum-gold-light">trang di tích</span> và
-            <span className="text-museum-gold-light"> điểm danh tại đó</span> khi bạn đến tận nơi.
+            {t("passport.addStampHintBefore")} <span className="text-museum-gold-light">{t("passport.addStampHintHeritagePage")}</span>
+            <span className="text-museum-gold-light"> {t("passport.addStampHintCheckIn")}</span> {t("passport.addStampHintAfter")}
           </p>
           <Link
             to="/heritages"
             className="rounded-full border border-museum-gold/40 bg-museum-gold/12 px-5 py-2 text-sm font-medium text-museum-gold-light transition-colors hover:bg-museum-gold/20"
           >
-            Khám phá di tích
+            {t("passport.exploreHeritage")}
           </Link>
         </div>
       </div>

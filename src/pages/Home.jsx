@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import LoadingScreen from "~/components/common/LoadingScreen";
 
 const FeatureHighlight = lazy(
@@ -20,11 +21,12 @@ const DynastyBar = lazy(
 const OnThisDay = lazy(() => import("~/components/Home/OnThisDay/OnThisDay"));
 
 const Home = () => {
+  const { t } = useTranslation();
   return (
     <div className="museum-shell overflow-hidden">
       <Suspense
         fallback={
-          <LoadingScreen fullScreen={false} message="Đang tải trang chủ…" />
+          <LoadingScreen fullScreen={false} message={t("home.loadingHero")} />
         }
       >
         <HeroCarousel />
@@ -45,7 +47,7 @@ const Home = () => {
       <div className="lcn-container space-y-20 py-16 sm:space-y-24 sm:py-20">
         <Suspense
           fallback={
-            <LoadingScreen fullScreen={false} message="Đang tải nội dung…" />
+            <LoadingScreen fullScreen={false} message={t("home.loadingContent")} />
           }
         >
           <FeatureHighlight />

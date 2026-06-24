@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ForceGraph2D from "react-force-graph-2d";
 import { Search, ZoomIn, ZoomOut, Maximize2, Box, Square } from "lucide-react";
 import { getTypeMeta, NODE_TYPE_META } from "./mockData";
@@ -11,6 +12,7 @@ const Graph3D = lazy(() => import("./Graph3D"));
  * legend lọc theo loại, ô tìm node, nút zoom, nền sao. Có toggle sang 3D.
  */
 export default function GraphExplorer({ data, activeId, onSelectNode }) {
+  const { t } = useTranslation();
   const wrapRef = useRef(null);
   const fgRef = useRef(null);
   const [size, setSize] = useState({ w: 600, h: 460 });
@@ -145,19 +147,19 @@ export default function GraphExplorer({ data, activeId, onSelectNode }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Tìm nhân vật, trận…"
+            placeholder={t("map.explorer.searchPlaceholder")}
             className="w-36 bg-transparent px-2 py-1.5 text-[11px] text-museum-ivory placeholder:text-museum-muted focus:outline-none"
           />
         </form>
         {mode === "2d" && (
           <div className="flex gap-1.5">
-            <button type="button" onClick={() => zoomBy(1.4)} className="rounded-full border border-museum-gold/25 bg-museum-black/82 p-1.5 text-museum-gold-light backdrop-blur hover:bg-museum-gold/10" aria-label="Phóng to">
+            <button type="button" onClick={() => zoomBy(1.4)} className="rounded-full border border-museum-gold/25 bg-museum-black/82 p-1.5 text-museum-gold-light backdrop-blur hover:bg-museum-gold/10" aria-label={t("map.explorer.zoomIn")}>
               <ZoomIn className="h-3.5 w-3.5" />
             </button>
-            <button type="button" onClick={() => zoomBy(0.7)} className="rounded-full border border-museum-gold/25 bg-museum-black/82 p-1.5 text-museum-gold-light backdrop-blur hover:bg-museum-gold/10" aria-label="Thu nhỏ">
+            <button type="button" onClick={() => zoomBy(0.7)} className="rounded-full border border-museum-gold/25 bg-museum-black/82 p-1.5 text-museum-gold-light backdrop-blur hover:bg-museum-gold/10" aria-label={t("map.explorer.zoomOut")}>
               <ZoomOut className="h-3.5 w-3.5" />
             </button>
-            <button type="button" onClick={fit} className="rounded-full border border-museum-gold/25 bg-museum-black/82 p-1.5 text-museum-gold-light backdrop-blur hover:bg-museum-gold/10" aria-label="Vừa khung">
+            <button type="button" onClick={fit} className="rounded-full border border-museum-gold/25 bg-museum-black/82 p-1.5 text-museum-gold-light backdrop-blur hover:bg-museum-gold/10" aria-label={t("map.explorer.fit")}>
               <Maximize2 className="h-3.5 w-3.5" />
             </button>
           </div>
