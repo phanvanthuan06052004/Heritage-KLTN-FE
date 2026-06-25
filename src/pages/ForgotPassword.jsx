@@ -12,7 +12,7 @@ import {
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { Button } from "~/components/common/ui/Button";
 import { useDispatch } from "react-redux";
 import {
@@ -233,7 +233,11 @@ const ForgotPassword = () => {
               /* Verification form */
               <div className="space-y-5">
                 <div className="rounded-2xl border border-museum-gold/25 bg-museum-gold/10 p-4 text-sm text-museum-gold-light">
-                  {t("auth.forgotPassword.emailSentMessage", { email })}
+                  <Trans
+                    i18nKey="auth.forgotPassword.emailSentMessage"
+                    values={{ email }}
+                    components={[<strong className="font-semibold text-museum-gold-light" />]}
+                  />
                 </div>
 
                 <form onSubmit={handleVerifyCode} className="space-y-5">

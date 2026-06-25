@@ -26,7 +26,7 @@ const baseQuery = fetchBaseQuery({
     const token = authState.accessToken
     const userId = authState.userInfo?._id || authState.userInfo?.id
 
-    if (token) {
+    if (token && token !== 'google-sso') {
       headers.set('Authorization', `Bearer ${token}`)
     }
     if (userId && !AUTH_URLS.some((url) => endpoint.includes(url))) {

@@ -37,6 +37,9 @@ const Profile = lazy(() => import("~/pages/Profile"));
 const Register = lazy(() => import("~/pages/Register"));
 const NotFound = lazy(() => import("~/pages/NotFound"));
 const ForgotPassword = lazy(() => import("~/pages/ForgotPassword"));
+const GoogleCallbackPage = lazy(
+  () => import("~/pages/GoogleCallback/GoogleCallbackPage"),
+);
 
 // Map route paths to lazy-loaded components
 const routeComponents = {
@@ -150,6 +153,16 @@ const AppRoutes = () => {
             }
           />
         </Route>
+
+        {/* Google OAuth callback — outside MainLayout (no navbar/footer) */}
+        <Route
+          path="/auth/google/callback"
+          element={
+            <SuspenseWrapper>
+              <GoogleCallbackPage />
+            </SuspenseWrapper>
+          }
+        />
 
         {/* Private Admin Routes */}
         {privateRoutes.map(({ path, element, children }) => (
