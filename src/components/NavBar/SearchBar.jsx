@@ -58,13 +58,17 @@ const SearchBar = ({ className }) => {
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         value={searchValue}
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck="false"
         className={cn(
-          "h-11 rounded-full border border-museum-gold/20 bg-museum-ivory/8",
+          "h-11 rounded-full border border-museum-gold/20 bg-museum-black/60",
           "w-full min-w-0 sm:w-[200px] xl:w-[190px] 2xl:w-[250px]",
-          "pr-10 pl-11 text-sm text-museum-ivory shadow-inner",
+          "pr-16 pl-11 text-sm text-museum-ivory shadow-inner",
           "placeholder:text-museum-muted/80",
           "focus:border-museum-gold/60 focus:ring-2 focus:ring-museum-gold/20 focus:outline-none",
           "transition-all duration-300",
+          "autofill:shadow-[inset_0_0_0px_1000px_#0B0A07] autofill:[-webkit-text-fill-color:#F7EFE2]",
         )}
       />
       <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-museum-gold-light/80" />
@@ -72,7 +76,7 @@ const SearchBar = ({ className }) => {
         <button
           aria-label="Clear search"
           onClick={handleClear}
-          className="absolute top-1/2 right-10 -translate-y-1/2 text-museum-muted hover:text-museum-ivory transition-all"
+          className="absolute top-1/2 right-12 -translate-y-1/2 text-museum-muted hover:text-museum-ivory transition-all z-10"
         >
           <X className="w-4 h-4" />
         </button>
@@ -81,7 +85,7 @@ const SearchBar = ({ className }) => {
         aria-label="Search"
         onClick={handleSearch}
         className={cn(
-          "absolute top-1/2 right-3 -translate-y-1/2",
+          "absolute top-1/2 right-3 -translate-y-1/2 z-10",
           "text-museum-muted hover:text-museum-gold-light transition-all",
         )}
       >
@@ -90,7 +94,7 @@ const SearchBar = ({ className }) => {
         ) : (
           <>
             <Search className="h-4 w-4 sm:hidden" />
-            <span className="hidden rounded-full border border-museum-gold/20 px-1.5 py-0.5 text-[0.62rem] font-semibold sm:inline">
+            <span className="hidden rounded-full border border-museum-gold/20 px-1.5 py-0.5 text-[0.62rem] font-semibold sm:inline bg-museum-black/40">
               Enter
             </span>
           </>

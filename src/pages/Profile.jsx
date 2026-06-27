@@ -3,11 +3,12 @@ import { useGetUserProfileQuery, useUpdateUserProfileMutation, useUploadAvatarMu
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/common/ui/Button'
-import { Camera, Check, Loader2, UserRound, X, Stamp } from 'lucide-react'
+import { Camera, Check, Loader2, UserRound, X, Stamp, Key } from 'lucide-react'
 import { toDateInputFormat } from '~/utils/dateHelpers'
 import { useDispatch } from 'react-redux'
 import { setUser } from '~/store/slices/authSlice'
 import PassportCollection from './HeritagePassport/PassportCollection'
+import McpTokenManager from './McpTokenManager'
 
 const DEFAULT_AVATAR = '/images/avatar-default.jpg'
 const fieldBaseClass =
@@ -234,11 +235,28 @@ const UserProfile = () => {
           >
             <Stamp className='h-4 w-4' /> Hộ chiếu di sản
           </button>
+          <button
+            type='button'
+            onClick={() => setProfileTab('mcp')}
+            className={`-mb-px flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
+              profileTab === 'mcp'
+                ? 'border-museum-gold text-museum-gold-light'
+                : 'border-transparent text-museum-muted hover:text-museum-parchment'
+            }`}
+          >
+            <Key className='h-4 w-4' /> {t('profile.mcp.tabTitle')}
+          </button>
         </div>
 
         {profileTab === 'passport' && (
           <div className='p-6 sm:p-8'>
             <PassportCollection userId={userId} />
+          </div>
+        )}
+
+        {profileTab === 'mcp' && (
+          <div className='p-6 sm:p-8'>
+            <McpTokenManager />
           </div>
         )}
 
