@@ -711,13 +711,13 @@ const MessageBubble = ({ message, onAction }) => {
   return (
     <div
       className={cn(
-        "flex",
+        "flex w-full",
         isUser ? "justify-end" : "justify-start",
       )}
     >
       <div
         className={cn(
-          "flex max-w-[92%] items-start gap-2 sm:max-w-[86%]",
+          "flex max-w-[92%] items-start gap-2 sm:max-w-[86%] min-w-0",
           isUser && "flex-row-reverse",
         )}
       >
@@ -734,7 +734,7 @@ const MessageBubble = ({ message, onAction }) => {
 
         <div
           className={cn(
-            "rounded-2xl px-3.5 py-3 text-sm shadow-sm",
+            "message-bubble rounded-2xl px-3.5 py-3 text-sm shadow-sm min-w-0 flex-1",
             isUser
               ? "rounded-tr-md bg-stone-900 text-white"
               : "rounded-tl-md border border-stone-200 bg-white text-stone-900",

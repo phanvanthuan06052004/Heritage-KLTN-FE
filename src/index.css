@@ -411,7 +411,9 @@
 
 
 /* Message word break */
-.message-bubble p {
+.message-bubble p,
+.message-bubble li,
+.message-bubble ul {
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
