@@ -1,7 +1,10 @@
 import { io } from 'socket.io-client'
 
 // Địa chỉ máy chủ socket
-const SOCKET_SERVER_URL = 'http://localhost:3000'
+let SOCKET_SERVER_URL = 'http://localhost:3000'
+if (import.meta.env.VITE_BUILD_MODE === 'production') {
+    SOCKET_SERVER_URL = 'https://heritage.thuandev.id.vn'
+}
 
 // Các sự kiện socket
 export const SOCKET_EVENTS = {
