@@ -13,7 +13,7 @@ import {
   useAddToFavoritesMutation,
   useRemoveFromFavoritesMutation,
 } from "~/store/apis/favoritesSlice";
-import { setFavoriteStatus } from "~/store/slices/favoriteSlice";
+import { setFavoriteStatus, selectIsFavorited } from "~/store/slices/favoriteSlice";
 
 const CONFIG = {
   placeholderImage: "/images/placeholder.webp",
@@ -45,6 +45,10 @@ const HeritageCard = memo(({
   const { data: visited = [] } = useGetVisitedQuery(visitorId, { skip: !visitorId });
   const isVisited = !!_id && visited.includes(_id);
 
+  const isUserAuthenticated = isAuthenticated || !!currentUser;
+  const isFavoritedInStore = useSelector(selectIsFavorited(_id));
+  const isFavorited = propIsFavorited || isFavoritedInStore;
+
   const imgSrcRef = useRef(images[0] || CONFIG.placeholderImage);
   const [imgError, setImgError] = useState(false);
 
@@ -56,12 +60,12 @@ const HeritageCard = memo(({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated) {
+    if (!isUserAuthenticated) {
       toast.error("Please login to perform this action");
       return;
     }
 
-    const newFavoritedState = !propIsFavorited;
+    const newFavoritedState = !isFavorited;
     dispatch(
       setFavoriteStatus({
         heritageId: _id,
@@ -94,7 +98,7 @@ const HeritageCard = memo(({
       );
       toast.error("An error occurred. Please try again later.");
     }
-  }, [_id, isAuthenticated, propIsFavorited, dispatch, addToFavorites, removeFromFavorites, onFavoriteChange]);
+  }, [_id, isUserAuthenticated, isFavorited, dispatch, addToFavorites, removeFromFavorites, onFavoriteChange]);
 
   const handleImageError = () => {
     setImgError(true);
@@ -154,7 +158,7 @@ const HeritageCard = memo(({
                 )}
               </div>
             )}
-            {isAuthenticated && (
+            {isUserAuthenticated && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -162,7 +166,7 @@ const HeritageCard = memo(({
                 disabled={isLoading}
                 className="absolute right-4 top-4 rounded-full bg-museum-black/70 text-museum-ivory backdrop-blur hover:bg-museum-gold hover:text-museum-black"
                 aria-label={
-                  propIsFavorited ? "Remove from favorites" : "Add to favorites"
+                  isFavorited ? "Remove from favorites" : "Add to favorites"
                 }
                 aria-live="polite"
               >
@@ -170,7 +174,7 @@ const HeritageCard = memo(({
                   size={20}
                   className={cn(
                     "transition-all",
-                    propIsFavorited && "fill-museum-seal text-museum-seal scale-110",
+                    isFavorited && "fill-museum-seal text-museum-seal scale-110",
                     isLoading && "opacity-50",
                   )}
                 />
@@ -228,7 +232,7 @@ const HeritageCard = memo(({
           )}
 
           {/* Favorite button */}
-          {isAuthenticated && (
+          {isUserAuthenticated && (
             <Button
               variant="ghost"
               size="icon"
@@ -236,7 +240,7 @@ const HeritageCard = memo(({
               disabled={isLoading}
               className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm hover:bg-white/90"
                 aria-label={
-                  propIsFavorited ? "Remove from favorites" : "Add to favorites"
+                  isFavorited ? "Remove from favorites" : "Add to favorites"
                 }
                 aria-live="polite"
               >
@@ -244,7 +248,7 @@ const HeritageCard = memo(({
                   size={20}
                   className={cn(
                     "transition-all",
-                    propIsFavorited
+                    isFavorited
                     ? "fill-heritage text-heritage scale-110"
                     : "text-muted-foreground",
                   isLoading && "opacity-50",
