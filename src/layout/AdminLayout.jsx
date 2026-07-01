@@ -24,7 +24,9 @@ import { toast } from "react-toastify";
 import { cn } from "~/lib/utils";
 import { useAdminTheme } from "~/hooks/useAdminTheme";
 
-const AI_MANAGEMENT_URL = "http://0.0.0.0:3119/";
+const AI_MANAGEMENT_URL = import.meta.env.VITE_BUILD_MODE === 'production'
+  ? "https://ai.thuandev.id.vn/"
+  : "http://localhost:3119/";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
