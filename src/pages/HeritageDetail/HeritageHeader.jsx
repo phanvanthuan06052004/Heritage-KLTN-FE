@@ -1,9 +1,24 @@
-import { ArrowLeft, Share, Star } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { ArrowLeft, Share, Star, Heart } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/store/slices/authSlice'
+import { selectIsFavorited, setFavoriteStatus } from '~/store/slices/favoriteSlice'
+import { useAddToFavoritesMutation, useRemoveFromFavoritesMutation } from '~/store/apis/favoritesSlice'
+import { useCallback } from 'react'
+import { toast } from 'react-toastify'
 
 import { Button } from '~/components/common/ui/Button'
 
 const HeritageHeader = ({ data }) => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const currentUser = useSelector(selectCurrentUser)
+  const isAuthenticated = !!currentUser
+  const isFavorited = useSelector(selectIsFavorited(data?._id))
+
+  const [addToFavorites, { isLoading: isAdding }] = useAddToFavoritesMutation()
+  const [removeFromFavorites, { isLoading: isRemoving }] = useRemoveFromFavoritesMutation()
+
   const hasCoordinates =
     typeof data?.coordinates?.latitude === 'number' &&
     typeof data?.coordinates?.longitude === 'number'
@@ -19,6 +34,47 @@ const HeritageHeader = ({ data }) => {
       navigator.clipboard.writeText(window.location.href)
     }
   }
+
+  const handleFavoriteClick = useCallback(async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+
+    const _id = data?._id
+    const newFavoritedState = !isFavorited
+    dispatch(
+      setFavoriteStatus({
+        heritageId: _id,
+        isFavorited: newFavoritedState,
+      }),
+    )
+
+    try {
+      if (newFavoritedState) {
+        await addToFavorites({
+          heritageId: _id,
+        }).unwrap()
+        toast.success('Đã thêm vào danh sách yêu thích')
+      } else {
+        await removeFromFavorites({
+          heritageId: _id,
+        }).unwrap()
+        toast.success('Đã xóa khỏi danh sách yêu thích')
+      }
+    } catch (error) {
+      dispatch(
+        setFavoriteStatus({
+          heritageId: _id,
+          isFavorited: !newFavoritedState,
+        }),
+      )
+      toast.error('Có lỗi xảy ra. Vui lòng thử lại sau.')
+    }
+  }, [data?._id, isAuthenticated, isFavorited, dispatch, addToFavorites, removeFromFavorites, navigate])
 
   return (
     <div className='relative h-[52vh] min-h-[470px] overflow-hidden border-b border-museum-gold/20 sm:h-[58vh]'>
@@ -62,7 +118,20 @@ const HeritageHeader = ({ data }) => {
               <span className='ml-1 text-sm text-museum-muted'>({data?.stats?.totalReviews || 0})</span>
             </div>
           </div>
-          <div>
+          <div className='flex items-center space-x-3'>
+            {isAuthenticated && (
+              <Button
+                variant='outline'
+                className={`rounded-full border-museum-gold/35 bg-museum-ivory/10 text-museum-ivory backdrop-blur-sm hover:bg-museum-gold hover:text-museum-black transition-all ${
+                  isFavorited ? 'border-museum-seal bg-museum-seal/20 text-museum-seal hover:text-museum-ivory' : ''
+                }`}
+                onClick={handleFavoriteClick}
+                disabled={isAdding || isRemoving}
+              >
+                <Heart size={16} className={isFavorited ? 'fill-museum-seal text-museum-seal' : ''} />
+                <span>{isFavorited ? 'Yêu thích' : 'Yêu thích'}</span>
+              </Button>
+            )}
             <Button
               variant='outline'
               className='rounded-full border-museum-gold/35 bg-museum-ivory/10 text-museum-ivory backdrop-blur-sm hover:bg-museum-gold hover:text-museum-black'
