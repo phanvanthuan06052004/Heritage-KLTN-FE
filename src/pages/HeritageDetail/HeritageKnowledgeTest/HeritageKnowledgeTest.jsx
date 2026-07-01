@@ -93,7 +93,15 @@ const HeritageKnowledgeTest = ({ heritageId, heritageName }) => {
 
   return (
     <div className='overflow-auto pr-1'>
-      {isLoading ? (
+      {activeTest ? (
+        <KnowledgeTestDialog
+          open={Boolean(activeTest)}
+          onClose={closeTest}
+          testId={activeTest._id}
+          testInfo={activeTest}
+          heritageName={heritageName}
+        />
+      ) : isLoading ? (
         <LoadingState />
       ) : availableTests.length === 0 ? (
         <EmptyState />
@@ -105,16 +113,6 @@ const HeritageKnowledgeTest = ({ heritageId, heritageName }) => {
             onClick={openTest}
           />
         </div>
-      )}
-
-      {activeTest && (
-        <KnowledgeTestDialog
-          open={Boolean(activeTest)}
-          onClose={closeTest}
-          testId={activeTest._id}
-          testInfo={activeTest}
-          heritageName={heritageName}
-        />
       )}
     </div>
   )

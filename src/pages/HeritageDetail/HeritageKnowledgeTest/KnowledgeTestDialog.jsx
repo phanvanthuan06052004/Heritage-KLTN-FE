@@ -179,15 +179,17 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
   const [fetchTest, { data: test, isLoading, isFetching, error }] = useLazyGetKnowledgeTestByIdQuery()
   const [submitAttempt, { isLoading: isSubmitting }] = useSubmitKnowledgeTestAttemptMutation()
 
+  const testData = test?.data
+
   // Memoized values
   const currentQuestion = useMemo(() => {
-    console.log('Current question data:', test?.questions?.[currentQuestionIndex]) // Debug dữ liệu câu hỏi
-    return test?.questions?.[currentQuestionIndex] || { questionId: '', options: [] }
-  }, [test, currentQuestionIndex])
+    console.log('Current question data:', testData?.questions?.[currentQuestionIndex]) // Debug dữ liệu câu hỏi
+    return testData?.questions?.[currentQuestionIndex] || { questionId: '', options: [] }
+  }, [testData, currentQuestionIndex])
   
   const totalQuestions = useMemo(() => 
-    test?.questions?.length || 0, 
-    [test]
+    testData?.questions?.length || 0, 
+    [testData]
   )
   
   const progressPercentage = useMemo(() => 
@@ -261,7 +263,7 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
   }, [startTransition])
 
   const handleSubmitTest = useCallback(async () => {
-    if (isSubmitting || !test) return
+    if (isSubmitting || !testData) return
 
     try {
       console.log('Submitting with selectedAnswers:', selectedAnswers) // Debug state trước khi gửi
@@ -274,7 +276,7 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
       const result = await submitAttempt({
         userId: userInfo?._id,
         userName: userInfo?.displayname,
-        testId: test._id,
+        testId: testData._id,
         answers: formattedAnswers ,
       }).unwrap()
 
@@ -289,7 +291,7 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
       console.error('Error submitting test:', err)
       toast.error('An error occurred while submitting the test. Please try again.')
     }
-  }, [isSubmitting, test, selectedAnswers, submitAttempt, userInfo])
+  }, [isSubmitting, testData, selectedAnswers, submitAttempt, userInfo])
 
   // Side effects
   useEffect(() => {
@@ -306,11 +308,11 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
   }, [testId, fetchTest, resetTest]) // Chỉ reset khi testId thay đổi
 
   useEffect(() => {
-    if (test && open) {
+    if (testData && open) {
       const defaultTimeLimit = totalQuestions * DEFAULT_TIME_PER_QUESTION
       setTimeLeft(defaultTimeLimit)
     }
-  }, [test, open, totalQuestions])
+  }, [testData, open, totalQuestions])
 
   useEffect(() => {
     if (!open || !timeLeft || timeLeft <= 0 || results) return
@@ -351,6 +353,15 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
     
     return (
       <div className='space-y-6'>
+        <div className='border-b border-museum-gold/20 pb-4 mb-4'>
+          <h3 className='text-lg font-semibold text-museum-gold-light'>
+            {testData?.title || testInfo?.title || 'Bài kiểm tra di sản'}
+          </h3>
+          <p className='text-sm text-museum-muted mt-1'>
+            {testData?.content || testInfo?.content}
+          </p>
+        </div>
+
         <button
           onClick={onClose}
           className='px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors'
@@ -361,12 +372,12 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
         
         {/* Question info and timer */}
         <div className='flex justify-between items-center'>
-          <div className='text-base'>Question {currentQuestionIndex + 1}/{totalQuestions}</div>
+          <div className='text-base text-museum-ivory'>Question {currentQuestionIndex + 1}/{totalQuestions}</div>
           <div className={cn(
             'flex items-center px-3 py-1.5 rounded-full text-sm font-medium', 
             timeLeft && timeLeft < 60 
               ? 'bg-destructive/10 text-destructive animate-pulse' 
-              : 'bg-heritage-light/50 text-heritage-dark'
+              : 'bg-museum-gold/10 text-museum-gold-light'
           )}>
             <Clock className='h-4 w-4 mr-1.5' />
             <span>{formatTime(timeLeft || 0)}</span>
@@ -382,7 +393,7 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
           aria-valuenow={progressPercentage}
         >
           <div
-            className='h-full bg-heritage rounded-full transition-all duration-300'
+            className='h-full bg-museum-gold rounded-full transition-all duration-300'
             style={{ width: `${progressPercentage}%` }}
           ></div>
         </div>
@@ -393,7 +404,7 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
             'space-y-5 transition-opacity duration-300', 
             isTransitioning ? 'opacity-0' : 'opacity-100'
           )}>
-            <h3 className='text-lg font-medium'>{currentQuestion.content}</h3>
+            <h3 className='text-lg font-medium text-museum-ivory'>{currentQuestion.content}</h3>
 
             {currentQuestion.image && (
               <div className='mb-5'>
@@ -431,9 +442,9 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
         />
 
         {/* Question pagination */}
-        {test?.questions && (
+        {testData?.questions && (
           <QuestionPagination
-            questions={test.questions}
+            questions={testData.questions}
             currentIndex={currentQuestionIndex}
             answeredQuestions={selectedAnswers}
             onSelectQuestion={handleSelectQuestion}
@@ -444,25 +455,9 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
   }
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      className='max-w-lg relative flex flex-col max-h-[90vh] p-0'
-      aria-labelledby='test-dialog-title'
-    >
-      <DialogHeader className='flex-shrink-0 p-6 pb-4'>
-        <DialogTitle id='test-dialog-title'>
-          {test?.title || testInfo?.title || 'Heritage History Test'}
-        </DialogTitle>
-        <DialogDescription>
-          {test?.content || testInfo?.content || 'This test helps you understand the heritage history better.'}
-        </DialogDescription>
-      </DialogHeader>
-
-      <div ref={contentRef} className='p-6 pt-2 overflow-y-auto'>
-        {renderContent()}
-      </div>
-    </Dialog>
+    <div ref={contentRef} className='w-full max-h-[75vh] overflow-y-auto pr-1'>
+      {renderContent()}
+    </div>
   )
 }
 
