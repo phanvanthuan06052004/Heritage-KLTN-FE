@@ -1,6 +1,6 @@
 import { BookOpen, Loader2 } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { useGetKnowledgeTestsQuery } from '~/store/apis/knowledgeTestApi'
+import { useGetKnowledgeTestsByHeritageQuery } from '~/store/apis/knowledgeTestApi'
 import KnowledgeTestDialog from './KnowledgeTestDialog'
 import { toast } from 'react-toastify'
 
@@ -64,15 +64,10 @@ const EmptyState = () => (
 
 const HeritageKnowledgeTest = ({ heritageId, heritageName }) => {
   const [activeTest, setActiveTest] = useState(null)
-  const queryArgs = {
-    page: 1,
-    limit: 10,
-    search: '',
-  };
 
-  // Use the custom hook with the query arguments
-  const { data, isLoading, error, refetch } = useGetKnowledgeTestsQuery(queryArgs, {
-    refetchOnMountOrArgChange: true, // Refetch when component mounts or queryArgs change
+  // Use the custom hook with the heritageId
+  const { data, isLoading, error, refetch } = useGetKnowledgeTestsByHeritageQuery(heritageId, {
+    refetchOnMountOrArgChange: true,
   });
 
   const openTest = (test) => {
@@ -85,11 +80,11 @@ const HeritageKnowledgeTest = ({ heritageId, heritageName }) => {
     toast.info('Test finished')
   }
 
-  // Memoized filtering to avoid unnecessary recalculations
+  // Memoized tests list from data
   const availableTests = useMemo(() => (
-    data?.results?.filter(test => test.heritageId === heritageId) || []
-  ), [data?.results, heritageId])
-  console.log(availableTests);
+    data?.data || []
+  ), [data?.data])
+
   if (error) {
     const errorMessage = error?.data?.message || error?.error || 'An error occurred.'
     toast.error(errorMessage)
