@@ -76,10 +76,10 @@ export const knowledgeTestApi = apiSlice.injectEndpoints({
     }),
 
     submitKnowledgeTestAttempt: builder.mutation({
-      query: ({ userId, userName, testId, answers }) => ({
+      query: ({ testId, answers }) => ({
         url: `${BASE_URL}/knowledge-tests/${testId}/attempt`,
         method: 'POST',
-        body: { userId, userName, answers },
+        body: { answers },
       }),
       invalidatesTags: (result, error, { testId }) => [
         { type: 'KnowledgeTests', id: testId },

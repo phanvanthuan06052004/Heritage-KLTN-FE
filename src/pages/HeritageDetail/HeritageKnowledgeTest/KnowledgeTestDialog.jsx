@@ -274,8 +274,6 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
       console.log('Formatted answers:', formattedAnswers) // Debug dữ liệu gửi lên server
 
       const result = await submitAttempt({
-        userId: userInfo?._id,
-        userName: userInfo?.displayname,
         testId: testData._id,
         answers: formattedAnswers ,
       }).unwrap()
