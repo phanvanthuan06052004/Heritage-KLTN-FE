@@ -35,6 +35,7 @@ const Heritages = lazy(() => import("~/pages/Heritages"));
 const Login = lazy(() => import("~/pages/Login"));
 const Profile = lazy(() => import("~/pages/Profile"));
 const Register = lazy(() => import("~/pages/Register"));
+const TripPlannerMap = lazy(() => import("~/pages/TripPlanner/TripPlannerMap"));
 const NotFound = lazy(() => import("~/pages/NotFound"));
 const ForgotPassword = lazy(() => import("~/pages/ForgotPassword"));
 const GoogleCallbackPage = lazy(
@@ -59,6 +60,7 @@ const routeComponents = {
   "/passport/track": <TripRecorder />,
   "/trips/:id": <TripDetail />,
   "/journeys": <JourneysFeed />,
+  "/trip-planner": <TripPlannerMap />,
   "/forgot-password": <ForgotPassword />,
 };
 
