@@ -17,6 +17,7 @@ import {
   Loader2,
   HelpCircle,
   AlertCircle,
+  Shield,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -33,17 +34,38 @@ const McpTokenManager = () => {
   const [generatedToken, setGeneratedToken] = useState(null)
   const [copiedId, setCopiedId] = useState(null)
 
-  const handleCreate = async (e) => {
+  // Scope & Consent modal state
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState(false)
+  const [selectedScopes, setSelectedScopes] = useState(['heritage:read'])
+  const [hasAcceptedConsent, setHasAcceptedConsent] = useState(false)
+
+  const handleCreateSubmit = (e) => {
     e.preventDefault()
     if (!newTokenName.trim()) {
       toast.error(t('profile.mcp.inputEmptyError'))
       return
     }
+    // Open the security confirmation modal
+    setIsConsentModalOpen(true)
+  }
+
+  const handleConfirmCreate = async () => {
+    if (!hasAcceptedConsent) {
+      toast.error('Bạn phải đồng ý với điều khoản bảo mật trước khi tiếp tục.')
+      return
+    }
 
     try {
-      const res = await createToken({ name: newTokenName.trim() }).unwrap()
+      const res = await createToken({
+        name: newTokenName.trim(),
+        scopes: selectedScopes,
+      }).unwrap()
+      
       setGeneratedToken(res.data?.token || res.token || res.data)
       setNewTokenName('')
+      setIsConsentModalOpen(false)
+      setHasAcceptedConsent(false)
+      setSelectedScopes(['heritage:read'])
       toast.success(t('profile.mcp.createSuccess'))
       refetch()
     } catch (err) {
@@ -96,7 +118,7 @@ const McpTokenManager = () => {
   )
 
   return (
-    <div className='space-y-8 text-museum-ivory'>
+    <div className='space-y-8 text-museum-ivory relative'>
       {/* Intro section */}
       <div className='flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-museum-gold/15 pb-6'>
         <div className='space-y-2'>
@@ -115,7 +137,7 @@ const McpTokenManager = () => {
           {/* Create Token form */}
           <div className='rounded-2xl border border-museum-gold/15 bg-museum-black/25 p-5 space-y-4'>
             <h4 className='font-semibold text-museum-gold-light text-base'>{t('profile.mcp.createSection')}</h4>
-            <form onSubmit={handleCreate} className='flex flex-col sm:flex-row gap-3'>
+            <form onSubmit={handleCreateSubmit} className='flex flex-col sm:flex-row gap-3'>
               <input
                 type='text'
                 placeholder={t('profile.mcp.placeholderName')}
@@ -179,22 +201,47 @@ const McpTokenManager = () => {
               <div className='divide-y divide-museum-gold/10 max-h-[400px] overflow-y-auto pr-1'>
                 {tokens.map((token) => (
                   <div key={token.id} className='py-4 flex items-center justify-between gap-4 first:pt-0 last:pb-0'>
-                    <div className='space-y-1'>
+                    <div className='space-y-1.5 flex-1 min-w-0'>
                       <div className='font-medium text-sm text-museum-ivory'>{token.name}</div>
-                      <div className='flex items-center gap-2 text-xs text-museum-muted'>
-                        <span className='font-mono bg-museum-black/35 px-1.5 py-0.5 rounded border border-museum-gold/10'>
+                      <div className='flex flex-wrap items-center gap-2 text-xs text-museum-muted'>
+                        <span className='font-mono bg-museum-black/35 px-1.5 py-0.5 rounded border border-museum-gold/10 shrink-0'>
                           {token.tokenPreview}
                         </span>
-                        <span>· {t('profile.mcp.tokenCreatedAt')} {new Date(token.createdAt).toLocaleDateString()}</span>
+                        
+                        {/* Scope Badges */}
+                        {token.scopes && token.scopes.length > 0 ? (
+                          <div className='flex flex-wrap gap-1'>
+                            {token.scopes.map((scope) => {
+                              let scopeColor = 'bg-museum-gold/10 text-museum-gold border-museum-gold/20'
+                              if (scope === 'user:read') scopeColor = 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                              if (scope === 'wiki:write') scopeColor = 'bg-green-500/10 text-green-400 border-green-500/20'
+                              
+                              return (
+                                <span
+                                  key={scope}
+                                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono border ${scopeColor}`}
+                                >
+                                  {scope}
+                                </span>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <span className='px-1.5 py-0.5 rounded text-[10px] font-mono bg-museum-gold/10 text-museum-gold border border-museum-gold/20'>
+                            heritage:read
+                          </span>
+                        )}
+
+                        <span className='shrink-0'>· {t('profile.mcp.tokenCreatedAt')} {new Date(token.createdAt).toLocaleDateString()}</span>
                         {token.lastUsedAt && (
-                          <span>· {t('profile.mcp.tokenLastUsedAt')} {new Date(token.lastUsedAt).toLocaleDateString()}</span>
+                          <span className='shrink-0'>· {t('profile.mcp.tokenLastUsedAt')} {new Date(token.lastUsedAt).toLocaleDateString()}</span>
                         )}
                       </div>
                     </div>
                     <button
                       onClick={() => handleRevoke(token.id)}
                       disabled={isRevoking}
-                      className='p-2 hover:bg-red-500/10 text-museum-muted hover:text-red-400 rounded-lg transition-colors'
+                      className='p-2 hover:bg-red-500/10 text-museum-muted hover:text-red-400 rounded-lg transition-colors shrink-0'
                       title='Revoke'
                     >
                       <Trash2 className='h-4 w-4' />
@@ -267,6 +314,162 @@ const McpTokenManager = () => {
           </div>
         </div>
       </div>
+
+      {/* Security Privacy Consent Modal */}
+      {isConsentModalOpen && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-museum-black/80 backdrop-blur-sm p-4 animate-fade-in'>
+          <div className='w-full max-w-2xl rounded-2xl border border-museum-gold/30 bg-museum-black/95 p-6 md:p-8 space-y-6 shadow-2xl overflow-y-auto max-h-[90vh] text-museum-ivory'>
+            {/* Header */}
+            <div className='flex items-start justify-between border-b border-museum-gold/15 pb-4'>
+              <div className='space-y-1'>
+                <h4 className='font-display text-xl font-bold text-museum-gold-light flex items-center gap-2'>
+                  <Shield className='h-5 w-5 text-museum-gold animate-pulse' />
+                  Xác thực & Cấp quyền Kết nối AI (MCP)
+                </h4>
+                <p className='text-xs text-museum-muted'>
+                  Thiết lập bảo mật và giới hạn phạm vi truy cập dữ liệu của bên thứ ba.
+                </p>
+              </div>
+            </div>
+
+            {/* Warning Section */}
+            <div className='rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2 text-xs leading-relaxed text-red-200'>
+              <span className='font-bold flex items-center gap-1.5 text-red-400'>
+                <AlertCircle className='h-4 w-4 shrink-0' />
+                Cảnh báo bảo mật quyền riêng tư
+              </span>
+              <p>
+                Bằng việc kết nối với các ứng dụng AI Client bên thứ ba (như Claude Desktop, ChatGPT, cursor...), các thông tin tri thức di sản và dữ liệu tài khoản cá nhân của bạn sẽ được truyền đi để phục vụ xử lý truy vấn. Heritage không quản lý và chịu trách nhiệm đối với cách thức xử lý dữ liệu của các bên này.
+              </p>
+              <a
+                href='/privacy/mcp-policy'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-museum-gold hover:text-museum-gold-light font-medium underline inline-block mt-1'
+              >
+                Đọc kỹ Chính sách Bảo mật Kết nối AI tại đây
+              </a>
+            </div>
+
+            {/* Scope Selection */}
+            <div className='space-y-4'>
+              <span className='text-sm font-semibold text-museum-gold-light block'>
+                Chọn các quyền truy cập (Scopes) cấp cho Token:
+              </span>
+              <div className='space-y-3'>
+                {/* Scope 1: Heritage Read */}
+                <div className='flex items-start gap-3 p-4 rounded-xl border border-museum-gold/30 bg-museum-gold/5 transition-colors select-none'>
+                  <input
+                    type='checkbox'
+                    checked={true}
+                    disabled={true}
+                    className='mt-1 h-4 w-4 rounded border-museum-gold/30 bg-museum-black text-museum-gold focus:ring-museum-gold focus:ring-offset-museum-black'
+                  />
+                  <div className='space-y-1'>
+                    <div className='flex items-center gap-2'>
+                      <span className='font-semibold text-sm text-museum-ivory'>Tri thức Di sản & Tài liệu công khai</span>
+                      <span className='px-1.5 py-0.5 rounded text-[9px] font-mono bg-museum-gold/15 text-museum-gold border border-museum-gold/25 shrink-0'>
+                        heritage:read
+                      </span>
+                    </div>
+                    <p className='text-xs text-museum-muted leading-relaxed'>
+                      Cho phép AI tìm kiếm tri thức, đọc các trang wiki di sản, tham khảo mục lục và trang tài liệu PDF/sách (VD: search_wiki, read_wiki_page, list_sources). Quyền này là bắt buộc để AI hoạt động.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Scope 2: User Read */}
+                <label className='flex items-start gap-3 p-4 rounded-xl border border-museum-gold/15 bg-museum-black/40 hover:border-museum-gold/30 transition-colors cursor-pointer select-none'>
+                  <input
+                    type='checkbox'
+                    checked={selectedScopes.includes('user:read')}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedScopes([...selectedScopes, 'user:read'])
+                      } else {
+                        setSelectedScopes(selectedScopes.filter((s) => s !== 'user:read'))
+                      }
+                    }}
+                    className='mt-1 h-4 w-4 rounded border-museum-gold/30 bg-museum-black text-museum-gold focus:ring-museum-gold focus:ring-offset-museum-black'
+                  />
+                  <div className='space-y-1'>
+                    <div className='flex items-center gap-2'>
+                      <span className='font-semibold text-sm text-museum-ivory'>Dữ liệu cá nhân (Yêu thích, Hành trình, Passport)</span>
+                      <span className='px-1.5 py-0.5 rounded text-[9px] font-mono bg-blue-500/15 text-blue-400 border border-blue-500/25 shrink-0'>
+                        user:read
+                      </span>
+                    </div>
+                    <p className='text-xs text-museum-muted leading-relaxed'>
+                      Cho phép AI truy cập thông tin các di tích bạn yêu thích, danh sách hành trình du hành đã ghi, thống kê điểm số cấp độ Passport của bạn (VD: get_my_trips, get_my_favorites, get_my_passport_stats).
+                    </p>
+                  </div>
+                </label>
+
+                {/* Scope 3: Wiki Write */}
+                <label className='flex items-start gap-3 p-4 rounded-xl border border-museum-gold/15 bg-museum-black/40 hover:border-museum-gold/30 transition-colors cursor-pointer select-none'>
+                  <input
+                    type='checkbox'
+                    checked={selectedScopes.includes('wiki:write')}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedScopes([...selectedScopes, 'wiki:write'])
+                      } else {
+                        setSelectedScopes(selectedScopes.filter((s) => s !== 'wiki:write'))
+                      }
+                    }}
+                    className='mt-1 h-4 w-4 rounded border-museum-gold/30 bg-museum-black text-museum-gold focus:ring-museum-gold focus:ring-offset-museum-black'
+                  />
+                  <div className='space-y-1'>
+                    <div className='flex items-center gap-2'>
+                      <span className='font-semibold text-sm text-museum-ivory'>Cộng tác đóng góp nội dung (Wiki Edit)</span>
+                      <span className='px-1.5 py-0.5 rounded text-[9px] font-mono bg-green-500/15 text-green-400 border border-green-500/25 shrink-0'>
+                        wiki:write
+                      </span>
+                    </div>
+                    <p className='text-xs text-museum-muted leading-relaxed'>
+                      Cho phép AI gửi yêu cầu chỉnh sửa wiki thay bạn, biên dịch tài liệu, đóng góp bài thảo luận, hoặc phê duyệt bản thảo (VD: propose_wiki_edit, edit_wiki_page, review_draft).
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Acceptance Checkbox */}
+            <label className='flex items-start gap-3 p-3 rounded-lg bg-museum-black/35 border border-museum-gold/10 cursor-pointer select-none'>
+              <input
+                type='checkbox'
+                checked={hasAcceptedConsent}
+                onChange={(e) => setHasAcceptedConsent(e.target.checked)}
+                className='mt-0.5 h-4 w-4 rounded border-museum-gold/30 bg-museum-black text-museum-gold focus:ring-museum-gold focus:ring-offset-museum-black shrink-0'
+              />
+              <span className='text-xs text-museum-ivory leading-relaxed'>
+                Tôi hiểu rõ các nguy cơ bảo mật, đồng ý cấp các quyền hạn đã chọn cho AI Client và tự chịu trách nhiệm về các rủi ro bảo mật liên quan.
+              </span>
+            </label>
+
+            {/* Action buttons */}
+            <div className='flex items-center justify-end gap-3 pt-4 border-t border-museum-gold/15'>
+              <Button
+                onClick={() => {
+                  setIsConsentModalOpen(false)
+                  setHasAcceptedConsent(false)
+                  setSelectedScopes(['heritage:read'])
+                }}
+                className='rounded-xl border border-museum-gold/25 text-museum-gold hover:bg-museum-gold/10 font-medium py-2.5 px-5'
+              >
+                Hủy bỏ
+              </Button>
+              <Button
+                onClick={handleConfirmCreate}
+                disabled={!hasAcceptedConsent}
+                className='rounded-xl bg-museum-gold text-museum-black hover:bg-museum-gold-light disabled:opacity-40 disabled:hover:bg-museum-gold font-semibold py-2.5 px-6 flex items-center gap-2'
+              >
+                Xác nhận & Tạo Token
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

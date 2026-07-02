@@ -40,6 +40,7 @@ const ForgotPassword = lazy(() => import("~/pages/ForgotPassword"));
 const GoogleCallbackPage = lazy(
   () => import("~/pages/GoogleCallback/GoogleCallbackPage"),
 );
+const McpPolicy = lazy(() => import("~/pages/Privacy/McpPolicy"));
 
 // Map route paths to lazy-loaded components
 const routeComponents = {
@@ -60,6 +61,7 @@ const routeComponents = {
   "/trips/:id": <TripDetail />,
   "/journeys": <JourneysFeed />,
   "/forgot-password": <ForgotPassword />,
+  "/privacy/mcp-policy": <McpPolicy />,
 };
 
 /**

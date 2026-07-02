@@ -16,6 +16,7 @@ const publicRoutes = [
   { path: "/trips/:id", element: null },
   { path: "/journeys", element: null },
   { path: "/forgot-password", element: null, restricted: true },
+  { path: "/privacy/mcp-policy", element: null },
 ];
 
 export default publicRoutes;
