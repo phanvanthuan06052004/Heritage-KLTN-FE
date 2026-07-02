@@ -7,22 +7,22 @@ const HeritageFeatures = ({ handleFeatureClick }) => {
   const features = [
     {
       value: 'leaderboard',
-      icon: <Award className='h-8 w-8 text-heritage mx-auto mb-2' />,
+      icon: <Award className='mx-auto mb-3 h-8 w-8 text-museum-gold-light' />,
       label: t('heritageFeatures.leaderboard')
     },
     {
       value: 'knowledge-test',
-      icon: <Star className='h-8 w-8 text-heritage mx-auto mb-2' />,
+      icon: <Star className='mx-auto mb-3 h-8 w-8 text-museum-gold-light' />,
       label: t('heritageFeatures.knowledgeTest')
     },
     {
       value: 'roleplay',
-      icon: <Play className='h-8 w-8 text-heritage mx-auto mb-2' />,
+      icon: <Play className='mx-auto mb-3 h-8 w-8 text-museum-gold-light' />,
       label: t('heritageFeatures.roleplay')
     },
     {
       value: 'chatroom',
-      icon: <MapPin className='h-8 w-8 text-heritage mx-auto mb-2' />,
+      icon: <MapPin className='mx-auto mb-3 h-8 w-8 text-museum-gold-light' />,
       label: t('heritageFeatures.chatroom')
     },
   ];
@@ -32,7 +32,7 @@ const HeritageFeatures = ({ handleFeatureClick }) => {
       {features.map(feature => (
         <div
           key={feature.value}
-          className='p-4 border bg-heritage-light/20 rounded-md border-heritage-light text-center hover:bg-heritage-light/50 transition-colors duration-200 cursor-pointer'
+          className='cursor-pointer rounded-[1.5rem] border border-museum-gold/20 bg-museum-ivory/6 p-5 text-center text-museum-ivory transition duration-200 hover:-translate-y-0.5 hover:border-museum-gold/45 hover:bg-museum-gold/12 hover:shadow-museum-gold'
           onClick={() => handleFeatureClick(feature.value)}
         >
           {feature.icon}

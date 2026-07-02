@@ -7,10 +7,8 @@ import HeritageCard from '~/components/Heritage/HeritageCard'
 import HeritageDetailSkeleton from './HeritageDetailSkeleton'
 import { Button } from '~/components/common/ui/Button'
 import { selectCurrentUser } from '~/store/slices/authSlice'
-import { MessageCircle, X } from 'lucide-react'
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '~/components/common/ui/Dialog'
 import {
-  HeritageChat,
   LeaderboardTable,
   HeritageKnowledgeTest,
   HeritageDetailTabs,
@@ -20,6 +18,8 @@ import {
 } from '~/components/lazyComponents'
 import DiscussionSection from './DiscussionSection'
 import ErrorBoundary from './ErrorBoundary'
+import HeritageCheckIn from './HeritageCheckIn'
+import CommunityFeed from '~/pages/HeritagePassport/CommunityFeed'
 import { useLanguage } from '~/hooks/useLanguage'
 
 
@@ -28,15 +28,24 @@ const HeritageDetail = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { language } = useLanguage()
-  const { data, isFetching, isLoading, isError } = useGetHeritagesBySlugQuery({ nameSlug, language })
+  const { data, isFetching, isLoading, isError } = useGetHeritagesBySlugQuery(
+    { nameSlug, language },
+    { refetchOnMountOrArgChange: false }
+  )
   const id = data?._id
   const userInfo = useSelector(selectCurrentUser)
   const isAuthenticated = !!userInfo
-  const { data: allHeritages } = useGetHeritagesQuery({
-    page: 1,
-    limit: 50,
-    language
-  })
+  const { data: allHeritages } = useGetHeritagesQuery(
+    {
+      page: 1,
+      limit: 8,
+      language
+    },
+    {
+      skip: !id,
+      refetchOnMountOrArgChange: false
+    }
+  )
 
   // Memoize related heritages để tránh tính toán lại khi không cần thiết
   const getRandomRelatedHeritages = useMemo(() => {
@@ -54,7 +63,6 @@ const HeritageDetail = () => {
   }, [allHeritages, id])
 
   const [activeFeature, setActiveFeature] = useState(null)
-  const [isChatOpen, setIsChatOpen] = useState(false)
 
   const handleFeatureClick = (feature) => {
     if (!isAuthenticated) {
@@ -74,14 +82,15 @@ const HeritageDetail = () => {
   }
 
   const closeFeatureDialog = () => setActiveFeature(null)
-  const toggleChat = () => setIsChatOpen(!isChatOpen)
 
   if (isError) {
     return (
-      <div className='lcn-container-x py-16 text-center'>
-        <h2 className='text-2xl font-medium mb-4'>{t('heritageDetail.errorOccurred')}</h2>
-        <p className='text-muted-foreground mb-6'>{t('heritageDetail.unableToLoad')}</p>
-        <Button onClick={() => navigate('/heritages')}>{t('heritageDetail.backToList')}</Button>
+      <div className='museum-shell min-h-screen pt-navbar-mobile sm:pt-navbar'>
+        <div className='lcn-container-x py-16 text-center text-museum-ivory'>
+          <h2 className='mb-4 font-display text-3xl font-semibold'>{t('heritageDetail.errorOccurred')}</h2>
+          <p className='mb-6 text-museum-muted'>{t('heritageDetail.unableToLoad')}</p>
+          <Button onClick={() => navigate('/heritages')} className='rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light'>{t('heritageDetail.backToList')}</Button>
+        </div>
       </div>
     )
   }
@@ -89,73 +98,50 @@ const HeritageDetail = () => {
   if (!data && !isLoading && !isFetching) return null
 
   return (
-    <section className='relative w-full pt-navbar-mobile sm:pt-navbar'>
+    <section className='museum-shell relative min-h-screen w-full pt-navbar-mobile sm:pt-navbar'>
       {isLoading || isFetching ? (
         <HeritageDetailSkeleton />
       ) : (
         <Suspense fallback={<HeritageDetailSkeleton />}>
           <HeritageHeader data={data} />
-          <div className='lcn-container-x py-8'>
+          <div className='lcn-container-x py-10'>
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-8'>
-              <div className='sm:col-span-2'>
+              <div className='sm:col-span-2 text-museum-ivory'>
                 <ErrorBoundary>
                   <HeritageDetailTabs data={data} isAuthenticated={isAuthenticated} navigate={navigate} />
                 </ErrorBoundary>
                 <div className='mt-10'>
-                  <h3 className='lcn-heritage-detail-title mb-4'>{t('heritageDetail.interactiveFeatures')}</h3>
+                  <h3 className='mb-4 font-display text-2xl font-semibold text-museum-gold-light'>{t('heritageDetail.interactiveFeatures')}</h3>
                   <HeritageFeatures handleFeatureClick={handleFeatureClick} />
                 </div>
                 {!isAuthenticated && (
-                  <div className='p-6 bg-heritage-light/30 rounded-md border border-heritage-light text-center mt-6'>
+                  <div className='mt-6 rounded-[2rem] border border-museum-gold/20 bg-museum-ivory/6 p-6 text-center'>
                     <h4 className='text-lg font-medium mb-2'>{t('heritageDetail.loginToExperience')}</h4>
-                    <p className='text-sm text-muted-foreground mb-4'>
+                    <p className='text-sm text-museum-muted mb-4'>
                       {t('heritageDetail.loginToUseFeatures')}
                     </p>
-                    <Button onClick={() => navigate('/login')}>{t('heritageDetail.loginNow')}</Button>
+                    <Button onClick={() => navigate('/login')} className='rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light'>{t('heritageDetail.loginNow')}</Button>
                   </div>
                 )}
                 <div className='mt-10'>
-                  <h3 className='lcn-heritage-detail-title mb-4'>{t('heritageDetail.relatedHeritages')}</h3>
+                  <CommunityFeed heritageId={id} />
+                </div>
+                <div className='mt-10'>
+                  <h3 className='mb-4 font-display text-2xl font-semibold text-museum-gold-light'>{t('heritageDetail.relatedHeritages')}</h3>
                   <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
                     {getRandomRelatedHeritages.map((item) => (
-                      <HeritageCard key={item._id} item={item} />
+                      <HeritageCard key={item._id} item={item} variant='museum' />
                     ))}
                   </div>
                 </div>
                 <DiscussionSection heritageId={id} />
               </div>
               <div className='space-y-8'>
+                <HeritageCheckIn id={id} data={data} />
                 <HeritageInfo data={data} />
               </div>
             </div>
           </div>
-          {isAuthenticated && !isChatOpen && (
-            <Button
-              className='fixed bottom-6 right-6 rounded-full w-12 h-12 bg-blue-500 text-white flex items-center justify-center shadow-lg hover:bg-blue-600 z-50'
-              onClick={toggleChat}
-            >
-              <MessageCircle className='w-6 h-6' />
-            </Button>
-          )}
-          {isAuthenticated && isChatOpen && (
-            <div className='fixed bottom-6 right-6 w-[300px] bg-white rounded-lg shadow-xl z-50'>
-              <div className='flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg'>
-                <h3 className='text-sm font-medium'>{t('heritageDetail.chatAbout')} {data?.name}</h3>
-                <Button
-                  className='p-1 bg-transparent hover:bg-blue-600'
-                  onClick={toggleChat}
-                >
-                  <X className='w-4 h-4' />
-                </Button>
-              </div>
-              <HeritageChat
-                heritageId={id}
-                heritageName={data?.name}
-                landmarkData={data}
-                onClose={toggleChat}
-              />
-            </div>
-          )}
           <Dialog open={activeFeature === 'leaderboard'} onClose={closeFeatureDialog}>
             <DialogHeader>
               <DialogTitle>{t('heritageDetail.leaderboardTitle')}</DialogTitle>

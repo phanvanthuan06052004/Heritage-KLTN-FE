@@ -1,305 +1,388 @@
-"use client"
+"use client";
 
-import { ArrowLeft, Mail, KeyRound, Eye, EyeOff, Check } from "lucide-react"
-import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
-import { useTranslation } from "react-i18next"
-import { Button } from "~/components/common/ui/Button"
-import { useForgotPasswordMutation, useResetPasswordMutation } from "~/store/apis/authSlice"
+import {
+  ArrowLeft,
+  Mail,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Check,
+  Lock,
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useTranslation, Trans } from "react-i18next";
+import { Button } from "~/components/common/ui/Button";
+import { useDispatch } from "react-redux";
+import {
+  useForgotPasswordMutation,
+  useVerifyForgotPasswordOtpMutation,
+  useResetPasswordMutation,
+} from "~/store/apis/authSlice";
+import { setCredentials } from "~/store/slices/authSlice";
 
 const ForgotPassword = () => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const [email, setEmail] = useState("")
-  const [verificationCode, setVerificationCode] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isResetComplete, setIsResetComplete] = useState(false)
-  const [error, setError] = useState(null)
-  const [cooldown, setCooldown] = useState(0)
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isResetComplete, setIsResetComplete] = useState(false);
+  const [error, setError] = useState(null);
+  const [cooldown, setCooldown] = useState(0);
 
-  // Use the mutation hooks
-  const [forgotPassword, { isLoading: isRequestingCode }] = useForgotPasswordMutation()
-  const [resetPassword, { isLoading: isResetting }] = useResetPasswordMutation()
+  const [forgotPassword, { isLoading: isRequestingCode }] =
+    useForgotPasswordMutation();
+  const [verifyForgotOtp] = useVerifyForgotPasswordOtpMutation();
+  const [resetPassword, { isLoading: isResetting }] =
+    useResetPasswordMutation();
+  const [resetToken, setResetToken] = useState("");
 
-  // Handle cooldown timer for resend button
   useEffect(() => {
-    let timer
+    let timer;
     if (cooldown > 0) {
-      timer = setTimeout(() => setCooldown(cooldown - 1), 1000)
+      timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
     }
-    return () => clearTimeout(timer)
-  }, [cooldown])
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(null) // Reset error state
+    e.preventDefault();
+    setError(null);
 
     try {
-      // Call the forgot password API with email
-      const response = await forgotPassword({ email }).unwrap()
+      const response = await forgotPassword({ email }).unwrap();
+      const { resetToken, message } = response;
+      setResetToken(resetToken);
 
-      // Show success message
-      toast.success(response.message || t('auth.forgotPassword.codeSent'))
-      setIsSubmitted(true)
-      setCooldown(60) // Start cooldown timer
+      toast.success(message || t("auth.forgotPassword.codeSent"));
+      setIsSubmitted(true);
+      setCooldown(60);
     } catch (err) {
-      // Handle error
-      const errorMessage = err?.data?.message || t('auth.forgotPassword.errors.sendFailed')
-      setError(errorMessage)
-      toast.error(errorMessage)
+      const errorMessage =
+        err?.data?.message || t("auth.forgotPassword.errors.sendFailed");
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
-  }
+  };
 
   const handleResendCode = async () => {
-    if (cooldown > 0) return
+    if (cooldown > 0) return;
 
-    setError(null)
+    setError(null);
     try {
-      const response = await forgotPassword({ email }).unwrap()
-      toast.success(response.message || t('auth.forgotPassword.codeResent'))
-      setCooldown(60) // Reset cooldown timer
+      const response = await forgotPassword({ email }).unwrap();
+      toast.success(response.message || t("auth.forgotPassword.codeResent"));
+      setCooldown(60);
     } catch (err) {
-      const errorMessage = err?.data?.message || t('auth.forgotPassword.errors.resendFailed')
-      setError(errorMessage)
-      toast.error(errorMessage)
+      const errorMessage =
+        err?.data?.message || t("auth.forgotPassword.errors.resendFailed");
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
-  }
+  };
 
   const handleVerifyCode = async (e) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
-    // Validate passwords match
     if (newPassword !== confirmPassword) {
-      setError(t('auth.forgotPassword.errors.passwordMismatch'))
-      return
+      setError(t("auth.forgotPassword.errors.passwordMismatch"));
+      return;
     }
 
-    // Validate password strength
-    if (newPassword.length < 8) {
-      setError(t('auth.forgotPassword.errors.passwordTooShort'))
-      return
+    if (newPassword.length < 6) {
+      setError(t("auth.forgotPassword.errors.passwordTooShort"));
+      return;
     }
 
     try {
-      // Call the reset password API with email, code, and new password
-      const response = await resetPassword({
-        email,
-        code: verificationCode,
+      const verifyResponse = await verifyForgotOtp({
+        token: resetToken,
+        otpCode: verificationCode,
+      }).unwrap();
+
+      const verifiedResetToken = verifyResponse.resetToken;
+
+      const resetResponse = await resetPassword({
+        token: verifiedResetToken,
         newPassword,
-      }).unwrap()
+      }).unwrap();
 
-      // Show success message
-      toast.success(response.message || t('auth.forgotPassword.resetSuccess'))
-      setIsResetComplete(true)
+      const { accessToken, refreshToken, sessionId, user } = resetResponse;
 
-      // Redirect to login page after 3 seconds
-      setTimeout(() => {
-        navigate("/login")
-      }, 3000)
+      dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }));
+      toast.success(t("auth.forgotPassword.resetSuccess"));
+      setIsResetComplete(true);
+
+      setTimeout(() => navigate("/"), 3000);
     } catch (err) {
-      // Handle error
-      const errorMessage = err?.data?.message || t('auth.forgotPassword.errors.invalidCode')
-      setError(errorMessage)
-      toast.error(errorMessage)
+      const errorMessage =
+        err?.data?.message || t("auth.forgotPassword.errors.invalidCode");
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
-  }
+  };
 
   return (
-    <div className="flex items-center justify-center sm:px-4 py-12 mt-navbar-mobile sm:mt-navbar">
-      <div className="max-w-md w-full animate-fade-up">
-        <div className="rounded-lg shadow-lg border border-heritage-light/50 bg-card text-card-foreground">
-          <div className="flex flex-col items-center p-6 gap-1">
-            <h3 className="text-xl sm:text-2xl text-heritage-dark font-bold tracking-tight">
-              {isResetComplete 
-                ? t('auth.forgotPassword.titleSuccess') 
-                : isSubmitted 
-                  ? t('auth.forgotPassword.titleReset') 
-                  : t('auth.forgotPassword.title')}
-            </h3>
-            <p className="text-sm text-muted-foreground text-center">
+    <section className="museum-shell flex min-h-screen items-center justify-center px-4 py-12 pt-navbar-mobile sm:pt-navbar">
+      <div className="w-full max-w-md animate-fade-up">
+        <div className="museum-card overflow-hidden rounded-[2rem]">
+          {/* Header */}
+          <div className="museum-paper p-8 text-center space-y-1">
+            <div className="w-16 h-16 rounded-full bg-museum-gold text-museum-black flex items-center justify-center mx-auto mb-3 shadow-museum-gold">
+              {isResetComplete ? (
+                <Check className="w-7 h-7" />
+              ) : (
+                <KeyRound className="w-7 h-7" />
+              )}
+            </div>
+            <h3 className="font-display text-3xl text-museum-espresso font-semibold tracking-tight">
               {isResetComplete
-                ? t('auth.forgotPassword.subtitleSuccess')
+                ? t("auth.forgotPassword.titleSuccess")
                 : isSubmitted
-                  ? t('auth.forgotPassword.subtitleReset')
-                  : t('auth.forgotPassword.subtitle')}
+                  ? t("auth.forgotPassword.titleReset")
+                  : t("auth.forgotPassword.title")}
+            </h3>
+            <p className="text-sm text-museum-terracotta">
+              {isResetComplete
+                ? t("auth.forgotPassword.subtitleSuccess")
+                : isSubmitted
+                  ? t("auth.forgotPassword.subtitleReset")
+                  : t("auth.forgotPassword.subtitle")}
             </p>
           </div>
-          <div className="pt-0 p-6">
+
+          <div className="p-6 text-museum-ivory sm:p-8">
+            {/* Success state */}
             {isResetComplete ? (
               <div className="space-y-4">
-                <div className="bg-green-50 text-green-700 p-4 rounded-md text-sm flex items-start">
-                  <Check size={18} className="mr-2 mt-0.5 flex-shrink-0" />
+                <div className="rounded-2xl border border-museum-jade/30 bg-museum-jade/15 p-4 text-sm text-museum-jade-light flex items-start gap-3">
+                  <Check className="w-5 h-5 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium">{t('auth.forgotPassword.resetSuccessMessage')}</p>
-                    <p className="mt-1">{t('auth.forgotPassword.redirectMessage')}</p>
+                    <p className="font-medium">
+                      {t("auth.forgotPassword.resetSuccessMessage")}
+                    </p>
+                    <p className="mt-1 text-museum-muted">
+                      {t("auth.forgotPassword.redirectMessage")}
+                    </p>
                   </div>
                 </div>
-                <Button type="button" className="w-full" onClick={() => navigate("/login")}>
-                  <ArrowLeft size={16} />
-                  <span>{t('auth.forgotPassword.goToLogin')}</span>
+                <Button
+                  type="button"
+                  className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
+                  onClick={() => navigate("/login")}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>{t("auth.forgotPassword.goToLogin")}</span>
                 </Button>
               </div>
             ) : !isSubmitted ? (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+              /* Email form */
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {error && (
+                  <div className="rounded-2xl border border-museum-seal/35 bg-museum-seal/20 p-3 text-center text-sm text-museum-gold-light">
+                    {error}
+                  </div>
+                )}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="email">
-                    {t('auth.email')}
+                  <label className="text-sm font-medium text-museum-gold-light" htmlFor="email">
+                    {t("auth.email")}
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    placeholder={t('auth.forgotPassword.emailPlaceholder')}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-10 rounded-md border px-3 py-2 placeholder:text-muted-foreground focus:ring-heritage focus:border-none focus:ring-2 focus:outline-none text-sm"
-                  />
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
+                    <input
+                      type="email"
+                      id="email"
+                      required
+                      placeholder={t("auth.forgotPassword.emailPlaceholder")}
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (error) setError(null);
+                      }}
+                      className="w-full h-11 pl-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
+                    />
+                  </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={isRequestingCode}>
+                <Button
+                  type="submit"
+                  className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
+                  disabled={isRequestingCode}
+                >
                   {isRequestingCode ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                      {t('auth.processing')}
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin h-4 w-4 border-2 border-museum-black border-t-transparent rounded-full" />
+                      {t("auth.processing")}
                     </div>
                   ) : (
                     <>
-                      <Mail size={16} />
-                      <span>{t('auth.forgotPassword.sendCodeButton')}</span>
+                      <Mail className="w-4 h-4" />
+                      <span>{t("auth.forgotPassword.sendCodeButton")}</span>
                     </>
                   )}
                 </Button>
               </form>
             ) : (
-              <div className="space-y-4">
-                <div className="bg-blue-50 text-blue-700 p-4 rounded-md text-sm" dangerouslySetInnerHTML={{
-                  __html: t('auth.forgotPassword.emailSentMessage', { email })
-                }} />
+              /* Verification form */
+              <div className="space-y-5">
+                <div className="rounded-2xl border border-museum-gold/25 bg-museum-gold/10 p-4 text-sm text-museum-gold-light">
+                  <Trans
+                    i18nKey="auth.forgotPassword.emailSentMessage"
+                    values={{ email }}
+                    components={[<strong className="font-semibold text-museum-gold-light" />]}
+                  />
+                </div>
 
-                <form onSubmit={handleVerifyCode} className="space-y-4">
-                  {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+                <form onSubmit={handleVerifyCode} className="space-y-5">
+                  {error && (
+                    <div className="rounded-2xl border border-museum-seal/35 bg-museum-seal/20 p-3 text-center text-sm text-museum-gold-light">
+                      {error}
+                    </div>
+                  )}
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium" htmlFor="verificationCode">
-                      {t('auth.forgotPassword.verificationCode')}
+                    <label className="text-sm font-medium text-museum-gold-light" htmlFor="verificationCode">
+                      {t("auth.forgotPassword.verificationCode")}
                     </label>
                     <input
                       type="text"
                       id="verificationCode"
-                      name="verificationCode"
                       required
-                      placeholder={t('auth.forgotPassword.verificationCodePlaceholder')}
+                      placeholder={t("auth.forgotPassword.verificationCodePlaceholder")}
                       value={verificationCode}
-                      onChange={(e) => setVerificationCode(e.target.value)}
-                      className="w-full h-10 rounded-md border px-3 py-2 placeholder:text-muted-foreground focus:ring-heritage focus:border-none focus:ring-2 focus:outline-none text-sm"
+                      onChange={(e) => {
+                        setVerificationCode(e.target.value);
+                        if (error) setError(null);
+                      }}
+                      className="w-full h-11 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium" htmlFor="newPassword">
-                      {t('auth.forgotPassword.newPassword')}
+                    <label className="text-sm font-medium text-museum-gold-light" htmlFor="newPassword">
+                      {t("auth.forgotPassword.newPassword")}
                     </label>
                     <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                       <input
                         type={showPassword ? "text" : "password"}
                         id="newPassword"
-                        name="newPassword"
                         required
-                        placeholder={t('auth.forgotPassword.newPasswordPlaceholder')}
+                        placeholder={t("auth.forgotPassword.newPasswordPlaceholder")}
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full h-10 rounded-md border px-3 py-2 placeholder:text-muted-foreground focus:ring-heritage focus:border-none focus:ring-2 focus:outline-none text-sm"
+                        onChange={(e) => {
+                          setNewPassword(e.target.value);
+                          if (error) setError(null);
+                        }}
+                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-0 top-0 px-3 py-2 h-10"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-muted hover:text-museum-black transition-colors"
                       >
                         {showPassword ? (
-                          <EyeOff size={16} className="text-muted-foreground" />
+                          <EyeOff className="w-4 h-4" />
                         ) : (
-                          <Eye size={16} className="text-muted-foreground" />
+                          <Eye className="w-4 h-4" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium" htmlFor="confirmPassword">
-                      {t('auth.confirmPassword')}
+                    <label className="text-sm font-medium text-museum-gold-light" htmlFor="confirmPassword">
+                      {t("auth.confirmPassword")}
                     </label>
                     <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         id="confirmPassword"
-                        name="confirmPassword"
                         required
-                        placeholder={t('auth.forgotPassword.confirmPasswordPlaceholder')}
+                        placeholder={t("auth.forgotPassword.confirmPasswordPlaceholder")}
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full h-10 rounded-md border px-3 py-2 placeholder:text-muted-foreground focus:ring-heritage focus:border-none focus:ring-2 focus:outline-none text-sm"
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          if (error) setError(null);
+                        }}
+                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-0 top-0 px-3 py-2 h-10"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-muted hover:text-museum-black transition-colors"
                       >
                         {showConfirmPassword ? (
-                          <EyeOff size={16} className="text-muted-foreground" />
+                          <EyeOff className="w-4 h-4" />
                         ) : (
-                          <Eye size={16} className="text-muted-foreground" />
+                          <Eye className="w-4 h-4" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   <div className="flex flex-col space-y-3">
-                    <Button type="submit" className="w-full" disabled={isResetting}>
+                    <Button
+                      type="submit"
+                      className="w-full h-11 rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
+                      disabled={isResetting}
+                    >
                       {isResetting ? (
-                        <div className="flex items-center">
-                          <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                          {t('auth.processing')}
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin h-4 w-4 border-2 border-museum-black border-t-transparent rounded-full" />
+                          {t("auth.processing")}
                         </div>
                       ) : (
                         <>
-                          <KeyRound size={16} />
-                          <span>{t('auth.forgotPassword.resetButton')}</span>
+                          <KeyRound className="w-4 h-4" />
+                          <span>{t("auth.forgotPassword.resetButton")}</span>
                         </>
                       )}
                     </Button>
 
                     <Button
                       type="button"
-                      className="w-full"
+                      className="w-full h-11 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
                       variant="outline"
                       disabled={cooldown > 0 || isResetting}
                       onClick={handleResendCode}
                     >
-                      <Mail size={16} />
-                      <span>{cooldown > 0 ? t('auth.forgotPassword.resendCodeCooldown', { time: cooldown }) : t('auth.forgotPassword.resendCode')}</span>
+                      <Mail className="w-4 h-4" />
+                      <span>
+                        {cooldown > 0
+                          ? t("auth.forgotPassword.resendCodeCooldown", {
+                              time: cooldown,
+                            })
+                          : t("auth.forgotPassword.resendCode")}
+                      </span>
                     </Button>
                   </div>
                 </form>
               </div>
             )}
           </div>
-          <div className="text-center pt-0 p-6 text-sm">
-            <Link to="/login" className="text-heritage font-medium hover:underline inline-flex items-center">
-              <ArrowLeft size={16} className="mr-1" />
-              {t('auth.forgotPassword.backToLogin')}
+
+          <div className="text-center p-6 pt-0 text-sm">
+            <Link
+              to="/login"
+              className="text-museum-gold-light font-medium hover:text-museum-ivory hover:underline inline-flex items-center"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              {t("auth.forgotPassword.backToLogin")}
             </Link>
           </div>
         </div>
       </div>
-    </div>
-  )
-}
+    </section>
+  );
+};
 
-export default ForgotPassword
+export default ForgotPassword;

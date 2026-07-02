@@ -1,15 +1,28 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: "class",
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}", "*.{js,ts,jsx,tsx,mdx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "*.{js,ts,jsx,tsx,mdx}",
+  ],
   theme: {
     extend: {
       spacing: {
-        'navbar': '72px',
-        'navbar-mobile': '72px'
+        navbar: "72px",
+        "navbar-mobile": "72px",
       },
       fontFamily: {
-        sans: ['ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji']
+        sans: [
+          "Be Vietnam Pro",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Noto Color Emoji",
+        ],
+        display: ["Playfair Display", "Georgia", "Cambria", "serif"],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -30,13 +43,30 @@ export default {
         sidebar: "hsl(var(--sidebar))",
         "sidebar-accent": "hsl(var(--sidebar-accent))",
         heritage: {
-          DEFAULT: 'hsl(var(--heritage-primary))',
-          light: 'hsl(var(--heritage-light))',
-          dark: 'hsl(var(--heritage-dark))',
+          DEFAULT: "hsl(var(--heritage-primary))",
+          light: "hsl(var(--heritage-light))",
+          dark: "hsl(var(--heritage-dark))",
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))'
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        gold: "hsl(var(--gold))",
+        text3: "hsl(var(--text3))",
+        museum: {
+          black: "#0B0A07",
+          charcoal: "#14100B",
+          espresso: "#1B130C",
+          gold: "#D8A24A",
+          "gold-light": "#F2C66D",
+          terracotta: "#A5522D",
+          "terracotta-light": "#C76A35",
+          jade: "#2F6B55",
+          "jade-light": "#6FAE8D",
+          ivory: "#F7EFE2",
+          parchment: "#E8DDC8",
+          seal: "#8F1D1D",
+          muted: "#A99D8A",
         },
       },
       keyframes: {
@@ -64,6 +94,14 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-3px)" },
         },
+        "museum-float": {
+          "0%, 100%": { transform: "translateY(0) rotate(-1deg)" },
+          "50%": { transform: "translateY(-14px) rotate(1deg)" },
+        },
+        "museum-glow": {
+          "0%, 100%": { opacity: 0.45, transform: "scale(1)" },
+          "50%": { opacity: 0.8, transform: "scale(1.06)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.4s ease-in-out",
@@ -72,13 +110,17 @@ export default {
         "slide-in-left": "slide-in-left 0.3s ease-out",
         "pulse-dot": "pulse-dot 1.5s infinite",
         "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "museum-float": "museum-float 7s ease-in-out infinite",
+        "museum-glow": "museum-glow 5s ease-in-out infinite",
       },
       boxShadow: {
         message: "0 2px 5px rgba(0, 0, 0, 0.05)",
         "message-hover": "0 4px 8px rgba(0, 0, 0, 0.1)",
         sidebar: "0 0 20px rgba(0, 0, 0, 0.1)",
+"museum-gold": "0 8px 32px rgba(216, 162, 74, 0.25), 0 2px 6px rgba(216, 162, 74, 0.12)",
+"museum-card": "0 4px 24px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(216, 162, 74, 0.08)",
       },
     },
   },
   plugins: [],
-}
+};

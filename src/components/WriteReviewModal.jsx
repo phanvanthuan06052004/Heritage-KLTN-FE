@@ -90,23 +90,46 @@ const WriteReviewModal = ({ heritageId, onClose, onSubmit }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="lcn-heritage-detail-title mb-4">Write Review</h3>
-        <form onSubmit={handleSubmit}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-museum-black/78 px-4 backdrop-blur-sm">
+      <div className="museum-card relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-museum-gold/25 bg-museum-black/92 p-6 text-museum-ivory shadow-museum-card">
+        <div className="museum-pattern pointer-events-none absolute inset-0 opacity-[0.08]" />
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="absolute right-4 top-4 z-20 rounded-full border border-museum-gold/35 bg-museum-black/70 p-2 text-museum-ivory transition hover:bg-museum-gold hover:text-museum-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light disabled:opacity-50"
+          aria-label="Close review modal"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <div className="relative mb-6 pr-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-museum-gold-light">
+            Heritage Review
+          </p>
+          <h3 className="mt-2 font-display text-3xl font-semibold text-museum-ivory">
+            Write Review
+          </h3>
+        </div>
+        <form onSubmit={handleSubmit} className="relative space-y-5">
           <div className="mb-4">
-            <p className="text-sm mb-2">Your Rating</p>
-            <div className="flex">
+            <p className="mb-2 text-sm font-medium text-museum-parchment">Your Rating</p>
+            <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <Star
+                <button
                   key={star}
-                  size={24}
-                  className={`cursor-pointer ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                  type="button"
                   onClick={() => handleRating(star)}
-                />
+                  className="rounded-full p-0.5 transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+                  aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                >
+                  <Star
+                    size={26}
+                    className={`transition ${star <= rating ? 'fill-museum-gold text-museum-gold-light drop-shadow-[0_0_10px_rgba(216,162,74,0.38)]' : 'text-museum-muted/55'}`}
+                  />
+                </button>
               ))}
             </div>
-            {errors.rating && <p id="rating-error" className="text-sm text-destructive mt-1">{errors.rating}</p>}
+            {errors.rating && <p id="rating-error" className="mt-1 text-sm text-museum-gold-light">{errors.rating}</p>}
           </div>
           <div className="mb-4">
             <Textarea
@@ -114,21 +137,22 @@ const WriteReviewModal = ({ heritageId, onClose, onSubmit }) => {
               placeholder="Write your review..."
               value={content}
               onChange={handleContentChange}
-              className={`h-24 resize-none border-heritage-light focus:ring-heritage-dark ${errors.content ? 'border-destructive' : ''}`}
+              className={`min-h-32 resize-none rounded-2xl border-museum-gold/30 bg-museum-black/70 px-4 py-3 text-museum-ivory caret-museum-gold-light placeholder:text-museum-muted shadow-inner focus:border-museum-gold focus:bg-museum-black/80 focus:text-museum-ivory focus:ring-museum-gold-light ${errors.content ? 'border-museum-seal' : ''}`}
               aria-invalid={!!errors.content}
               aria-describedby={errors.content ? 'content-error' : undefined}
             />
-            {errors.content && <p id="content-error" className="text-sm text-destructive mt-1">{errors.content}</p>}
+            {errors.content && <p id="content-error" className="mt-1 text-sm text-museum-gold-light">{errors.content}</p>}
           </div>
           <div className="mb-4">
-            <label className="block text-sm mb-2">Upload images (optional, max 5 images)</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="border border-heritage-light rounded p-2 w-full text-sm"
-            />
+              <label htmlFor="images" className="mb-2 block text-sm font-medium text-museum-parchment">Upload images (optional, max 5 images)</label>
+              <input
+                id="images"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="w-full rounded-2xl border border-museum-gold/20 bg-museum-ivory/8 p-2 text-sm text-museum-muted file:mr-3 file:rounded-full file:border-0 file:bg-museum-gold file:px-4 file:py-2 file:text-sm file:font-semibold file:text-museum-black hover:file:bg-museum-gold-light"
+              />
             {images.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {images.map((image, index) => (
@@ -136,12 +160,13 @@ const WriteReviewModal = ({ heritageId, onClose, onSubmit }) => {
                     <img
                       src={URL.createObjectURL(image)}
                       alt={`Preview ${index}`}
-                      className="w-20 h-20 object-cover rounded"
+                      className="h-20 w-20 rounded-xl border border-museum-gold/20 object-cover"
                     />
                     <button
                       type="button"
                       onClick={() => handleDeleteImage(index)}
-                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600"
+                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-museum-seal text-museum-ivory shadow-lg transition hover:bg-museum-gold hover:text-museum-black"
+                      aria-label={`Remove image ${index + 1}`}
                     >
                       <X size={12} />
                     </button>
@@ -150,19 +175,19 @@ const WriteReviewModal = ({ heritageId, onClose, onSubmit }) => {
               </div>
             )}
           </div>
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-3 pt-1">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="border-heritage-dark text-heritage-dark"
+              className="rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-ivory/14"
               disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-heritage-dark text-white hover:bg-heritage-dark/90"
+              className="rounded-full bg-museum-gold text-museum-black shadow-museum-gold hover:bg-museum-gold-light"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

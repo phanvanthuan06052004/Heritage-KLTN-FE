@@ -1,45 +1,136 @@
 import { apiSlice } from './apiSlice'
-import { BASE_URL } from '~/constants/fe.constant'
+
+const unwrapData = (response) => response?.data ?? response
 
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation({
+    signUp: builder.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/users/auth/`,
+        url: '/auth/signup',
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
-
-    register: builder.mutation({
+    signIn: builder.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/users/auth/register`,
+        url: '/auth/signin',
         method: 'POST',
         body: data,
       }),
+      transformResponse: unwrapData,
     }),
-
+    verifyOtp: builder.mutation({
+      query: (data) => ({
+        url: '/auth/verify-otp',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
+    resendOtp: builder.mutation({
+      query: (data) => ({
+        url: '/auth/resend-otp',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
     forgotPassword: builder.mutation({
-      query: ({ email }) => ({
-        url: `${BASE_URL}/users/auth/forgot-password`,
+      query: (data) => ({
+        url: '/auth/forgot-password',
         method: 'POST',
-        body: { email },
+        body: data,
       }),
+      transformResponse: unwrapData,
     }),
-
-    resetPassword: builder.mutation({
-      query: ({ email, code, newPassword }) => ({
-        url: `${BASE_URL}/users/auth/reset-password`,
+    verifyForgotPasswordOtp: builder.mutation({
+      query: (data) => ({
+        url: '/auth/verify-forgot-password-otp',
         method: 'POST',
-        body: { email, code, newPassword },
+        body: data,
       }),
+      transformResponse: unwrapData,
+    }),
+    resetPassword: builder.mutation({
+      query: (data) => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
+    changePassword: builder.mutation({
+      query: (data) => ({
+        url: '/auth/change-password',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
+    refreshToken: builder.mutation({
+      query: (data) => ({
+        url: '/auth/refresh-token',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
+    logout: builder.mutation({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
+      transformResponse: unwrapData,
+    }),
+    metaMaskChallenge: builder.mutation({
+      query: (data) => ({
+        url: '/auth/metamask/challenge',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
+    metaMaskSignIn: builder.mutation({
+      query: (data) => ({
+        url: '/auth/metamask/signin',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
+    linkWallet: builder.mutation({
+      query: (data) => ({
+        url: '/auth/metamask/link',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
+    }),
+    verifyLinkWallet: builder.mutation({
+      query: (data) => ({
+        url: '/auth/metamask/verify-link',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: unwrapData,
     }),
   }),
 })
 
 export const {
-  useLoginMutation,
-  useRegisterMutation,
+  useSignUpMutation,
+  useSignInMutation,
+  useVerifyOtpMutation,
+  useResendOtpMutation,
   useForgotPasswordMutation,
+  useVerifyForgotPasswordOtpMutation,
   useResetPasswordMutation,
+  useChangePasswordMutation,
+  useRefreshTokenMutation,
+  useLogoutMutation,
+  useMetaMaskChallengeMutation,
+  useMetaMaskSignInMutation,
+  useLinkWalletMutation,
+  useVerifyLinkWalletMutation,
 } = authApiSlice

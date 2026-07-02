@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Search } from 'lucide-react'
+import { MapPinned } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import HeritageMapView from './HeritageMapView'
 import HeritageList from '~/components/Heritage/HeritageList'
-import { Input } from '~/components/common/ui/Input'
+import MuseumSectionHeader from '~/components/common/MuseumSectionHeader'
+import {
+    MuseumEmptyState,
+    MuseumErrorState,
+} from '~/components/common/MuseumStates'
 import { cn } from '~/lib/utils'
-import { useLazyGetNearestHeritagesQuery } from '~/store/apis/heritageApi'
+import { useGetHeritagesQuery, useLazyGetNearestHeritagesQuery } from '~/store/apis/heritageApi'
 import { useLanguage } from '~/hooks/useLanguage'
 
 function GenericMapExplorer({
@@ -18,17 +22,23 @@ function GenericMapExplorer({
     const { language } = useLanguage()
     const [mapCenter, setMapCenter] = useState(initialCenter)
     const [selectedLocation, setSelectedLocation] = useState(null)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [searchError, setSearchError] = useState(null)
     const [nearbyItems, setNearbyItems] = useState(items)
     const [displayedItems, setDisplayedItems] = useState(items)
+    const { data: allHeritages } = useGetHeritagesQuery({
+        page: 1,
+        limit: 100,
+        language,
+    })
 
     // RTK Query: Lazy query for nearest heritages
     const [triggerGetNearestHeritages, { data: nearestHeritages, isLoading, isError, error }] =
         useLazyGetNearestHeritagesQuery()
 
     // Memoize nearestHeritages to stabilize reference
-    const stableNearestHeritages = useMemo(() => nearestHeritages || [], [nearestHeritages])
+    const stableNearestHeritages = useMemo(
+        () => nearestHeritages?.heritages || [],
+        [nearestHeritages]
+    )
 
     // Handle marker click
     const handleMarkerClick = useCallback(
@@ -45,7 +55,7 @@ function GenericMapExplorer({
             try {
                 const { data } = await triggerGetNearestHeritages({ latitude: lat, longitude: lng, limit: 6, language })
                 // console.log('Data from getNearestHeritages (marker click):', data || 'No data')
-                setNearbyItems(data || [])
+                setNearbyItems(data?.heritages || [])
             } catch (err) {
                 console.error('Error calling getNearestHeritages (marker):', err)
             }
@@ -71,7 +81,7 @@ function GenericMapExplorer({
             try {
                 const { data } = await triggerGetNearestHeritages({ latitude: lat, longitude: lng, limit: 6, language })
                 // console.log('Data from getNearestHeritages (select button):', data || 'No data')
-                setNearbyItems(data || [])
+                setNearbyItems(data?.heritages || [])
             } catch (err) {
                 console.error('Error calling getNearestHeritages (select):', err)
             }
@@ -88,69 +98,18 @@ function GenericMapExplorer({
         }
     }, [])
 
-    // Handle search submission
-    const handleSearch = useCallback(
-        async (e) => {
-            e.preventDefault()
-            if (!searchQuery.trim()) return
-
-            setSearchError(null)
-
-            try {
-                const response = await fetch(
-                    `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-                        searchQuery
-                    )}.json?access_token=pk.eyJ1IjoibmFtbGUwMjIwMDQiLCJhIjoiY205ejlmYm94MHI1djJqb2w5czloNDdrbyJ9.-P_PHQN7L283Z_qIGfgsOg`
-                )
-                const data = await response.json()
-
-                if (data.features && data.features.length > 0) {
-                    const [lng, lat] = data.features[0].center
-                    if (typeof lat !== 'number' || typeof lng !== 'number') {
-                        console.log('Invalid search coordinates:', { lat, lng })
-                        setSearchError('Invalid coordinates.')
-                        return
-                    }
-
-                    const newLocation = { lat, lng }
-                    setMapCenter(newLocation)
-                    setSelectedLocation(newLocation)
-
-                    try {
-                        const { data: searchData } = await triggerGetNearestHeritages({
-                            latitude: lat,
-                            longitude: lng,
-                            limit: 6,
-                            language
-                        })
-                        console.log('Data from getNearestHeritages (search):', searchData || 'No data')
-                        setNearbyItems(searchData?.heritages?.heritages || [])
-                        setDisplayedItems(searchData?.heritages?.heritages || [])
-                    } catch (err) {
-                        console.error('Error calling getNearestHeritages (search):', err)
-                    }
-                } else {
-                    setSearchError(t('explore.locationNotFound'))
-                }
-            } catch (error) {
-                setSearchError(t('explore.searchError'))
-                console.error('Search error:', error)
-            }
-        },
-        [searchQuery, triggerGetNearestHeritages, language, t]
-    )
-
     // Update displayed and nearby items
     useEffect(() => {
-        if (JSON.stringify(items) !== JSON.stringify(displayedItems)) {
-            setDisplayedItems(items)
+        const sourceItems = items.length ? items : allHeritages?.heritages || []
+        if (JSON.stringify(sourceItems) !== JSON.stringify(displayedItems)) {
+            setDisplayedItems(sourceItems)
         }
-        if (!selectedLocation && JSON.stringify(items) !== JSON.stringify(nearbyItems)) {
-            setNearbyItems(items)
+        if (!selectedLocation && JSON.stringify(sourceItems) !== JSON.stringify(nearbyItems)) {
+            setNearbyItems(sourceItems)
         } else if (selectedLocation && stableNearestHeritages && stableNearestHeritages !== nearbyItems) {
             setNearbyItems(stableNearestHeritages)
         }
-    }, [items, selectedLocation, stableNearestHeritages, displayedItems, nearbyItems])
+    }, [items, allHeritages, selectedLocation, stableNearestHeritages, displayedItems, nearbyItems])
 
     // Memoize markers
     const markers = useMemo(
@@ -171,12 +130,22 @@ function GenericMapExplorer({
     )
 
     return (
-        <div className="min-h-screen bg-background lcn-container-x pt-navbar-mobile sm:pt-navbar">
-            <div className={cn('container mx-auto py-8')}>
-                <div className="flex flex-col space-y-6">
+        <section className="museum-shell min-h-screen overflow-hidden pt-navbar-mobile sm:pt-navbar">
+            <div className="lcn-container relative min-h-screen">
+                <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
+
+                <MuseumSectionHeader
+                    eyebrow={t('explore.exploreMap')}
+                    title={t('nav.explore')}
+                    description={t('explore.subtitle')}
+                    align="center"
+                />
+
+                <div className={cn('flex flex-col space-y-8')}>
 
                     {/* Map Section */}
-                    <div className="h-[400px] rounded-lg overflow-hidden border border-border">
+                    <div className="museum-card museum-map h-[58vh] min-h-[440px] overflow-hidden rounded-[2rem] border-museum-gold/25 bg-museum-black/55 p-3 shadow-museum-card backdrop-blur">
+                        <div className="h-full overflow-hidden rounded-[1.5rem]">
                         <HeritageMapView
                             center={mapCenter}
                             markers={markers}
@@ -184,20 +153,38 @@ function GenericMapExplorer({
                             onPrintCoordinates={handlePrintCoordinates}
                             onSelectCoordinates={handleSelectCoordinates}
                         />
+                        </div>
                     </div>
 
                     {/* Item Lists */}
                     <div className="space-y-6">
                         {isLoading && selectedLocation ? (
-                            <p>{t('explore.loadingData')}</p>
+                            <div className="rounded-[2rem] border border-museum-gold/20 bg-museum-ivory/5 p-8 text-center text-museum-muted">
+                                {t('explore.loadingData')}
+                            </div>
                         ) : isError && selectedLocation ? (
-                            <p>{t('explore.errorLoading')}: {error.message}</p>
-                        ) : selectedLocation || searchQuery ? (
+                            <MuseumErrorState
+                                title={t('explore.errorLoading')}
+                                description={error?.message || t('explore.searchError')}
+                            />
+                        ) : selectedLocation ? (
                             <>
-                                <h2 className="text-xl font-medium text-heritage-dark">
-                                    {searchQuery ? `${t('explore.searchResults')} ${itemName}` : `${itemName} ${t('explore.nearLocation')} ${locationName}`}
-                                </h2>
-                                <HeritageList heritages={nearbyItems?.heritages} />
+                                <div className="flex items-center gap-3 text-museum-ivory">
+                                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-museum-gold/30 bg-museum-gold/10 text-museum-gold-light">
+                                        <MapPinned className="h-5 w-5" />
+                                    </span>
+                                    <h2 className="font-display text-2xl font-semibold">
+                                        {`${itemName} ${t('explore.nearLocation')} ${locationName}`}
+                                    </h2>
+                                </div>
+                                {nearbyItems.length ? (
+                                    <HeritageList heritages={nearbyItems} cardVariant="museum" />
+                                ) : (
+                                    <MuseumEmptyState
+                                        title={t('explore.noNearbyHeritages')}
+                                        description={t('explore.tryAnotherLocation')}
+                                    />
+                                )}
                             </>
                         ) : (
                             <>
@@ -206,7 +193,7 @@ function GenericMapExplorer({
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     )
 }
 

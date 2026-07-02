@@ -35,10 +35,10 @@ const NavBar = () => {
   }, [location.pathname])
 
   const navbarClasses = cn(
-    'fixed top-0 inset-x-0 z-50 transition-all duration-300 backdrop-blur-md h-16',
+    'fixed top-0 inset-x-0 z-50 h-[76px] transition-all duration-300',
     {
-      'bg-white/80 shadow-sm': isScrolled,
-      'bg-transparent': !isScrolled
+      'border-b border-museum-gold/15 bg-museum-black/82 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-2xl': isScrolled,
+      'bg-museum-black/24 backdrop-blur-md': !isScrolled
     }
   )
 
@@ -53,20 +53,31 @@ const NavBar = () => {
   return (
     <>
       <header className={navbarClasses}>
-        <div className='lcn-container-x flex justify-between py-4'>
+        <div className='lcn-container-x flex h-full items-center justify-between gap-4'>
           {/* Logo */}
-          <Link to='/' className='flex items-center gap-2'>
-            <img src='/favicon.svg' alt='logo' className='w-6 h-6' />
-            <span className='text-heritage tracking-tight text-xl sm:text-2xl font-medium'>Heritage</span>
+          <Link to='/' className='flex shrink-0 items-center gap-2.5 text-museum-ivory'>
+            <img
+              src='/images/logo-mark.png'
+              alt='Heritage'
+              className='h-12 w-10 object-contain'
+            />
+            <span className='flex flex-col leading-none'>
+              <span className='font-display text-[1.35rem] font-semibold tracking-[0.18em] text-museum-ivory'>
+                HERITAGE
+              </span>
+              <span className='mt-1 hidden text-[0.58rem] font-medium tracking-[0.12em] text-museum-gold sm:block'>
+                Explore the past
+              </span>
+            </span>
           </Link>
           {/* Navigation*/}
           <NavLinks navLinks={navLinks} />
           {/* Search AuthButton */}
-          <div className='flex justify-between items-center space-x-4'>
-            {/* Search Bar */}
-            <SearchBar />
+          <div className='flex shrink-0 items-center justify-end gap-2.5'>
+            {/* Search Bar (chỉ hiện khi đủ rộng để không chèn nav) */}
+            <SearchBar className='hidden shrink-0 xl:flex' />
             {/* Sub Right Side */}
-            <div className='hidden sm:flex gap-3'>
+            <div className='hidden lg:flex gap-3'>
               {
                 !isAuthenticated ? (
                   <AuthButton />
@@ -77,14 +88,14 @@ const NavBar = () => {
             </div>
             <Button 
               onClick={() => setShowMobileMenu(!showMobileMenu)} 
-              className='sm:hidden'
+              className='rounded-full border border-museum-gold/20 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold/10 lg:hidden'
               aria-label='Toggle-Menu'
               size='icon'
               variant='ghost'
             >
               {
-                showMobileMenu ? (<X className='w-5 h-5 text-muted-foreground' />) : 
-                  <Menu className='w-5 h-5 text-muted-foreground' />
+                showMobileMenu ? (<X className='w-5 h-5' />) : 
+                  <Menu className='w-5 h-5' />
               }
             </Button>
              {/* Language Switcher */}

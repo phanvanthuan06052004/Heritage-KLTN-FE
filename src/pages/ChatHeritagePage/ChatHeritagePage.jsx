@@ -1,50 +1,53 @@
 import { ArrowLeft, Menu, ChevronDown, Users } from 'lucide-react'
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 import { selectCurrentUser } from '~/store/slices/authSlice'
 import { Button } from '~/components/common/ui/Button'
 import { useIsMobile } from '~/hooks/useIsMobile'
+import { useLanguage } from '~/hooks/useLanguage'
+import { useGetHeritagesBySlugQuery } from '~/store/apis/heritageApi'
 import { MessageInput } from './MessageInput'
 import useSocket from '~/hooks/useSocket'
 import SystemMessage from './SystemMessage'
 import ChatMessage from './ChatMessage'
 import { UserList } from './UserList'
+import FriendModal from './FriendModal'
 import { cn } from '~/lib/utils'
-import { useGetAllActiveUsersQuery } from '~/store/apis/userSlice.js'
-
-// Dữ liệu giả cho tin nhắn cộng đồng
-const MOCK_COMMUNITY_MESSAGES = []
+import { useGetFriendOverviewQuery } from '~/store/apis/friendApi'
 
 /**
- * Component chính cho trang chat cộng đồng và riêng tư
+ * Trang chat cộng đồng & nhắn riêng theo từng di tích.
  */
 const ChatHeritagePage = () => {
-  // Gọi tất cả Hook trước bất kỳ lệnh return nào
-  const { data: usersData, isLoading, isError } = useGetAllActiveUsersQuery()
+  const { data: friendData, isLoading } = useGetFriendOverviewQuery()
   const userInfo = useSelector(selectCurrentUser)
   const isMobile = useIsMobile()
   const chatContainerRef = useRef(null)
-  // const { id } = useParams()
-  // const heritageIdParam = id
   const location = useLocation()
+  const { nameSlug } = useParams()
+  const { language } = useLanguage()
 
-  const { heritageId } = location.state || {}
-  const heritageIdParam = heritageId
-  // Thêm useRef để theo dõi activeChat trước đó
+  // heritageId: ưu tiên state khi điều hướng; fallback tra theo slug (chống vỡ khi F5/vào trực tiếp).
+  const { data: slugData } = useGetHeritagesBySlugQuery(
+    { nameSlug, language },
+    { skip: !nameSlug || !!location.state?.heritageId },
+  )
+  const heritageIdParam = location.state?.heritageId || slugData?._id
+  const heritageName = location.state?.heritageName || slugData?.name
+
   const prevActiveChatRef = useRef(null)
 
-  // Thông tin người dùng hiện tại
   const currentUser = useMemo(
     () => ({
       userId: userInfo?._id,
       username: userInfo?.displayname,
-      avatar: userInfo?.avatar
+      avatar: userInfo?.avatar,
     }),
-    [userInfo?._id, userInfo?.displayname, userInfo?.avatar]
+    [userInfo?._id, userInfo?.displayname, userInfo?.avatar],
   )
-  // Hook socket cho phòng chat
+
   const socketData = useSocket(currentUser, heritageIdParam)
 
   const {
@@ -54,6 +57,8 @@ const ChatHeritagePage = () => {
     sendMessage: sendCommunityMessage,
     joinDirectRoom,
     sendDirectMessage,
+    recallMessage,
+    deleteMessageLocal,
     handleTyping: handleCommunityTyping,
     socketError: error,
     isLoadingMessages,
@@ -61,74 +66,55 @@ const ChatHeritagePage = () => {
     loadMoreMessages,
   } = socketData
 
-  // Danh sách người dùng từ API (active users)
-  const realUsers = useMemo(() => {
-    if (!usersData?.users?.length) return []
-    return usersData.users.map(user => ({
-      id: user._id,
-      name: user.displayname,
-      status: user.account.isActive ? 'online' : 'offline',
-      avatar: user.avatar,
-      unreadCount: 0,
-    }))
-  }, [usersData])
+  // Danh bạ DM = danh sách bạn bè (đã chấp nhận)
+  const friends = friendData?.friends || []
+  const incomingCount = friendData?.incomingCount || 0
 
-  // Kết hợp realUsers với usersInRoom để cập nhật trạng thái online/offline
   const enhancedUsers = useMemo(() => {
-    return realUsers.map(user => {
-      const socketUser = usersInRoom.find(u => u.id === user.id) || {}
+    return friends.map((f) => {
+      const socketUser = usersInRoom.find((u) => u.id === f.userId)
       return {
-        id: user.id,
-        name: user.name,
-        status: socketUser.id ? 'online' : 'offline',
-        avatar: user.avatar,
-        unreadCount: user.unreadCount || 0,
+        id: f.userId,
+        name: f.displayname || f.email?.split('@')[0] || 'Người dùng',
+        status: socketUser ? 'online' : 'offline',
+        avatar: f.avatar,
+        unreadCount: 0,
       }
     })
-  }, [realUsers, usersInRoom])
+  }, [friends, usersInRoom])
 
-  // State quản lý giao diện và dữ liệu chat
   const [activeChat, setActiveChat] = useState('community')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [showInfo, setShowInfo] = useState(false)
+  const [friendModal, setFriendModal] = useState({ open: false, tab: 'add' })
 
-  // Tham gia phòng chat riêng khi chọn user, chỉ gọi joinDirectRoom khi cần
   const handleSelectUser = (userId) => {
     setActiveChat(userId)
     if (isMobile) setSidebarOpen(false)
   }
 
-  // Sử dụng useEffect để kiểm soát việc gọi joinDirectRoom
   useEffect(() => {
-    // Chỉ gọi joinDirectRoom nếu activeChat thay đổi và không phải là 'community'
     if (activeChat !== 'community' && activeChat !== prevActiveChatRef.current) {
       joinDirectRoom(activeChat)
     }
-    // Cập nhật prevActiveChatRef
     prevActiveChatRef.current = activeChat
   }, [activeChat, joinDirectRoom])
 
-  // Lấy tin nhắn cho cuộc trò chuyện hiện tại
   const messages = useMemo(() => {
-    if (activeChat === 'community') {
-      return communityMessages.length > 0 ? communityMessages : MOCK_COMMUNITY_MESSAGES
-    }
+    if (activeChat === 'community') return communityMessages
     return privateMessages[activeChat] || []
   }, [activeChat, communityMessages, privateMessages])
 
-  // Điều chỉnh sidebar dựa trên thiết bị
   useEffect(() => {
     setSidebarOpen(!isMobile)
   }, [isMobile])
 
-  // Cuộn xuống cuối khi có tin nhắn mới
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
     }
   }, [messages])
 
-  // Xử lý kéo lên để tải thêm tin nhắn (chỉ cho community chat)
   const handleScroll = () => {
     if (activeChat !== 'community' || !chatContainerRef.current) return
     const { scrollTop } = chatContainerRef.current
@@ -137,83 +123,69 @@ const ChatHeritagePage = () => {
     }
   }
 
-  // Xử lý gửi tin nhắn
   const handleSendMessage = (content) => {
-    if (activeChat === 'community') {
-      sendCommunityMessage(content)
-    } else {
-      sendDirectMessage(activeChat, content)
-    }
+    if (activeChat === 'community') sendCommunityMessage(content)
+    else sendDirectMessage(activeChat, content)
   }
 
-  // Xử lý sự kiện nhập tin nhắn
+  const handleSendImage = (imageUrl, caption = '') => {
+    const content = caption?.trim() || '[Hình ảnh]'
+    const options = { type: 'IMAGE', imageUrl }
+    if (activeChat === 'community') sendCommunityMessage(content, options)
+    else sendDirectMessage(activeChat, content, options)
+  }
+
   const handleInputChange = () => {
     if (activeChat === 'community') {
       handleCommunityTyping(true)
       clearTimeout(window.typingTimeout)
-      window.typingTimeout = setTimeout(() => {
-        handleCommunityTyping(false)
-      }, 2000)
+      window.typingTimeout = setTimeout(() => handleCommunityTyping(false), 2000)
     }
   }
 
-  // Get chat title
   const getChatTitle = () => {
-    if (activeChat === 'community') return 'Community Chat Room'
+    if (activeChat === 'community')
+      return heritageName ? `Chat cộng đồng · ${heritageName}` : 'Chat cộng đồng'
     const user = enhancedUsers.find((u) => u.id === activeChat)
-    return user ? user.name : 'Chat'
+    return user ? user.name : 'Trò chuyện'
   }
 
-  // Nhóm tin nhắn để hiển thị avatar và định dạng
   const groupedMessages = messages.reduce((acc, message, index) => {
     const prev = messages[index - 1]
     if (message.isSystemMessage) {
       acc.push(message)
       return acc
     }
-
     const showAvatar =
       !prev ||
       prev.isSystemMessage ||
       prev.sender.id !== message.sender.id ||
       message.isCurrentUser !== prev.isCurrentUser
-
     const showTimestamp =
       !messages[index + 1] ||
       messages[index + 1].isSystemMessage ||
       messages[index + 1].sender.id !== message.sender.id ||
       new Date(messages[index + 1].timestamp).getTime() - new Date(message.timestamp).getTime() > 5 * 60 * 1000
-
     acc.push({ ...message, showAvatar, showTimestamp })
     return acc
   }, [])
 
-  // Handle loading and error states after calling all Hooks
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        Loading...
+      <div className="museum-shell flex h-screen items-center justify-center pt-navbar text-museum-muted">
+        Đang tải…
       </div>
     )
   }
-
-  if (isError) {
-    return (
-      <div className="h-screen flex items-center justify-center text-destructive">
-        Error loading data
-      </div>
-    )
-  }
-
   return (
-    <div className='h-screen flex flex-col pt-navbar-mobile sm:pt-navbar bg-background'>
-      <div className='flex-1 flex overflow-hidden lcn-container-x'>
-        {/* Sidebar danh sách người dùng */}
+    <div className="museum-shell flex h-screen flex-col pt-navbar-mobile sm:pt-navbar">
+      <div className="lcn-container-x flex flex-1 gap-4 overflow-hidden py-4">
+        {/* Sidebar */}
         <div
           className={cn(
-            'transition-all duration-300 ease-in-out bg-sidebar text-white',
-            sidebarOpen ? 'w-72 flex-shrink-0' : 'w-0',
-            isMobile && sidebarOpen ? 'absolute z-20 h-full shadow-sidebar' : '',
+            'overflow-hidden rounded-[1.5rem] border border-museum-gold/15 bg-museum-black/55 transition-all duration-300 ease-in-out',
+            sidebarOpen ? 'w-72 flex-shrink-0' : 'w-0 border-0',
+            isMobile && sidebarOpen ? 'absolute z-20 h-[calc(100%-2rem)] shadow-museum-card' : '',
           )}
         >
           <UserList
@@ -228,77 +200,65 @@ const ChatHeritagePage = () => {
             isCommunityActive={activeChat === 'community'}
             onlineUsers={usersInRoom}
             isOpen={sidebarOpen}
+            onOpenAddFriend={() => setFriendModal({ open: true, tab: 'add' })}
+            onOpenRequests={() => setFriendModal({ open: true, tab: 'requests' })}
+            incomingCount={incomingCount}
           />
         </div>
 
-        {/* Overlay trên mobile */}
         {isMobile && sidebarOpen && (
-          <div className='fixed inset-0 bg-black/20 z-10 backdrop-blur-sm' onClick={() => setSidebarOpen(false)} />
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Đóng danh sách"
+            className="fixed inset-0 z-10 bg-black/40 backdrop-blur-sm"
+          />
         )}
 
-        {/* Khu vực trò chuyện */}
-        <div className='flex-1 flex flex-col h-full overflow-hidden bg-background'>
+        {/* Khu trò chuyện */}
+        <div className="museum-card flex h-full flex-1 flex-col overflow-hidden rounded-[1.5rem] border border-museum-gold/15 bg-museum-black/45">
           {/* Header */}
-          <div className='border-b border-border bg-card p-3 shadow-sm'>
-            <div className='flex items-center sm:justify-between'>
+          <div className="border-b border-museum-gold/15 bg-gradient-to-b from-museum-gold/8 to-transparent p-3.5">
+            <div className="flex items-center gap-2 sm:justify-between">
               {!sidebarOpen && (
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => setSidebarOpen(true)}
-                  className='mr-2 text-primary'
-                >
-                  <Menu className='h-5 w-5' />
+                <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="mr-1 text-museum-gold-light">
+                  <Menu className="h-5 w-5" />
                 </Button>
               )}
               {sidebarOpen && isMobile && (
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => setSidebarOpen(false)}
-                  className='mr-2'
-                >
-                  <ArrowLeft className='h-5 w-5' />
+                <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="mr-1 text-museum-gold-light">
+                  <ArrowLeft className="h-5 w-5" />
                 </Button>
               )}
-              <div className='max-w-none'>
-                <h1 className='text-lg sm:text-xl font-semibold'>{getChatTitle()}</h1>
-                <p className='text-xs sm:text-sm text-muted-foreground truncate'>
-                  {activeChat === 'community'
-                    ? `${usersInRoom.length} people participating in the discussion`
-                    : 'Private Chat'}
+              <div className="min-w-0">
+                <h1 className="truncate font-display text-lg font-semibold text-museum-ivory sm:text-xl">{getChatTitle()}</h1>
+                <p className="truncate text-xs text-museum-muted sm:text-sm">
+                  {activeChat === 'community' ? `${usersInRoom.length} người đang trò chuyện` : 'Tin nhắn riêng'}
                 </p>
               </div>
-              <div className='flex items-center gap-1'>
-                {activeChat === 'community' && (
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='flex items-center gap-1 text-primary h-8 px-2'
-                    onClick={() => setShowInfo(!showInfo)}
-                  >
-                    <Users className='h-4 w-4' />
-                    <span className='hidden sm:inline'>{usersInRoom.length}</span>
-                    <ChevronDown className={cn('h-4 w-4 transition-transform', showInfo && 'rotate-180')} />
-                  </Button>
-                )}
-              </div>
+              {activeChat === 'community' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto flex h-8 items-center gap-1 px-2 text-museum-gold-light"
+                  onClick={() => setShowInfo(!showInfo)}
+                >
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">{usersInRoom.length}</span>
+                  <ChevronDown className={cn('h-4 w-4 transition-transform', showInfo && 'rotate-180')} />
+                </Button>
+              )}
             </div>
           </div>
 
-          {/* User list in room (displayed when clicking Users button) */}
           {showInfo && activeChat === 'community' && (
-            <div className='mt-2 p-2 bg-accent rounded-lg animate-fade-in'>
-              <div className='flex items-center justify-between mb-1'>
-                <h3 className='font-medium text-sm'>Users in Room</h3>
-              </div>
-              <div className='flex flex-wrap gap-1'>
+            <div className="m-2 rounded-xl border border-museum-gold/15 bg-museum-black/50 p-2 animate-fade-in">
+              <h3 className="mb-1 text-sm font-medium text-museum-gold-light">Đang trong phòng</h3>
+              <div className="flex flex-wrap gap-1">
+                {usersInRoom.length === 0 && <span className="text-xs text-museum-muted">Chưa có ai khác.</span>}
                 {usersInRoom.map((user) => (
-                  <div
-                    key={user.id}
-                    className='px-2 py-0.5 bg-background rounded-full text-xs flex items-center gap-1'
-                  >
-                    <span className='w-1.5 h-1.5 rounded-full bg-green-500'></span>
+                  <div key={user.id} className="flex items-center gap-1 rounded-full bg-museum-black/60 px-2 py-0.5 text-xs text-museum-parchment">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     {user.name}
                   </div>
                 ))}
@@ -306,40 +266,33 @@ const ChatHeritagePage = () => {
             </div>
           )}
 
-          {/* Show error if any */}
           {error && (
-            <div className='p-4 bg-destructive/10 text-destructive text-center animate-fade-in'>
-              <p className='font-medium'>{error}</p>
-              <p className='text-sm'>Trying to reconnect...</p>
+            <div className="bg-museum-seal/15 p-3 text-center text-sm text-museum-seal animate-fade-in">
+              <p className="font-medium">{error}</p>
+              <p className="text-xs">Đang thử kết nối lại…</p>
             </div>
           )}
 
-          {/* Nội dung tin nhắn */}
-          <div
-            className='flex-1 overflow-y-auto p-4 space-y-3 bg-background/50'
-            ref={chatContainerRef}
-            onScroll={handleScroll}
-          >
+          {/* Tin nhắn */}
+          <div className="flex-1 space-y-3 overflow-y-auto p-4" ref={chatContainerRef} onScroll={handleScroll}>
             {activeChat === 'community' && isLoadingMessages && (
-              <div className='text-center text-muted-foreground py-2 animate-pulse'>
-                <div className='inline-block px-4 py-2 bg-muted rounded-lg'>Loading messages...</div>
+              <div className="py-2 text-center text-museum-muted animate-pulse">
+                <span className="inline-block rounded-lg bg-museum-black/50 px-4 py-2 text-sm">Đang tải tin nhắn…</span>
               </div>
             )}
             {activeChat === 'community' && !hasMoreMessages && messages.length > 0 && (
-              <div className='text-center text-muted-foreground py-2'>
-                <div className='inline-block px-4 py-2 bg-muted rounded-lg text-sm'>You've seen all messages</div>
+              <div className="py-2 text-center">
+                <span className="inline-block rounded-lg bg-museum-black/40 px-4 py-2 text-sm text-museum-muted">Đã xem hết tin nhắn</span>
               </div>
             )}
             {messages.length === 0 && !isLoadingMessages && (
-              <div className='h-full flex flex-col items-center justify-center text-center text-muted-foreground py-10 animate-fade-in'>
-                <div className='w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4'>
-                  <Users className='h-8 w-8 text-primary/50' />
+              <div className="flex h-full flex-col items-center justify-center py-10 text-center text-museum-muted animate-fade-in">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-museum-gold/10">
+                  <Users className="h-8 w-8 text-museum-gold-light/60" />
                 </div>
-                <h3 className='text-lg font-medium text-foreground'>No messages yet</h3>
-                <p className='max-w-xs text-sm mt-1'>
-                  {activeChat === 'community'
-                    ? 'Start a conversation with the community!'
-                    : 'Start a private conversation!'}
+                <h3 className="font-display text-lg font-medium text-museum-ivory">Chưa có tin nhắn</h3>
+                <p className="mt-1 max-w-xs text-sm">
+                  {activeChat === 'community' ? 'Hãy mở đầu cuộc trò chuyện với cộng đồng!' : 'Bắt đầu một cuộc trò chuyện riêng!'}
                 </p>
               </div>
             )}
@@ -353,27 +306,36 @@ const ChatHeritagePage = () => {
                   showAvatar={msg.showAvatar}
                   showTimestamp={msg.showTimestamp}
                   isCurrentUser={msg.isCurrentUser}
+                  onRecall={recallMessage}
+                  onDelete={deleteMessageLocal}
                   isLastInGroup={
                     index === groupedMessages.length - 1 ||
                     groupedMessages[index + 1].sender?.id !== msg.sender?.id ||
                     groupedMessages[index + 1].isSystemMessage
                   }
                 />
-              )
+              ),
             )}
           </div>
 
-          {/* Message input */}
-          <div className='p-3 bg-card border-t border-border'>
+          {/* Ô nhập */}
+          <div className="border-t border-museum-gold/15 bg-museum-black/40 p-3">
             <MessageInput
               onSendMessage={handleSendMessage}
+              onSendImage={handleSendImage}
               onInputChange={handleInputChange}
-              placeholder='Send a message...'
+              placeholder="Nhập tin nhắn…"
               disabled={!!error}
             />
           </div>
         </div>
       </div>
+
+      <FriendModal
+        open={friendModal.open}
+        initialTab={friendModal.tab}
+        onClose={() => setFriendModal({ open: false, tab: 'add' })}
+      />
     </div>
   )
 }

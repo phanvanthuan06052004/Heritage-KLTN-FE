@@ -1,207 +1,212 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { useCallback, useEffect, useMemo } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { heritageSlice, useLazyGetHeritagesQuery } from '~/store/apis/heritageApi'
-import HeritageList from '~/components/Heritage/HeritageList'
-import HeritageSkeleton from '~/components/Heritage/HeritageSkeleton'
-import { setHeritagesPage } from '~/store/slices/paginationSlice'
-import { selectHeritagesCurrentPage, selectHeritagesItemsPerPage, selectHeritagesSearchQuery } from '~/store/selectors/paginationSelectors'
-import { useLanguage, useLanguageChange } from '~/hooks/useLanguage'
+import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect, useMemo } from "react";
+import { Search, RefreshCw, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  heritageSlice,
+  useLazyGetHeritagesQuery,
+} from "~/store/apis/heritageApi";
+import HeritageList from "~/components/Heritage/HeritageList";
+import { Pagination } from "~/components/common/Pagination";
+import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
+import {
+  MuseumEmptyState,
+  MuseumSkeletonGrid,
+} from "~/components/common/MuseumStates";
+import { setHeritagesPage } from "~/store/slices/paginationSlice";
+import {
+  selectHeritagesCurrentPage,
+  selectHeritagesItemsPerPage,
+  selectHeritagesSearchQuery,
+} from "~/store/selectors/paginationSelectors";
+import { useLanguage, useLanguageChange } from "~/hooks/useLanguage";
+import { Button } from "~/components/common/ui/Button";
 
 const Heritages = () => {
-  const dispatch = useDispatch()
-  const { t } = useTranslation()
-  const { language } = useLanguage()
-  const currentPage = useSelector(selectHeritagesCurrentPage)
-  const itemsPerPage = useSelector(selectHeritagesItemsPerPage)
-  const searchQuery = useSelector(selectHeritagesSearchQuery)
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const currentPage = useSelector(selectHeritagesCurrentPage);
+  const itemsPerPage = useSelector(selectHeritagesItemsPerPage);
+  const searchQuery = useSelector(selectHeritagesSearchQuery);
 
-  const queryParams = useMemo(() => ({
-    page: currentPage,
-    limit: itemsPerPage,
-    name: searchQuery || undefined,
-    language
-  }), [currentPage, itemsPerPage, searchQuery, language])
+  const queryParams = useMemo(
+    () => ({
+      page: currentPage,
+      limit: itemsPerPage,
+      name: searchQuery || undefined,
+      language,
+    }),
+    [currentPage, itemsPerPage, searchQuery, language],
+  );
 
-
-  const [trigger, { data: response, isLoading, isFetching, error }] = useLazyGetHeritagesQuery()
+  const [trigger, { data: response, isLoading, isFetching, error }] =
+    useLazyGetHeritagesQuery();
 
   const { heritages, totalPages } = useMemo(() => {
-    const heritages = response?.heritages || []
-    const pagination = response?.pagination || {}
-    const totalPages = pagination.totalPages ?? 1
-    return { heritages, totalPages }
-  }, [response])
+    const heritages = response?.heritages || [];
+    const pagination = response?.pagination || {};
+    const totalPages = pagination.totalPages ?? 1;
+    return { heritages, totalPages };
+  }, [response]);
 
   useEffect(() => {
-    trigger(queryParams)
-  }, [queryParams, trigger])
+    trigger(queryParams);
+  }, [queryParams, trigger]);
 
-  // Refetch when language changes
   useLanguageChange(() => {
-    trigger(queryParams)
-  })
+    trigger(queryParams);
+  });
 
-  // Handle page change
-  const handlePageChange = useCallback((page) => {
-    if (page >= 1 && page <= totalPages) {
-      dispatch(setHeritagesPage(page))
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+  const handlePageChange = useCallback(
+    (page) => {
+      if (page >= 1 && page <= totalPages) {
+        dispatch(setHeritagesPage(page));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+    [dispatch, totalPages],
+  );
+
+  // Generate pagination buttons
+  const paginationButtons = useMemo(() => {
+    if (totalPages <= 1) return [];
+
+    const pages = [];
+    const maxPagesToShow = 5;
+    const half = Math.floor(maxPagesToShow / 2);
+    let start = Math.max(1, currentPage - half);
+    let end = Math.min(totalPages, start + maxPagesToShow - 1);
+
+    if (end - start + 1 < maxPagesToShow) {
+      start = Math.max(1, end - maxPagesToShow + 1);
     }
-  }, [dispatch, totalPages])
+
+    if (start > 1) pages.push(1);
+    if (start > 2) pages.push("...");
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < totalPages - 1) pages.push("...");
+    if (end < totalPages) pages.push(totalPages);
+
+    return pages;
+  }, [currentPage, totalPages]);
 
   // Prefetch next page
   const prefetchNextPage = useCallback(() => {
-    if (currentPage < totalPages && (!searchQuery || heritages.length > 0) && !error) {
+    if (
+      currentPage < totalPages &&
+      (!searchQuery || heritages.length > 0) &&
+      !error
+    ) {
       const nextPageParams = {
         page: currentPage + 1,
         limit: itemsPerPage,
         name: searchQuery || undefined,
-        language
-      }
-      dispatch(heritageSlice.util.prefetch('getHeritages', nextPageParams, { force: false }))
+        language,
+      };
+      dispatch(
+        heritageSlice.util.prefetch("getHeritages", nextPageParams, {
+          force: false,
+        }),
+      );
     }
-  }, [currentPage, totalPages, itemsPerPage, searchQuery, heritages.length, error, dispatch])
+  }, [
+    currentPage,
+    totalPages,
+    itemsPerPage,
+    searchQuery,
+    heritages.length,
+    error,
+    dispatch,
+    language,
+  ]);
 
-  // Trigger prefetch when data is loaded
   useEffect(() => {
     if (!isLoading && !isFetching) {
-      prefetchNextPage()
+      prefetchNextPage();
     }
-  }, [prefetchNextPage, isLoading, isFetching])
+  }, [prefetchNextPage, isLoading, isFetching]);
 
-  // Pagination UI generator
-  const paginationButtons = useMemo(() => {
-    if (totalPages <= 1) return null
-
-    const pages = []
-    const maxPagesToShow = 5
-    const half = Math.floor(maxPagesToShow / 2)
-    let start = Math.max(1, currentPage - half)
-    let end = Math.min(totalPages, start + maxPagesToShow - 1)
-
-    if (end - start + 1 < maxPagesToShow) {
-      start = Math.max(1, end - maxPagesToShow + 1)
-    }
-
-    if (start > 1) pages.push(1)
-    if (start > 2) pages.push('...')
-    for (let i = start; i <= end; i++) pages.push(i)
-    if (end < totalPages - 1) pages.push('...')
-    if (end < totalPages) pages.push(totalPages)
-
-    return pages.map((page, index) =>
-      page === '...' ? (
-        <span key={index} className='px-4 py-2'>...</span>
-      ) : (
-        <button
-          key={page}
-          onClick={() => handlePageChange(page)}
-          disabled={isFetching}
-          className={`px-4 py-2 border rounded ${currentPage === page ? 'bg-heritage-dark text-white' : ''
-            }`}
-        >
-          {page}
-        </button>
-      )
-    )
-  }, [currentPage, totalPages, isFetching, handlePageChange])
-
-  // Render loading state Skeleton
-  const renderLoadingState = () => (
-    <HeritageSkeleton count={itemsPerPage} />
-  )
-
-  // Render empty state
-  const renderEmptyState = () => (
-    <div className='text-center py-12'>
-      <p className='text-muted-foreground'>
-        {searchQuery
-          ? 'No matching heritage sites found.'
-          : 'No heritage sites to display.'}
-      </p>
-    </div>
-  )
-
-  // Render pagination
-  const renderPagination = () => {
-    if (totalPages <= 1) return null
-
-    return (
-      <div className='mt-8 flex justify-center gap-2'>
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1 || isFetching}
-          className='px-4 py-2 border rounded disabled:opacity-50'
-          aria-label='Previous Page'
-        >
-          <ChevronLeft size={20} />
-        </button>
-
-        {paginationButtons}
-
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages || isFetching}
-          className='px-4 py-2 border rounded disabled:opacity-50'
-          aria-label='Next Page'
-        >
-          <ChevronRight size={20} />
-        </button>
-      </div>
-    )
-  }
-
-  // Render error state
+  // Error state
   const renderErrorState = () => (
-    <div className='text-center py-12'>
-      <p className='text-destructive font-medium'>
-        An error occurred while loading data
-      </p>
-      <p className='text-muted-foreground mt-2'>
-        {error?.data?.message || 'Please try again later'}
-      </p>
-      <button
+    <div className="col-span-full flex flex-col items-center gap-4 rounded-[2rem] border border-museum-gold/20 bg-museum-ivory/5 px-6 py-16 text-center text-museum-ivory">
+      <div className="rounded-full bg-museum-seal/25 p-4">
+        <AlertTriangle className="h-10 w-10 text-museum-gold-light" />
+      </div>
+      <div>
+        <p className="text-lg font-medium text-museum-ivory">
+          Failed to load heritage sites
+        </p>
+        <p className="mt-1 text-sm text-museum-muted">
+          {error?.data?.message || "Please try again later"}
+        </p>
+      </div>
+      <Button
         onClick={() => trigger(queryParams)}
-        className='mt-4 px-4 py-2 bg-heritage-dark text-white rounded hover:bg-heritage-dark/90 transition-colors'
+        variant="outline"
+        className="mt-2 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
       >
+        <RefreshCw className="w-4 h-4 mr-2" />
         Try again
-      </button>
+      </Button>
     </div>
-  )
+  );
 
   return (
-    <section className='pt-navbar-mobile sm:pt-navbar'>
-      <div className='lcn-container min-h-screen'>
+    <section className="museum-shell min-h-screen overflow-hidden pt-navbar-mobile sm:pt-navbar">
+      <div className="lcn-container relative min-h-screen">
+        <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/35 to-transparent" />
+
         {/* Header */}
-        <div className='text-center animate-fade-up'>
-          <h1 className='text-3xl sm:text-4xl font-medium text-heritage-dark mb-4'>
-            {t('home.title')}
-          </h1>
-          <p className='text-muted-foreground max-w-2xl mx-auto'>
-            {t('home.subtitle')}
-          </p>
+        <div className="animate-fade-up">
+          <MuseumSectionHeader
+            eyebrow={t("home.popular.eyebrow")}
+            title={t("home.title")}
+            description={t("home.subtitle")}
+            align="center"
+          />
+
+          {/* Search indicator */}
+          {searchQuery && (
+            <div className="mx-auto -mt-4 mb-8 inline-flex items-center gap-2 rounded-full border border-museum-gold/25 bg-museum-gold/10 px-4 py-2 text-sm text-museum-gold-light">
+              <Search className="w-4 h-4" />
+              <span>
+                Results for: <strong>"{searchQuery}"</strong>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
         <div>
-          {isLoading || isFetching ? (
-            renderLoadingState()
+          {isLoading ? (
+            <MuseumSkeletonGrid count={itemsPerPage} />
           ) : error ? (
             renderErrorState()
-          ) : heritages?.length === 0 ? (
-            renderEmptyState()
+          ) : !heritages.length ? (
+            <MuseumEmptyState
+              title="No heritage sites found"
+              description="Try adjusting your search or filters."
+            />
           ) : (
             <>
-              <HeritageList heritages={heritages} />
-              {renderPagination()}
+              <HeritageList heritages={heritages} cardVariant="museum" />
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  paginationButtons={paginationButtons}
+                  handlePageChange={handlePageChange}
+                  isLoading={isFetching}
+                  variant="museum"
+                />
+              )}
             </>
           )}
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Heritages
+export default Heritages;

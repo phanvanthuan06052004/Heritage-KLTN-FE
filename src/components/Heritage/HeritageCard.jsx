@@ -1,171 +1,286 @@
-import { Heart } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
-import { useState, useEffect } from 'react'
-import { toast } from 'react-toastify'
+import { ArrowRight, Heart, ImageOff, MapPin, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCurrentUser } from "~/store/slices/authSlice";
+import { useGetVisitedQuery } from "~/store/apis/gamificationApi";
+import { useState, memo, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
-import { cn } from '~/lib/utils'
-import { Button } from '~/components/common/ui/Button'
-import { selectCurrentUser } from '~/store/slices/authSlice'
-import { 
+import { cn } from "~/lib/utils";
+import { Button } from "~/components/common/ui/Button";
+import {
   useAddToFavoritesMutation,
-  useRemoveFromFavoritesMutation
-} from '~/store/apis/favoritesSlice'
-import { 
-  selectIsFavorited, 
-  setFavoriteStatus,
-  selectIsFavoriteInitialized
-} from '~/store/slices/favoriteSlice'
+  useRemoveFromFavoritesMutation,
+} from "~/store/apis/favoritesSlice";
+import { setFavoriteStatus, selectIsFavorited } from "~/store/slices/favoriteSlice";
 
 const CONFIG = {
-  placeholderImage: '/images/placeholder.webp',
-  fallbackImage: '/images/placeholder.webp'
-}
+  placeholderImage: "/images/placeholder.webp",
+  fallbackImage: "/images/placeholder.webp",
+};
 
-const HeritageCard = ({ item, isFavorited: propIsFavorited, onFavoriteChange }) => {
-  const { 
-    _id, 
-    name = '', 
-    location = '', 
-    description = '', 
+const HeritageCard = memo(({
+  item,
+  isFavorited: propIsFavorited = false,
+  isAuthenticated = false,
+  onFavoriteChange,
+  variant = "default",
+}) => {
+  const { t } = useTranslation();
+  const {
+    _id,
+    name = "",
+    location = "",
+    description = "",
     images = [],
-    nameSlug = '' 
-  } = item || {}
+    nameSlug = "",
+    dynasty,
+    province,
+  } = item || {};
 
-  const dispatch = useDispatch()
-  const userInfo = useSelector(selectCurrentUser)
-  const isAuthenticated = !!userInfo
-  
-  const isFavoritedFromStore = useSelector(selectIsFavorited(_id))
-  const isFavoriteInitialized = useSelector(selectIsFavoriteInitialized)
-  
-  // State để theo dõi trạng thái yêu thích
-  const [isFavorited, setIsFavorited] = useState(propIsFavorited || false)
-  const [imgSrc, setImgSrc] = useState(images[0] || CONFIG.placeholderImage)
-  
-  const [addToFavorites, { isLoading: isAdding }] = useAddToFavoritesMutation()
-  const [removeFromFavorites, { isLoading: isRemoving }] = useRemoveFromFavoritesMutation()
-  
-  // Đồng bộ trạng thái yêu thích
-  useEffect(() => {
-    if (propIsFavorited !== undefined) {
-      setIsFavorited(propIsFavorited)
-    } else if (isFavoriteInitialized) {
-      setIsFavorited(isFavoritedFromStore)
+  const dispatch = useDispatch();
+  const currentUser = useSelector(selectCurrentUser);
+  const visitorId = currentUser?._id || currentUser?.id;
+  const { data: visited = [] } = useGetVisitedQuery(visitorId, { skip: !visitorId });
+  const isVisited = !!_id && visited.includes(_id);
+
+  const isUserAuthenticated = isAuthenticated || !!currentUser;
+  const isFavoritedInStore = useSelector(selectIsFavorited(_id));
+  const isFavorited = propIsFavorited || isFavoritedInStore;
+
+  const imgSrcRef = useRef(images[0] || CONFIG.placeholderImage);
+  const [imgError, setImgError] = useState(false);
+
+  const [addToFavorites, { isLoading: isAdding }] = useAddToFavoritesMutation();
+  const [removeFromFavorites, { isLoading: isRemoving }] =
+    useRemoveFromFavoritesMutation();
+
+  const handleFavoriteClick = useCallback(async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isUserAuthenticated) {
+      toast.error("Please login to perform this action");
+      return;
     }
-  }, [propIsFavorited, isFavoritedFromStore, isFavoriteInitialized])
-  
-  const handleFavoriteClick = async (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    if (!isAuthenticated) {
-      toast.error('Please login to perform this action')
-      return
-    }
-    
+
+    const newFavoritedState = !isFavorited;
+    dispatch(
+      setFavoriteStatus({
+        heritageId: _id,
+        isFavorited: newFavoritedState,
+      }),
+    );
+
     try {
-      const newFavoritedState = !isFavorited
-      setIsFavorited(newFavoritedState)
-      dispatch(setFavoriteStatus({ 
-        heritageId: _id, 
-        isFavorited: newFavoritedState 
-      }))
-      
       if (newFavoritedState) {
-        await addToFavorites({ 
-          userId: userInfo._id, 
-          heritageId: _id 
-        }).unwrap()
-
-        toast.success('Added to favorites')
+        await addToFavorites({
+          heritageId: _id,
+        }).unwrap();
+        toast.success("Added to favorites");
       } else {
-        await removeFromFavorites({ 
-          userId: userInfo._id, 
-          heritageId: _id 
-        }).unwrap()
-        
-        toast.success('Removed from favorites')
+        await removeFromFavorites({
+          heritageId: _id,
+        }).unwrap();
+        toast.success("Removed from favorites");
       }
-      
+
       if (onFavoriteChange) {
-        onFavoriteChange(newFavoritedState)
+        onFavoriteChange(newFavoritedState);
       }
     } catch (error) {
-      // Rollback
-      setIsFavorited(!isFavorited)
-      dispatch(setFavoriteStatus({ 
-        heritageId: _id, 
-        isFavorited: !isFavorited 
-      }))
-      console.log(error)
-
-      toast.error('An error occurred. Please try again later.')
+      dispatch(
+        setFavoriteStatus({
+          heritageId: _id,
+          isFavorited: !newFavoritedState,
+        }),
+      );
+      toast.error("An error occurred. Please try again later.");
     }
-  }
-  
-  const handleImageError = (e) => {
-    e.currentTarget.onerror = null
-    setImgSrc(CONFIG.fallbackImage)
+  }, [_id, isUserAuthenticated, isFavorited, dispatch, addToFavorites, removeFromFavorites, onFavoriteChange]);
+
+  const handleImageError = () => {
+    setImgError(true);
+    imgSrcRef.current = CONFIG.fallbackImage;
+  };
+
+  if (!item) return null;
+
+  const isLoading = isAdding || isRemoving;
+
+  if (variant === "museum") {
+    return (
+      <Link
+        to={`/heritage/${nameSlug}`}
+        className="group block h-full rounded-[2rem] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
+        aria-label={`View details: ${name}`}
+      >
+        <article
+          className="museum-card flex h-full flex-col overflow-hidden rounded-[2rem] bg-museum-ivory/[0.07] transition duration-300 group-hover:-translate-y-1 group-hover:border-museum-gold/60 group-hover:bg-museum-ivory/[0.12] group-hover:shadow-[0_0_34px_rgba(216,162,74,0.42),0_16px_48px_-8px_rgba(216,162,74,0.5)]"
+        >
+          <div className="relative overflow-hidden">
+            {imgError ? (
+              <div className="aspect-[4/3] w-full bg-museum-ivory/10 flex items-center justify-center">
+                <ImageOff className="h-10 w-10 text-museum-muted" />
+              </div>
+            ) : (
+              <img
+                src={imgSrcRef.current}
+                alt={name}
+                className="aspect-[4/3] w-full object-cover transition duration-500 ease-out group-hover:scale-[1.04] group-hover:brightness-110"
+                loading="lazy"
+                width="600"
+                height="450"
+                onError={handleImageError}
+              />
+            )}
+            {/* Lớp tối đáy ảnh — mờ bớt khi hover để ảnh "sáng" lên */}
+            <div className="absolute inset-0 bg-gradient-to-t from-museum-black via-museum-black/18 to-transparent transition-opacity duration-300 group-hover:opacity-60" />
+            {/* Lớp ánh vàng nhẹ khi hover (bo góc theo ảnh, không tạo ô vuông) */}
+            <div className="pointer-events-none absolute inset-0 bg-museum-gold/0 transition-colors duration-300 group-hover:bg-museum-gold/[0.08]" />
+            {(dynasty || province || isVisited) && (
+              <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                {isVisited && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-museum-gold px-2.5 py-1 text-xs font-semibold text-museum-black shadow">
+                    <ShieldCheck className="h-3 w-3" /> Đã ghé thăm
+                  </span>
+                )}
+                {dynasty && (
+                  <span className="rounded-full bg-museum-seal px-3 py-1 text-xs font-semibold text-museum-ivory">
+                    {dynasty}
+                  </span>
+                )}
+                {province && (
+                  <span className="rounded-full bg-museum-black/70 px-3 py-1 text-xs font-semibold text-museum-gold-light backdrop-blur">
+                    {province}
+                  </span>
+                )}
+              </div>
+            )}
+            {isUserAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleFavoriteClick}
+                disabled={isLoading}
+                className="absolute right-4 top-4 rounded-full bg-museum-black/70 text-museum-ivory backdrop-blur hover:bg-museum-gold hover:text-museum-black"
+                aria-label={
+                  isFavorited ? "Remove from favorites" : "Add to favorites"
+                }
+                aria-live="polite"
+              >
+                <Heart
+                  size={20}
+                  className={cn(
+                    "transition-all",
+                    isFavorited && "fill-museum-seal text-museum-seal scale-110",
+                    isLoading && "opacity-50",
+                  )}
+                />
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col p-5">
+            <h3 className="font-display text-2xl font-semibold leading-tight text-museum-ivory transition group-hover:text-museum-gold-light">
+              {name}
+            </h3>
+            {location && (
+              <p className="mt-3 flex items-center gap-2 text-sm text-museum-muted">
+                <MapPin className="h-4 w-4 shrink-0 text-museum-gold-light" />
+                <span className="truncate">{location}</span>
+              </p>
+            )}
+            {description && (
+              <p className="mt-4 line-clamp-3 text-sm leading-7 text-museum-muted">
+                {description}
+              </p>
+            )}
+            <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-semibold text-museum-gold-light">
+              {t("home.popular.cardCta")}
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+            </span>
+          </div>
+        </article>
+      </Link>
+    );
   }
 
-  if (!item) return null
-  
-  const isLoading = isAdding || isRemoving
-  
   return (
-    <Link to={`/heritage/${nameSlug}`} className='block group' aria-label={`Xem chi tiết ${name}`}>
-        <div className='flex flex-col h-full overflow-hidden rounded-lg border bg-card shadow-sm transition-all duration-300 hover:shadow-lg'>
+    <Link
+      to={`/heritage/${nameSlug}`}
+      className="block group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-lg"
+      aria-label={`View details: ${name}`}
+    >
+      <div className="flex flex-col h-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:border-heritage/20">
         {/* Image section */}
-        <div className='relative overflow-hidden'>
-          <img 
-            src={imgSrc}
-            alt={`Hình ảnh của ${name}`}
-            className='aspect-[3/2] w-full object-cover transition-transform duration-700 group-hover:scale-105' 
-            loading='lazy'
-            width='600'
-            height='400'
-            onError={handleImageError}
-          />
-          
+        <div className="relative overflow-hidden">
+          {imgError ? (
+            <div className="aspect-[3/2] w-full bg-muted flex items-center justify-center">
+              <ImageOff className="w-10 h-10 text-muted-foreground/50" />
+            </div>
+          ) : (
+              <img
+                  src={imgSrcRef.current}
+                  alt={name}
+                  className="aspect-[3/2] w-full object-cover"
+                  loading="lazy"
+                  width="600"
+                  height="400"
+                  onError={handleImageError}
+                />
+          )}
+
           {/* Favorite button */}
-          {isAuthenticated && (
+          {isUserAuthenticated && (
             <Button
-              variant='ghost'
-              size='icon'
+              variant="ghost"
+              size="icon"
               onClick={handleFavoriteClick}
               disabled={isLoading}
-              className='absolute top-2 right-2 bg-white/80 backdrop-blur-sm hover:bg-white/90'
-              aria-label={isFavorited ? 'Bỏ yêu thích' : 'Yêu thích'}
-              aria-live='polite'
-            >
-              <Heart 
-                size={20} 
-                className={cn('transition-colors', 
-                  isFavorited ? 'fill-heritage text-heritage' : 'text-gray-500',
-                  isLoading && 'opacity-50'
-                )} 
+              className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm hover:bg-white/90"
+                aria-label={
+                  isFavorited ? "Remove from favorites" : "Add to favorites"
+                }
+                aria-live="polite"
+              >
+                <Heart
+                  size={20}
+                  className={cn(
+                    "transition-all",
+                    isFavorited
+                    ? "fill-heritage text-heritage scale-110"
+                    : "text-muted-foreground",
+                  isLoading && "opacity-50",
+                )}
               />
             </Button>
           )}
-          <div className='absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent pointer-events-none'></div>
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
         </div>
-        
+
         {/* Content section */}
-        <div className='flex flex-col flex-grow p-4'>
-          <h3 className='mb-1 text-lg font-medium line-clamp-1 group-hover:text-heritage transition-colors'>
+        <div className="flex flex-col flex-grow p-4">
+          <h3 className="mb-1.5 text-lg font-semibold line-clamp-1 group-hover:text-heritage transition-colors">
             {name}
           </h3>
           {location && (
-            <p className='mb-2 text-sm text-muted-foreground truncate'>{location}</p>
+            <p className="mb-2 text-sm text-muted-foreground flex items-center gap-1 truncate">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              <span>{location}</span>
+            </p>
           )}
           {description && (
-            <p className='text-sm text-foreground/80 line-clamp-2'>{description}</p>
+            <p className="text-sm text-foreground/70 line-clamp-2 leading-relaxed">
+              {description}
+            </p>
           )}
         </div>
       </div>
     </Link>
-  )
-}
+  );
+});
 
-export default HeritageCard
+HeritageCard.displayName = "HeritageCard";
+
+export default HeritageCard;

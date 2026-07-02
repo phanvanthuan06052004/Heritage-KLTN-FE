@@ -1,29 +1,22 @@
-import About from '~/pages/About/About'
-import ChatHeritagePage from '~/pages/ChatHeritagePage/ChatHeritagePage'
-import EmailVerification from '~/pages/EmailVerification'
-import Favorites from '~/pages/Favorites'
-import ForgotPassword from '~/pages/ForgotPassword'
-import GenericMapExplorer from '~/pages/GoogleMapHeritage/GenericMapExplorer'
-import HeritageDetail from '~/pages/HeritageDetail/HeritageDetail'
-import Heritages from '~/pages/Heritages'
-import Home from '~/pages/Home'
-import Login from '~/pages/Login'
-import Profile from '~/pages/Profile'
-import Register from '~/pages/Register'
-
 const publicRoutes = [
-  { path: '/', element: <Home /> },
-  { path: '/about', element: <About /> },
-  { path: '/heritages', element: <Heritages /> },
-  { path: '/heritage/:nameSlug', element: <HeritageDetail /> },
-  { path: '/login', element: <Login />, restricted: true },
-  { path: '/register', element: <Register />, restricted: true },
-  { path: '/authen-confirm', element: <EmailVerification />, restricted: true },
-  { path: '/chat/heritage/:nameSlug', element: <ChatHeritagePage /> },
-  { path: '/profile', element: <Profile /> },
-  { path: '/favorites', element: <Favorites /> },
-  { path: '/explore', element: <GenericMapExplorer /> },
-  { path: '/forgot-password', element: <ForgotPassword />, restricted: true },
-]
+  { path: "/", element: null },
+  { path: "/about", element: null },
+  { path: "/heritages", element: null },
+  { path: "/heritage/:nameSlug", element: null },
+  { path: "/login", element: null, restricted: true },
+  { path: "/register", element: null, restricted: true },
+  { path: "/authen-confirm", element: null, restricted: true },
+  { path: "/chat/heritage/:nameSlug", element: null },
+  { path: "/profile", element: null },
+  { path: "/favorites", element: null },
+  { path: "/explore", element: null },
+  { path: "/historical-map", element: null },
+  { path: "/passport", element: null },
+  { path: "/passport/track", element: null },
+  { path: "/trips/:id", element: null },
+  { path: "/journeys", element: null },
+  { path: "/forgot-password", element: null, restricted: true },
+  { path: "/privacy/mcp-policy", element: null },
+];
 
-export default publicRoutes
+export default publicRoutes;

@@ -1,6 +1,6 @@
 import { cn } from '~/lib/utils'
 
-export function TypingIndicator({ className, users, message }) {
+export function TypingIndicator({ className, message }) {
   return (
     <div className={cn('flex justify-start mb-2 animate-fade-in', className)}>
       <div className='bg-muted p-3 rounded-lg shadow-sm'>

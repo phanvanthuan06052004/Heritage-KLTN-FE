@@ -1,12 +1,20 @@
 import { fetchBaseQuery, createApi } from '@reduxjs/toolkit/query/react'
 import { BASE_URL } from '~/constants/fe.constant'
-import { logOut, setCredentials } from '../slices/authSlice'
+import { logOut, setAccessToken } from '../slices/authSlice'
 
 const AUTH_URLS = [
-  '/users/auth/register',
-  '/users/auth/',
-  '/users/auth/logout',
-  '/users/auth/refresh-token',
+  '/auth/signup',
+  '/auth/signin',
+  '/auth/verify-otp',
+  '/auth/resend-otp',
+  '/auth/forgot-password',
+  '/auth/verify-forgot-password-otp',
+  '/auth/reset-password',
+  '/auth/refresh-token',
+  '/auth/metamask/challenge',
+  '/auth/metamask/signin',
+  '/auth/google',
+  '/auth/google/callback',
 ]
 
 const baseQuery = fetchBaseQuery({
@@ -15,10 +23,10 @@ const baseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState, endpoint }) => {
     const authState = getState().auth
 
-    const token = authState.token
-    const userId = authState.userInfo?._id
+    const token = authState.accessToken
+    const userId = authState.userInfo?._id || authState.userInfo?.id
 
-    if (token) {
+    if (token && token !== 'google-sso') {
       headers.set('Authorization', `Bearer ${token}`)
     }
     if (userId && !AUTH_URLS.some((url) => endpoint.includes(url))) {
@@ -34,8 +42,8 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
   try {
     let result = await baseQuery(args, api, extraOptions)
     if (result?.error?.status === 401 || result?.error?.status === 410) {
-      const { token, userInfo } = api.getState().auth
-      const isLoggedIn = token && userInfo
+      const { accessToken, refreshToken, userInfo } = api.getState().auth
+      const isLoggedIn = accessToken && userInfo
       // console.log(args.url)
       const shouldSkipAuthCheck = AUTH_URLS.some((url) =>
         args.url.includes(url)
@@ -46,28 +54,30 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
         try {
           const refreshResult = await baseQuery(
             {
-              url: '/users/auth/refresh-token',
+              url: '/auth/refresh-token',
               method: 'POST',
+              body: { refreshToken },
             },
             api,
             extraOptions
           )
           // console.log(refreshResult)
           window.isRefreshing = false
-          if (refreshResult?.data) {
+          const newAccessToken =
+            refreshResult?.data?.data?.accessToken || refreshResult?.data?.accessToken
+
+          if (newAccessToken) {
+            // BE returns { data: { accessToken } }
             api.dispatch(
-              setCredentials({
-                user: userInfo,
-                accessToken: refreshResult.data?.accessToken,
-              })
+              setAccessToken({ accessToken: newAccessToken })
             )
             // Retry the original query with the new token
             return await baseQuery(args, api, extraOptions)
           } else {
-            // Refresh failed, logout the user
+            // Refresh failed, logout
             await baseQuery(
               {
-                url: '/users/auth/logout',
+                url: '/auth/logout',
                 method: 'POST',
               },
               api,
@@ -129,7 +139,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
 
 export const apiSlice = createApi({
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['User', 'Heritage', 'Chat', 'Favorites', 'KnowledgeTests', 'Leaderboards'],
+  tagTypes: ['User', 'Users', 'Heritage', 'Heritages', 'Chat', 'Favorites', 'KnowledgeTests', 'Leaderboards', 'KnowledgeBase', 'Comments', 'Friends', 'Trips', 'GraphNodes', 'GraphEdges', 'McpToken'],
   keepUnusedDataFor: 60,
   refetchOnMountOrArgChange: true,
   refetchOnFocus: false,

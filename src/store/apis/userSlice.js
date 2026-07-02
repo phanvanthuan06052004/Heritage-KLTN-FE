@@ -5,10 +5,10 @@ export const userSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // ADMIN: Lấy tất cả users (có phân trang, search, sort)
     getAll: builder.query({
-      query: ({ page = 1, limit = 10, search = '', sort, order }) => ({
+      query: ({ page = 1, limit = 10, search = '', role, sort, order }) => ({
         url: `${BASE_URL}/users/`,
         method: 'GET',
-        params: { page, limit, search, sort, order },
+        params: { page, limit, search, role, sort, order },
       }),
       providesTags: ['Users'],
     }),
@@ -44,20 +44,22 @@ export const userSlice = apiSlice.injectEndpoints({
     // CLIENT: Lấy profile của user đang login
     getUserProfile: builder.query({
       query: () => ({
-        url: `${BASE_URL}/users/profile`,
+        url: `${BASE_URL}/users/me`,
         method: 'GET',
       }),
+      transformResponse: (response) => response?.data || response,
       providesTags: ['User'],
     }),
 
     // CLIENT: Update profile (không phải theo id mà là user đang login)
     updateUserProfile: builder.mutation({
       query: (data) => ({
-        url: `${BASE_URL}/users/profile`,
+        url: `${BASE_URL}/users/me`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: ['User'],
     }),
 
     // CLIENT: Upload avatar
@@ -67,7 +69,8 @@ export const userSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
+      transformResponse: (response) => response?.data || response,
+      invalidatesTags: ['User'],
     }),
 
     // CLIENT: Lấy tất cả active users

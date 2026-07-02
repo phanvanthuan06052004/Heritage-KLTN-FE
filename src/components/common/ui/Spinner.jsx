@@ -1,9 +1,30 @@
-const Spinner = () => {
-  return (
-    <div className="flex justify-center items-center">
-      <div className="animate-spin h-8 w-8 border-4 border-t-4 border-gray-200 border-solid rounded-full border-t-primary"></div>
-    </div>
-  )
-}
+import { cn } from "~/lib/utils";
 
-export default Spinner
+const sizeVariants = {
+  sm: "h-4 w-4 border-2",
+  md: "h-6 w-6 border-2",
+  lg: "h-8 w-8 border-4",
+  xl: "h-12 w-12 border-4",
+};
+
+const Spinner = ({ size = "lg", className, ...props }) => {
+  return (
+    <div
+      className={cn("flex justify-center items-center", className)}
+      role="status"
+      aria-label="Loading"
+      {...props}
+    >
+      <div
+        className={cn(
+          sizeVariants[size] || sizeVariants.lg,
+          "animate-spin rounded-full border-gray-200 border-t-primary border-solid",
+        )}
+      >
+        <span className="sr-only">Loading...</span>
+      </div>
+    </div>
+  );
+};
+
+export default Spinner;

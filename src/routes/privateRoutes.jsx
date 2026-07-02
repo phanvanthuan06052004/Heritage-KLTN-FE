@@ -6,8 +6,10 @@ import HeritageManagement from "~/pages/Admin/Heritage/HeritageManagement"
 import AddKnowledgeTest from "~/pages/Admin/Knowledge/AddKnowledgeTest"
 import KnowledgeTestManagement from "~/pages/Admin/Knowledge/KnowledgeTestManagement"
 import UpdateKnowledgeTest from "~/pages/Admin/Knowledge/UpdateKnowledgeTest"
+import KnowledgeBase from "~/pages/Admin/KnowledgeBase/KnowledgeBase"
 import UserDetail from "~/pages/Admin/User/UserDetail"
 import UserManagement from "~/pages/Admin/User/UserManagement"
+import GraphManagement from "~/pages/Admin/Graph/GraphManagement"
 
 
 const privateRoutes = [
@@ -25,6 +27,8 @@ const privateRoutes = [
       { path: "/admin/knowledge-tests/new", element: <AddKnowledgeTest /> },
       { path: "/admin/knowledge-tests/:id", element: <UpdateKnowledgeTest /> },
       { path: "/admin/knowledge-tests/edit/:id", element: <UpdateKnowledgeTest /> },
+      { path: "/admin/knowledge-base", element: <KnowledgeBase /> },
+      { path: "/admin/graph", element: <GraphManagement /> },
     ],
   },
 ]

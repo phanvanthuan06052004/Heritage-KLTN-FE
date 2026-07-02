@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Loader2, Send, X, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Loader2,
+  Send,
+  X,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+} from "lucide-react";
 import { Button } from "./Button";
 import { toast } from "react-toastify";
 import {
@@ -7,14 +15,16 @@ import {
   useDeleteDiscussMutation,
   useGetDiscussByParentIdQuery,
 } from "~/store/apis/disscussSlice";
+import { Avatar } from "./Avatar";
 
 const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
   const [replyForm, setReplyForm] = useState({ content: "", isOpen: false });
   const [showReplies, setShowReplies] = useState(false);
 
-  const isOwnComment = currentUser?._id === comment.userId.toString();
+  const isOwnComment = currentUser?._id === comment.userId?.toString();
   const hasReplies =
     comment.comment_right - comment.comment_left > 1 || showReplies;
+
   const { data: repliesData = { comments: [] }, isLoading: isLoadingReplies } =
     useGetDiscussByParentIdQuery(
       { heritageId, parentId: comment._id },
@@ -50,6 +60,7 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
       await createComment({
         heritageId,
         content: replyForm.content,
+        userId: currentUser._id,
         parentId: comment._id,
       }).unwrap();
       toast.success("Reply posted!");
@@ -78,121 +89,148 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
     setShowReplies((prev) => !prev);
   };
 
+  const formatTime = (ts) => {
+    if (!ts) return "";
+    const d = new Date(ts);
+    const now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    return sameDay
+      ? d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+      : d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+  };
+
   return (
-    <div
-      className={`mt-4 ${depth > 0 ? "ml-6 border-l-2 border-gray-200 pl-4" : ""}`}
-    >
-      <div className="flex items-start space-x-3">
+    <div className={depth > 0 ? "mt-2.5" : "mt-0"}>
+      <div className="flex items-start gap-2.5">
+        {/* Avatar */}
         <div className="flex-shrink-0">
           {avatar ? (
             <img
               src={avatar}
               alt={comment.username}
-              className="w-8 h-8 rounded-full"
+              className="h-9 w-9 rounded-full object-cover ring-1 ring-museum-gold/25"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-              {comment.username[0].toUpperCase()}
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-museum-gold/20 text-sm font-semibold text-museum-gold-light">
+              {comment.username?.[0]?.toUpperCase() || "?"}
             </div>
           )}
         </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              {comment.username}
-            </span>
+
+        <div className="min-w-0 flex-1">
+          {/* Bong bóng: tên + nội dung */}
+          <div className="group flex items-start gap-1">
+            <div className="w-fit max-w-full rounded-2xl rounded-tl-md border border-museum-gold/12 bg-museum-black/55 px-3.5 py-2">
+              <span className="block font-display text-[13px] font-semibold text-museum-ivory">
+                {comment.username}
+              </span>
+              <p className="mt-0.5 whitespace-pre-wrap break-words text-sm leading-relaxed text-museum-parchment">
+                {comment.content}
+              </p>
+            </div>
             {isOwnComment && (
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleDeleteComment}
-                  className="text-sm text-red-500 hover:underline"
-                  disabled={isDeleting}
-                >
-                  <Trash2 className="w-4 h-4 inline mr-1" />
-                  Xóa
-                </button>
-              </div>
+              <button
+                onClick={handleDeleteComment}
+                className="mt-1 shrink-0 rounded-full p-1 text-museum-muted opacity-0 transition-all hover:bg-museum-seal/12 hover:text-museum-seal group-hover:opacity-100 disabled:opacity-50"
+                disabled={isDeleting}
+                aria-label="Xoá bình luận"
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+              </button>
             )}
           </div>
-          <p className="mt-1 text-gray-700 dark:text-gray-300">
-            {comment.content}
-          </p>
-          <button
-            onClick={toggleReplyForm}
-            className="mt-2 text-sm text-primary hover:underline"
-          >
-            {replyForm.isOpen ? "Hủy" : "Trả lời"}
-          </button>
 
+          {/* Hàng hành động kiểu Facebook */}
+          <div className="ml-3 mt-1 flex items-center gap-3 text-xs">
+            <button
+              onClick={toggleReplyForm}
+              className="font-semibold text-museum-muted transition-colors hover:text-museum-gold-light"
+            >
+              {replyForm.isOpen ? "Hủy" : "Trả lời"}
+            </button>
+            <span className="text-museum-muted/70">{formatTime(comment.createdAt)}</span>
+            {hasReplies && (
+              <button
+                onClick={toggleReplies}
+                className="flex items-center gap-0.5 font-semibold text-museum-muted transition-colors hover:text-museum-gold-light"
+              >
+                {showReplies ? (
+                  <ChevronUp className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
+                {showReplies ? "Ẩn trả lời" : "Hiện trả lời"}
+              </button>
+            )}
+          </div>
+
+          {/* Form trả lời */}
           {replyForm.isOpen && (
-            <form onSubmit={handleReplySubmit} className="mt-3">
+            <form onSubmit={handleReplySubmit} className="mt-2 animate-fade-in">
               <textarea
-                className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-200"
-                rows="3"
-                placeholder="Write your reply..."
+                className="w-full resize-none rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:outline-none focus:ring-2 focus:ring-museum-gold-light"
+                rows="2"
+                placeholder="Viết câu trả lời…"
                 value={replyForm.content}
                 onChange={handleReplyChange}
                 disabled={isCreating}
+                aria-label="Nội dung trả lời"
               />
-              <div className="mt-2 flex space-x-2">
-                <Button type="submit" size="sm" disabled={isCreating}>
-                  {isCreating ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                  ) : (
-                    <Send className="w-4 h-4 mr-1" />
-                  )}
-                  Post reply
+              <div className="mt-2 flex gap-2">
+                <Button
+                  type="submit"
+                  size="sm"
+                  isLoading={isCreating}
+                  className="rounded-full bg-museum-gold text-museum-black hover:bg-museum-gold-light"
+                >
+                  <Send className="mr-1 h-3.5 w-3.5" />
+                  Gửi
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={toggleReplyForm}
+                  className="rounded-full text-museum-muted hover:text-museum-parchment"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </form>
           )}
 
-          {hasReplies && (
-            <button
-              onClick={toggleReplies}
-              className="mt-2 text-sm text-primary hover:underline flex items-center"
-            >
-              {showReplies ? (
-                <ChevronUp className="w-4 h-4 mr-1" />
+          {/* Replies (lồng nhau, có vạch dẫn bên trái) */}
+          {showReplies && (
+            <div className="mt-1 border-l-2 border-museum-gold/12 pl-3 animate-fade-in">
+              {isLoadingReplies ? (
+                <div className="flex justify-center py-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-museum-gold-light" />
+                </div>
+              ) : !repliesData?.discussArray?.length ? (
+                <p className="py-2 text-xs text-museum-muted">
+                  <MessageSquare className="mr-1 inline h-3.5 w-3.5" />
+                  Chưa có trả lời.
+                </p>
               ) : (
-                <ChevronDown className="w-4 h-4 mr-1" />
+                repliesData.discussArray.map((reply) => (
+                  <Comment
+                    key={reply._id}
+                    comment={reply}
+                    depth={depth + 1}
+                    heritageId={heritageId}
+                    currentUser={currentUser}
+                    avatar={reply?.user?.avatar}
+                  />
+                ))
               )}
-              {showReplies ? "Ẩn trả lời" : "Hiện trả lời"}
-            </button>
+            </div>
           )}
         </div>
       </div>
-
-      {showReplies && (
-        <div>
-          {isLoadingReplies ? (
-            <div className="flex justify-center mt-4">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            </div>
-          ) : repliesData?.discussArray?.length === 0 ? (
-            <p className="mt-4 text-sm text-gray-500">No replies yet.</p>
-          ) : (
-            repliesData?.discussArray?.map((reply) => (
-              <Comment
-                key={reply._id}
-                comment={reply}
-                depth={depth + 1}
-                heritageId={heritageId}
-                currentUser={currentUser}
-                avatar={avatar}
-              />
-            ))
-          )}
-        </div>
-      )}
     </div>
   );
 };

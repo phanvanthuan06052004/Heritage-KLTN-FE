@@ -41,33 +41,41 @@ const UserManagement = () => {
     }
   }
 
-  if (isLoading) return <div className="text-center">Loading...</div>
-  if (isError) return <div className="text-center text-red-500">Error: {error?.data?.message || 'Unable to load user list'}</div>
+  if (isLoading) return <div className="text-center text-muted-foreground">Loading...</div>
+  if (isError) return <div className="text-center text-destructive">Error: {error?.data?.message || 'Unable to load user list'}</div>
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <UserCog className="w-8 h-8" />
-        <h2 className="text-2xl font-semibold">User Management</h2>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="grid place-items-center w-10 h-10 rounded-lg bg-heritage/10 text-heritage">
+            <UserCog className="w-5 h-5" />
+          </span>
+          <div>
+            <h2 className="admin-page-title">User Management</h2>
+            <p className="admin-subtle">Manage users, roles, and account status.</p>
+          </div>
+        </div>
+        <span className="admin-badge-neutral">{totalItems} users</span>
       </div>
 
-      <div className="flex justify-between items-center">
-        <div className="relative w-64">
+      <div className="admin-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground pointer-events-none" />
           <Input
             placeholder="Search by name/email"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
-          <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
         </div>
-        <div className="flex space-x-4">
+        <div className="flex items-center gap-3">
           <select
-            className="p-2 border rounded"
+            className="admin-select md:w-40"
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
           >
-            <option value="ALL">All</option>
+            <option value="ALL">All roles</option>
             <option value="user">User</option>
             <option value="admin">Admin</option>
           </select>
@@ -76,80 +84,101 @@ const UserManagement = () => {
 
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Display Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Created at</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user._id}>
-              <TableCell className="flex items-center gap-2">
-                {user.avatar ? (
-                  <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    {user.displayname?.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                {user.displayname}
-              </TableCell>
-              <TableCell>{user.account.email}</TableCell>
-              <TableCell>
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  user.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100'
-                }`}>
-                  {user.role === 'admin' ? 'Admin' : 'User'}
-                </span>
-              </TableCell>
-              <TableCell>
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  user.account.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                  {user.account.isActive ? 'Active' : 'Locked'}
-                </span>
-              </TableCell>
-              <TableCell>{new Date(user.createAt).toLocaleDateString('vi-VN')}</TableCell>
-              <TableCell className="flex space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate(`/admin/users/${user._id}`)}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDelete(user._id)}
-                >
-                  <Trash2 className="w-4 h-4 text-red-500" />
-                </Button>
-              </TableCell>
+            <TableRow>
+              <TableHead>Display Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created at</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.length === 0 && (
+              <TableRow hoverable={false}>
+                <TableCell className="text-center text-muted-foreground py-10" colSpan={7}>
+                  No users found.
+                </TableCell>
+              </TableRow>
+            )}
+            {users.map((user) => (
+              <TableRow key={user._id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt=""
+                        className="w-9 h-9 rounded-full object-cover ring-1 ring-border"
+                        onError={(e) => { e.target.style.display = 'none' }}
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-medium ring-1 ring-border">
+                        {user.displayname?.charAt(0)?.toUpperCase() || '?'}
+                      </div>
+                    )}
+                    <span className="font-medium text-foreground">{user.displayname || '—'}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">{user.account?.email || user.email || '—'}</TableCell>
+                <TableCell className="text-muted-foreground">{user.phone || '—'}</TableCell>
+                <TableCell>
+                  <span className={user.role === 'admin' ? 'admin-badge-info' : 'admin-badge-neutral'}>
+                    {user.role === 'admin' ? 'Admin' : 'User'}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className={user.account?.isActive ? 'admin-badge-success' : 'admin-badge-danger'}>
+                    {user.account?.isActive ? 'Active' : 'Locked'}
+                  </span>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : '—'}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigate(`/admin/users/${user._id}`)}
+                      title="Edit"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(user._id)}
+                      title="Delete"
+                      className="text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <p>Total: {totalItems} users</p>
-        </div>
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p className="admin-subtle">Total: {totalItems} users</p>
+        <div className="flex items-center gap-3">
           <Button
+            variant="outline"
+            size="sm"
             disabled={currentPage === 1}
             onClick={() => setPage(currentPage - 1)}
           >
             Previous
           </Button>
           {totalPages > 0 && (
-            <span>Page {currentPage} / {totalPages}</span>
+            <span className="admin-subtle">Page {currentPage} / {totalPages}</span>
           )}
           <Button
+            variant="outline"
+            size="sm"
             disabled={currentPage >= totalPages}
             onClick={() => setPage(currentPage + 1)}
           >
@@ -162,4 +191,3 @@ const UserManagement = () => {
 }
 
 export default UserManagement
-

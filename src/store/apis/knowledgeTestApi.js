@@ -18,6 +18,17 @@ export const knowledgeTestApi = apiSlice.injectEndpoints({
       keepUnusedDataFor: 1,
     }),
 
+    getKnowledgeTestsByHeritage: builder.query({
+      query: (heritageId) => ({
+        url: `${BASE_URL}/knowledge-tests/heritage/${heritageId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, heritageId) => [
+        { type: 'KnowledgeTests', id: heritageId },
+      ],
+      keepUnusedDataFor: 1,
+    }),
+
     getKnowledgeTestById: builder.query({
       query: (testId) => ({
         url: `${BASE_URL}/knowledge-tests/${testId}`,
@@ -65,10 +76,10 @@ export const knowledgeTestApi = apiSlice.injectEndpoints({
     }),
 
     submitKnowledgeTestAttempt: builder.mutation({
-      query: ({ userId, userName, testId, answers }) => ({
+      query: ({ testId, answers }) => ({
         url: `${BASE_URL}/knowledge-tests/${testId}/attempt`,
         method: 'POST',
-        body: { userId, userName, answers },
+        body: { answers },
       }),
       invalidatesTags: (result, error, { testId }) => [
         { type: 'KnowledgeTests', id: testId },
@@ -80,6 +91,7 @@ export const knowledgeTestApi = apiSlice.injectEndpoints({
 
 export const {
   useGetKnowledgeTestsQuery,
+  useGetKnowledgeTestsByHeritageQuery,
   useGetKnowledgeTestByIdQuery,
   useLazyGetKnowledgeTestByIdQuery,
   useCreateKnowledgeTestMutation,

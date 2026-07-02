@@ -9,7 +9,7 @@ import {
 } from "~/store/apis/chatSlice";
 import { TypingIndicator } from "~/pages/ChatHeritagePage/TypingIndicator";
 
-const HeritageChat = ({ heritageId, heritageName, landmarkData }) => {
+const HeritageChat = ({ heritageId, heritageName }) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -177,7 +177,33 @@ const HeritageChat = ({ heritageId, heritageName, landmarkData }) => {
                     : "bg-gray-200 text-black"
                 }`}
               >
-                {message.content && <p>{message.content}</p>}
+                {message.content && (
+                  <p className="whitespace-pre-wrap break-words">
+                    {message.content}
+                  </p>
+                )}
+                {message.sources?.length > 0 && (
+                  <div className="mt-2 border-t border-black/10 pt-2">
+                    <p className="mb-1 text-xs font-semibold opacity-70">
+                      Sources
+                    </p>
+                    <div className="space-y-1">
+                      {message.sources.slice(0, 3).map((source) => (
+                        <div
+                          key={source.slug || source.title}
+                          className="rounded bg-white/70 px-2 py-1 text-xs text-black"
+                        >
+                          <span className="font-medium">{source.title}</span>
+                          {source.slug && (
+                            <span className="block truncate opacity-70">
+                              {source.slug}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {message.file && (
                   <div>
                     {message.file.type.startsWith("image/") ? (

@@ -1,0 +1,86 @@
+/* ── Museum Toast Overrides ── */
+
+.museum-toast {
+  background: rgb(20, 16, 11); /* museum-charcoal */
+  border: 1px solid rgba(216, 162, 74, 0.28);
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(216, 162, 74, 0.12);
+  color: rgb(247, 239, 226); /* museum-ivory */
+  padding: 14px 16px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.museum-toast .Toastify__toast-icon {
+  width: 22px;
+}
+
+/* Success */
+.museum-toast[class*="success"] {
+  border-color: rgba(47, 107, 85, 0.45); /* museum-jade */
+}
+
+.museum-toast[class*="success"] .Toastify__toast-icon svg {
+  fill: rgb(47, 107, 85);
+}
+
+.museum-toast[class*="success"] .museum-toast-progress {
+  background: linear-gradient(90deg, rgb(47, 107, 85), rgb(111, 174, 141));
+}
+
+/* Error */
+.museum-toast[class*="error"] {
+  border-color: rgba(143, 29, 29, 0.55); /* museum-seal */
+}
+
+.museum-toast[class*="error"] .Toastify__toast-icon svg {
+  fill: rgb(143, 29, 29);
+}
+
+.museum-toast[class*="error"] .museum-toast-progress {
+  background: linear-gradient(90deg, rgb(143, 29, 29), rgb(199, 106, 53));
+}
+
+/* Warning */
+.museum-toast[class*="warning"] {
+  border-color: rgba(216, 162, 74, 0.6);
+}
+
+.museum-toast[class*="warning"] .Toastify__toast-icon svg {
+  fill: rgb(216, 162, 74);
+}
+
+.museum-toast[class*="warning"] .museum-toast-progress {
+  background: linear-gradient(90deg, rgb(216, 162, 74), rgb(242, 198, 109));
+}
+
+/* Info */
+.museum-toast[class*="info"] {
+  border-color: rgba(216, 162, 74, 0.35);
+}
+
+.museum-toast[class*="info"] .Toastify__toast-icon svg {
+  fill: rgb(242, 198, 109);
+}
+
+.museum-toast[class*="info"] .museum-toast-progress {
+  background: linear-gradient(90deg, rgb(242, 198, 109), rgb(216, 162, 74));
+}
+
+/* Progress bar base */
+.museum-toast-progress {
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Close button */
+.museum-toast .Toastify__close-button {
+  color: rgb(169, 157, 138); /* museum-muted */
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.museum-toast .Toastify__close-button:hover {
+  color: rgb(242, 198, 109); /* museum-gold-light */
+  opacity: 1;
+}

@@ -52,9 +52,10 @@ const LeaderboardTable = ({ heritageId, heritageName = 'Di tích lịch sử', i
   useEffect(() => {
     if (!data || !isOpen) return
 
-    if (data.rankings?.length > 0) {
-      setRankings(prev => page === 1 ? data.rankings : [...prev, ...data.rankings])
-      setHasMore(data.pagination.totalPages > page)
+    const lbData = data?.data
+    if (lbData?.rankings?.length > 0) {
+      setRankings(prev => page === 1 ? lbData.rankings : [...prev, ...lbData.rankings])
+      setHasMore(lbData.pagination?.totalPages > page)
     } else if (page === 1) {
       setRankings([])
     }

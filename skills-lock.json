@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "design-system": {
+      "source": "blunotech-dev/agents",
+      "sourceType": "github",
+      "skillPath": "design/design-system/SKILL.md",
+      "computedHash": "619052d29f3fbb0d65d0ee0bfd18716de610a1001a0a07e8bd425356ffc8a60c"
+    },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "6d838b246d0e35d0b53f4f23f98ba7a1dd561937e64f7d0c7553b0928e376c3e"
+    }
+  }
+}
