@@ -177,7 +177,10 @@ const UserProfile = () => {
   if (!user) {
     return (
       <section className='museum-shell flex min-h-screen items-center justify-center pt-navbar-mobile sm:pt-navbar'>
-        <Loader2 className='h-8 w-8 animate-spin text-museum-gold-light' />
+        <div className='flex flex-col items-center gap-4'>
+          <Loader2 className='h-8 w-8 animate-spin text-museum-gold-light' />
+          <p className='text-sm text-museum-muted'>Loading your profile...</p>
+        </div>
       </section>
     )
   }

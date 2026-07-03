@@ -155,9 +155,8 @@
 
 .heritage-map-page .reset-map-btn {
   position: absolute;
-  left: 50%;
+  left: 22px;
   bottom: 26px;
-  transform: translateX(-50%);
   z-index: 25;
   width: max-content;
   border: 1px solid rgba(var(--museum-gold), 0.45);
@@ -1622,5 +1621,136 @@
 
   .heritage-map-page .detail-hero {
     grid-template-columns: 1fr;
+  }
+
+  .heritage-map-page .top-left-stack {
+    width: calc(100% - 44px);
+    max-width: 370px;
+  }
+
+  .heritage-map-page .category-filter {
+    position: fixed;
+    left: auto;
+    right: 8px;
+    top: 88px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .heritage-map-page .category-filter > div strong {
+    display: none;
+  }
+
+  .heritage-map-page .category-filter > div button {
+    display: none;
+  }
+
+  .heritage-map-page .category-filter button {
+    display: none;
+    font-size: 0;
+    padding: 0;
+  }
+
+  .heritage-map-page .category-filter::before {
+    content: "☰";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--museum-gold));
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .heritage-map-page .category-filter:focus-within,
+  .heritage-map-page .category-filter:active {
+    width: 220px;
+    height: auto;
+    border-radius: 20px;
+    padding: 12px;
+    right: 8px;
+    top: 88px;
+    max-height: calc(100vh - 120px);
+    overflow: auto;
+  }
+
+  .heritage-map-page .category-filter:focus-within > div strong,
+  .heritage-map-page .category-filter:focus-within > div button,
+  .heritage-map-page .category-filter:focus-within button,
+  .heritage-map-page .category-filter:active > div strong,
+  .heritage-map-page .category-filter:active > div button,
+  .heritage-map-page .category-filter:active button {
+    display: flex;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .heritage-map-page .category-filter:focus-within::before,
+  .heritage-map-page .category-filter:active::before {
+    display: none;
+  }
+
+  .heritage-map-page .map-search-center {
+    width: calc(100% - 88px);
+  }
+
+  .heritage-map-page .mini-site-popup {
+    width: calc(100vw - 44px);
+    max-width: 330px;
+    left: 50% !important;
+    top: auto !important;
+    bottom: 80px;
+    transform: translate(-50%, 0);
+  }
+
+  .heritage-map-page .mini-site-popup::before {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .heritage-map-page .top-left-stack {
+    top: 80px;
+  }
+
+  .heritage-map-page .create-trip-btn {
+    font-size: 11px;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .heritage-map-page .map-search-center {
+    top: 80px;
+    width: calc(100% - 32px);
+    left: 16px;
+    transform: none;
+  }
+
+  .heritage-map-page .category-filter {
+    top: 80px;
+  }
+
+  .heritage-map-page .category-filter:focus-within,
+  .heritage-map-page .category-filter:active {
+    top: 80px;
+  }
+
+  .heritage-map-page .floating-return-btn {
+    font-size: 11px;
+    padding: 10px 16px;
+    bottom: 16px;
+  }
+
+  .heritage-map-page .reset-map-btn {
+    bottom: 16px;
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+
+  .heritage-map-page .playback-controller {
+    bottom: 12px;
+    padding: 12px;
   }
 }

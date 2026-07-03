@@ -21,6 +21,8 @@ const FOOTER_CONFIG = {
   navLinks: [
     { to: "/heritages", labelKey: "nav.heritageSites" },
     { to: "/explore", labelKey: "nav.explore" },
+    { to: "/historical-map", labelKey: "nav.historicalMap" },
+    { to: "/passport", labelKey: "nav.passport" },
     { to: "/about", labelKey: "nav.about" },
   ],
 };

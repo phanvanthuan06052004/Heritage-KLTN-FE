@@ -50,8 +50,10 @@ const DynastyBar = () => {
         </MotionReveal>
 
         <div className="grid gap-7 lg:grid-cols-[1fr_320px]">
-          <div className="museum-scrollbar overflow-x-auto pb-5">
-            <div className="relative flex min-w-max gap-4 pr-4">
+          <div className="museum-scrollbar overflow-x-auto pb-5 relative">
+            <div className="sticky left-0 z-10 w-6 h-full bg-gradient-to-r from-museum-black/60 to-transparent pointer-events-none absolute top-0 rounded-l-3xl" />
+            <div className="sticky right-0 z-10 w-6 h-full bg-gradient-to-r from-transparent to-museum-black/60 pointer-events-none absolute top-0 rounded-r-3xl" />
+            <div className="relative flex min-w-max gap-4 pr-4 pl-3">
               <div className="absolute left-4 right-4 top-[4.4rem] h-1 rounded-full bg-gradient-to-r from-museum-jade/35 via-museum-gold/50 to-museum-terracotta/40" />
               {dynasties.map((dynasty, index) => {
                 const isActive = activeId === dynasty.id;
@@ -62,7 +64,7 @@ const DynastyBar = () => {
                     onMouseEnter={() => setActiveId(dynasty.id)}
                     onFocus={() => setActiveId(dynasty.id)}
                     onClick={() => setActiveId(dynasty.id)}
-                    className={`relative z-10 w-[210px] rounded-3xl border p-4 text-left transition ${
+                    className={`relative z-10 w-[180px] sm:w-[210px] rounded-3xl border p-4 text-left transition ${
                       isActive
                         ? "border-museum-gold/70 bg-museum-gold/14 shadow-museum-gold"
                         : "border-museum-gold/15 bg-museum-ivory/6 hover:border-museum-gold/45 hover:bg-museum-ivory/10"

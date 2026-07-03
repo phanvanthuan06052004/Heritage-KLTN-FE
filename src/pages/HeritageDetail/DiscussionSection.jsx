@@ -70,9 +70,12 @@ const DiscussionSection = ({ heritageId }) => {
         ) : !topLevelComments ||
           !topLevelComments.discussArray ||
           topLevelComments.discussArray.length === 0 ? (
-          <p className="mb-6 text-center text-museum-muted">
-            No comments yet. Be the first to comment!
-          </p>
+          <div className="mb-6 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-museum-gold/20 bg-museum-black/30 py-10 text-center">
+            <MessageSquare className="h-10 w-10 text-museum-gold/40" />
+            <p className="text-sm text-museum-muted">
+              No comments yet. Be the first to comment!
+            </p>
+          </div>
         ) : (
           <div className="space-y-4">
             {topLevelComments?.discussArray?.map((comment) => (
