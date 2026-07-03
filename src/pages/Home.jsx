@@ -32,15 +32,15 @@ const Home = () => {
         <HeroCarousel />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-8 bg-transparent" aria-hidden="true" />}>
         <MarqueeStrip />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-14 bg-transparent" aria-hidden="true" />}>
         <DynastyBar />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-32 bg-transparent" aria-hidden="true" />}>
         <OnThisDay />
       </Suspense>
 

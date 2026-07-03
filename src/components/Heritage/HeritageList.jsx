@@ -1,9 +1,6 @@
 import { cn } from "~/lib/utils";
-import { lazy, Suspense } from "react";
 import { Inbox } from "lucide-react";
-import HeritageSkeletonCard from "./HeritageSkeletonCard";
-
-const HeritageCard = lazy(() => import("./HeritageCard"));
+import HeritageCard from "./HeritageCard";
 
 const EmptyState = () => (
   <div
@@ -39,9 +36,7 @@ const HeritageList = ({ heritages, className, cardVariant }) => {
     >
       {heritages.map((item) => (
         <li key={item._id}>
-          <Suspense fallback={<HeritageSkeletonCard />}>
-            <HeritageCard item={item} variant={cardVariant} />
-          </Suspense>
+          <HeritageCard item={item} variant={cardVariant} />
         </li>
       ))}
     </ul>

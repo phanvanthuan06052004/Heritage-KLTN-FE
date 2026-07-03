@@ -1,10 +1,11 @@
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import AppRoutes from "./routes";
 import ToastProvider from "./components/ToastProvider/ToastProvider";
 import { useFavoriteInitializer } from "./hooks/useFavoriteInitializer";
 import { LoadingScreen } from "./components/common/LoadingScreen";
-import GlobalChatbot from "./components/GlobalChatbot/GlobalChatbot";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+
+const GlobalChatbot = lazy(() => import("./components/GlobalChatbot/GlobalChatbot"));
 
 const App = () => {
   useFavoriteInitializer();
@@ -14,7 +15,9 @@ const App = () => {
       <Suspense fallback={<LoadingScreen />}>
         <AppRoutes />
         <ToastProvider />
-        <GlobalChatbot />
+        <Suspense fallback={null}>
+          <GlobalChatbot />
+        </Suspense>
       </Suspense>
     </ErrorBoundary>
   );

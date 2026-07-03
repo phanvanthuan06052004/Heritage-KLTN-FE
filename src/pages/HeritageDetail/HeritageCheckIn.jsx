@@ -16,7 +16,7 @@ export default function HeritageCheckIn({ id, data }) {
   const userId = user?._id || user?.id || null;
   const isAuth = !!userId;
 
-  const { data: stamps = [], refetch } = useGetPassportQuery(userId, { skip: !userId });
+  const { data: stamps = [], isLoading, refetch } = useGetPassportQuery(userId, { skip: !userId });
   const [showModal, setShowModal] = useState(false);
 
   const stamp = stamps.find((s) => s.heritageId === id);
@@ -35,7 +35,12 @@ export default function HeritageCheckIn({ id, data }) {
         <h4 className="font-display text-lg font-semibold">Hộ chiếu di sản</h4>
       </div>
 
-      {visited ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center gap-3 py-4 text-museum-muted animate-pulse">
+          <span className="loading-spinner inline-block w-4 h-4 border-2 border-museum-gold/30 border-t-museum-gold rounded-full animate-spin" />
+          Đang tải hộ chiếu...
+        </div>
+      ) : visited ? (
         <div className="mb-3 flex items-center gap-2 rounded-xl border border-museum-gold/35 bg-museum-gold/10 px-3 py-2.5 text-sm text-museum-gold-light">
           <ShieldCheck className="h-4 w-4 shrink-0" />
           Bạn đã ghé thăm di tích này{stamp?.visits > 1 ? ` (${stamp.visits} lượt)` : ""}.
