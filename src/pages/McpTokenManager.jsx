@@ -96,7 +96,9 @@ const McpTokenManager = () => {
   }
 
   // MCP base URL structure for Streamable HTTP / SSE
-  const mcpUrl = `${window.location.protocol}//${window.location.host.replace(':5173', ':5055')}/mcp`
+  const mcpUrl = import.meta.env.VITE_BUILD_MODE === 'production'
+    ? 'https://ai.thuandev.id.vn/mcp'
+    : `${window.location.protocol}//${window.location.host.replace(':5173', ':5055')}/mcp`
 
   const claudeConfigExample = JSON.stringify(
     {
