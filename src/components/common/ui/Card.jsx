@@ -1,5 +1,5 @@
-import React from 'react';
-import { cn } from '~/lib/utils';
+import PropTypes from "prop-types";
+import { cn } from "~/lib/utils";
 
 const Card = ({ children, className = '', tone = 'default', ...props }) => {
   const toneClasses = {
@@ -18,4 +18,10 @@ const Card = ({ children, className = '', tone = 'default', ...props }) => {
   );
 };
 
-export default Card;
+Card.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  tone: PropTypes.oneOf(["default", "muted"]),
+};
+
+export { Card };

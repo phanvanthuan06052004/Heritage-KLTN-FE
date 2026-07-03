@@ -1,8 +1,5 @@
-/* global process */
-import 'dotenv/config'
-
 export const env = {
-    BUILD_MODE: typeof process !== 'undefined' ? process.env.BUILD_MODE : undefined,
-    WEBSITE_DOMAIN_DEVELOPMENT: typeof process !== 'undefined' ? process.env.WEBSITE_DOMAIN_DEVELOPMENT : undefined,
-    WEBSITE_DOMAIN_PRODUCTION: typeof process !== 'undefined' ? process.env.WEBSITE_DOMAIN_PRODUCTION : undefined
+    BUILD_MODE: import.meta.env.VITE_BUILD_MODE,
+    WEBSITE_DOMAIN_DEVELOPMENT: import.meta.env.VITE_WEBSITE_DOMAIN_DEVELOPMENT,
+    WEBSITE_DOMAIN_PRODUCTION: import.meta.env.VITE_WEBSITE_DOMAIN_PRODUCTION
 }

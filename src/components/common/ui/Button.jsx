@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import PropTypes from "prop-types";
 import { Loader2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 
@@ -65,5 +66,15 @@ const Button = forwardRef(
 );
 
 Button.displayName = "Button";
+
+Button.propTypes = {
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(["default", "destructive", "outline", "ghost", "link"]),
+  size: PropTypes.oneOf(["default", "sm", "lg", "icon"]),
+  isLoading: PropTypes.bool,
+  disabled: PropTypes.bool,
+  children: PropTypes.node,
+  "aria-label": PropTypes.string,
+};
 
 export { Button, buttonVariants };

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { cn } from "~/lib/utils";
 
 const sizeVariants = {
@@ -27,4 +28,9 @@ const Spinner = ({ size = "lg", className, ...props }) => {
   );
 };
 
-export default Spinner;
+Spinner.propTypes = {
+  size: PropTypes.oneOf(["sm", "md", "lg", "xl"]),
+  className: PropTypes.string,
+};
+
+export { Spinner, sizeVariants as spinnerVariants };

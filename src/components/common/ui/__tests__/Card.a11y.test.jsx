@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from '@testing-library/react'
 import { toHaveNoViolations } from 'jest-axe'
 import { axe } from 'jest-axe'
-import Card from '../Card'
+import { Card } from '../Card'
 
 expect.extend(toHaveNoViolations)
 

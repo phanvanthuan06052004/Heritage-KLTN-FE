@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import PropTypes from "prop-types";
 import { cn } from "~/lib/utils";
 
 const inputVariants = {
@@ -52,5 +53,13 @@ const Input = forwardRef(
 );
 
 Input.displayName = "Input";
+
+Input.propTypes = {
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(["default", "outline", "ghost", "destructive", "success"]),
+  size: PropTypes.oneOf(["default", "sm", "lg", "icon"]),
+  error: PropTypes.bool,
+  "aria-label": PropTypes.string,
+};
 
 export { Input, inputVariants };

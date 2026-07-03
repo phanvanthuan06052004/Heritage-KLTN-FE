@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState } from "react";
+import PropTypes from "prop-types";
 
 const Avatar = ({ 
   src, 
@@ -50,4 +51,12 @@ const Avatar = ({
   )
 }
 
-export default Avatar 
+Avatar.propTypes = {
+  src: PropTypes.string,
+  name: PropTypes.string,
+  size: PropTypes.oneOf(["sm", "md", "lg", "xl"]),
+  className: PropTypes.string,
+  fallbackClassName: PropTypes.string,
+};
+
+export { Avatar }

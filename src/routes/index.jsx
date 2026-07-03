@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "~/store/slices/authSlice";
 import MainLayout from "~/layout/MainLayout";
 // import ScrollToTop from "~/components/common/ScrollToTop";
-import LoadingScreen from "~/components/common/LoadingScreen";
+import { LoadingScreen } from "~/components/common/LoadingScreen";
 import publicRoutes from "./publicRoutes";
 import privateRoutes from "./privateRoutes";
 

@@ -3,7 +3,7 @@ import { Trophy } from 'lucide-react'
 
 import { useGetLeaderboardByHeritageIdQuery } from '~/store/apis/leaderboardApi'
 import { Button } from '~/components/common/ui/Button'
-import Spinner from '~/components/common/ui/Spinner'
+import { Spinner } from '~/components/common/ui/Spinner'
 import TableRow from './TableRow'
 
 const LeaderboardTable = ({ heritageId, heritageName = 'Di tích lịch sử', isOpen = false }) => {

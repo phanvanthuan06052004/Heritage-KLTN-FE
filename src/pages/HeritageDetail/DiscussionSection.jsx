@@ -4,7 +4,7 @@ import { Loader2, MessageSquare, Send } from "lucide-react";
 import { Button } from "~/components/common/ui/Button";
 import { toast } from "react-toastify";
 import { selectCurrentUser } from "~/store/slices/authSlice";
-import Comment from "~/components/common/ui/Comment";
+import { Comment } from "~/components/common/ui/Comment";
 import {
   useCreateDiscussMutation,
   useGetDiscussByParentIdQuery,

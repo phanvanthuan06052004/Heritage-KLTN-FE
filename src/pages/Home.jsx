@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import LoadingScreen from "~/components/common/LoadingScreen";
+import { LoadingScreen } from "~/components/common/LoadingScreen";
 
 const FeatureHighlight = lazy(
   () => import("~/components/Home/FeatureHighlight/FeatureHighlight"),

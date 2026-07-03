@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Loader2,
   Send,
@@ -235,4 +236,22 @@ const Comment = ({ comment, depth = 0, heritageId, currentUser, avatar }) => {
   );
 };
 
-export default Comment;
+Comment.propTypes = {
+  comment: PropTypes.shape({
+    _id: PropTypes.string,
+    userId: PropTypes.object,
+    username: PropTypes.string,
+    content: PropTypes.string,
+    createdAt: PropTypes.string,
+    comment_left: PropTypes.number,
+    comment_right: PropTypes.number,
+  }).isRequired,
+  depth: PropTypes.number,
+  heritageId: PropTypes.string.isRequired,
+  currentUser: PropTypes.shape({
+    _id: PropTypes.string,
+  }),
+  avatar: PropTypes.string,
+};
+
+export { Comment };

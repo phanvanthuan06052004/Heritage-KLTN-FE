@@ -11,7 +11,7 @@ import {
   useLikeCommentMutation,
   commentSlice,
 } from '~/store/apis/commentApi'
-import Avatar from '~/components/common/Avatar'
+import { Avatar } from '~/components/common/Avatar'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser } from '~/store/slices/authSlice'
 import { toast } from 'react-toastify'

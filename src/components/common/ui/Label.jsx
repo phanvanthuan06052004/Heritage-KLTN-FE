@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { cn } from "~/lib/utils";
 
 const Label = ({ children, className, required, ...props }) => (
@@ -13,5 +14,11 @@ const Label = ({ children, className, required, ...props }) => (
     )}
   </label>
 );
+
+Label.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  required: PropTypes.bool,
+};
 
 export { Label };
