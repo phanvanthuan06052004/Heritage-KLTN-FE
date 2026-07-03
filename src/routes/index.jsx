@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "~/store/slices/authSlice";
 import MainLayout from "~/layout/MainLayout";
+import ScrollToTop from "~/components/common/ScrollToTop";
 import { LoadingScreen } from "~/components/common/LoadingScreen";
 import { ErrorBoundary } from "~/components/ErrorBoundary";
 import publicRoutes from "./publicRoutes";
@@ -121,7 +122,7 @@ const SuspenseWrapper = ({ children }) => (
 const AppRoutes = () => {
   return (
     <>
-      {/* <ScrollToTop /> */}
+      <ScrollToTop />
       <Routes>
         {/* Public Routes with MainLayout */}
         <Route path="/" element={<MainLayout />}>
