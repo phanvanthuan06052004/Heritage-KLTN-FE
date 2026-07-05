@@ -3,8 +3,8 @@ import { cn } from "~/lib/utils";
 
 const Card = ({ children, className = '', tone = 'default', ...props }) => {
   const toneClasses = {
-    default: 'bg-[color:var(--card)] text-[color:var(--card-foreground)] border border-[color:var(--border)]',
-    muted: 'bg-[color:var(--muted)] text-[color:var(--muted-foreground)] border border-[color:var(--border)]/60',
+    default: 'bg-card text-card-foreground border border-border',
+    muted: 'bg-muted text-muted-foreground border border-border/60',
   };
 
   return (

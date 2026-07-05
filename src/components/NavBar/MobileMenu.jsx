@@ -33,7 +33,7 @@ const MobileMenu = ({ isOpen, navLinks, userMenuLinks, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-40 overflow-y-auto bg-museum-black/96 text-museum-ivory backdrop-blur-2xl lg:hidden pt-navbar-mobile animate-fade-in"
+      className="fixed inset-0 z-40 overflow-y-auto bg-gradient-to-b from-museum-black/98 to-museum-charcoal/98 text-museum-ivory backdrop-blur-2xl lg:hidden pt-navbar-mobile animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-label="Mobile navigation menu"

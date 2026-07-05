@@ -1,4 +1,4 @@
-export const API = 'http://localhost:3002';
+export const API = 'http://localhost:3000/api';
 export const DEFAULT_START = { lat: 21.0285, lng: 105.8542, label: 'Hà Nội' };
 export const FEATURED_PER_PROVINCE = 3;
 

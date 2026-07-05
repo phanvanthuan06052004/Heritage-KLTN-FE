@@ -1,12 +1,30 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
-      { find: '~', replacement: '/src' }
+      { find: '~', replacement: path.resolve(__dirname, 'src') },
+      { find: '3d-force-graph', replacement: path.resolve(__dirname, 'node_modules/3d-force-graph/dist/3d-force-graph.mjs') }
     ]
+  },
+  optimizeDeps: {
+    exclude: ['three'],
+    esbuildOptions: {
+      plugins: [{
+        name: 'fix-3d-force-graph',
+        setup(build) {
+          build.onResolve({ filter: /^3d-force-graph$/ }, () => ({
+            path: path.resolve(__dirname, 'node_modules/3d-force-graph/dist/3d-force-graph.mjs')
+          }))
+        }
+      }]
+    }
   },
   build: {
     chunkSizeWarningLimit: 3000,

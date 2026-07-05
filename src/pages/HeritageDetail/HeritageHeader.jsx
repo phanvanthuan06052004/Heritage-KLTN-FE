@@ -115,7 +115,7 @@ const HeritageHeader = ({ data }) => {
             <div className='mt-3 flex items-center text-museum-ivory'>
               <Star size={20} className='mr-1 fill-museum-gold-light text-museum-gold-light'/>
               <span className='font-medium'>{data?.stats?.averageRating || 0.0}</span>
-              <span className='ml-1 text-sm text-museum-muted'>({data?.stats?.totalReviews || 0})</span>
+              <span className='ml-1 text-sm text-museum-parchment/70'>({data?.stats?.totalReviews || 0})</span>
             </div>
           </div>
           <div className='flex items-center space-x-3'>
@@ -123,12 +123,12 @@ const HeritageHeader = ({ data }) => {
               <Button
                 variant='outline'
                 className={`rounded-full border-museum-gold/35 bg-museum-ivory/10 text-museum-ivory backdrop-blur-sm hover:bg-museum-gold hover:text-museum-black transition-all ${
-                  isFavorited ? 'border-museum-seal bg-museum-seal/20 text-museum-seal hover:text-museum-ivory' : ''
+                  isFavorited ? 'border-museum-gold-light bg-museum-gold/20 text-museum-gold-light hover:text-museum-black' : ''
                 }`}
                 onClick={handleFavoriteClick}
                 disabled={isAdding || isRemoving}
               >
-                <Heart size={16} className={isFavorited ? 'fill-museum-seal text-museum-seal' : ''} />
+                <Heart size={16} className={isFavorited ? 'fill-museum-gold-light text-museum-gold-light' : ''} />
                 <span>{isFavorited ? 'Yêu thích' : 'Yêu thích'}</span>
               </Button>
             )}

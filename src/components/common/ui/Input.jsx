@@ -5,14 +5,14 @@ import { cn } from "~/lib/utils";
 const inputVariants = {
   variant: {
     default:
-      "border-[color:var(--input)] bg-[color:var(--background)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--heritage-primary)] focus:border-[color:var(--heritage-primary)]",
+      "border-input bg-background text-foreground focus:ring-2 focus:ring-heritage focus:border-heritage",
     outline:
-      "border-[color:var(--input)] bg-transparent focus:ring-2 focus:ring-[color:var(--accent)] focus:border-[color:var(--accent)]",
-    ghost: "border-none bg-transparent focus:ring-0 hover:bg-[color:var(--accent)]/10",
+      "border-input bg-transparent focus:ring-2 focus:ring-accent focus:border-accent",
+    ghost: "border-none bg-transparent focus:ring-0 hover:bg-accent/10",
     destructive:
-      "border-[color:var(--destructive)] bg-[color:var(--background)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--destructive)] focus:border-[color:var(--destructive)]",
+      "border-destructive bg-background text-foreground focus:ring-2 focus:ring-destructive focus:border-destructive",
     success:
-      "border-[color:var(--success)] bg-[color:var(--background)] text-[color:var(--foreground)] focus:ring-2 focus:ring-[color:var(--success)] focus:border-[color:var(--success)]",
+      "border-success bg-background text-foreground focus:ring-2 focus:ring-success focus:border-success",
   },
   size: {
     default: "h-10 px-4 py-2",
@@ -40,7 +40,7 @@ const Input = forwardRef(
           sizeClasses,
           "w-full rounded-md text-sm transition-colors",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          "placeholder:text-[color:var(--muted-foreground)]",
+          "placeholder:text-muted-foreground",
           "focus-visible:outline-none",
           className,
         )}

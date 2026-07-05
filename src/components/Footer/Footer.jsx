@@ -31,9 +31,9 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="relative mt-auto overflow-hidden bg-museum-black text-museum-ivory" role="contentinfo">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/50 to-transparent" />
-      <div className="museum-pattern absolute inset-0 opacity-[0.08]" />
+    <footer className="relative mt-auto overflow-hidden bg-gradient-to-b from-museum-black via-museum-black to-museum-charcoal text-museum-ivory" role="contentinfo">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-museum-gold/25 to-transparent" />
+      <div className="museum-pattern absolute inset-0 opacity-[0.04]" />
       <div className="lcn-container-x relative py-12 sm:py-16">
         <div className="grid gap-10 md:grid-cols-[1.4fr_0.8fr_1fr] md:items-start">
           {/* Brand & Social */}
@@ -44,18 +44,18 @@ const Footer = () => {
                 alt="Heritage"
                 className="h-12 w-10 object-contain"
               />
-              <h4 className="font-display text-2xl font-semibold tracking-[0.12em] text-museum-ivory">
+              <h4 className="font-display text-2xl font-semibold tracking-[0.12em] text-museum-parchment">
                 {t("footer.brand")}
               </h4>
             </Link>
-            <p className="max-w-sm text-center text-sm leading-6 text-museum-muted md:text-left">
+            <p className="max-w-sm text-center text-sm leading-6 text-museum-muted/90 md:text-left">
               {t("footer.tagline")}
             </p>
             <div className="flex items-center gap-3 pt-1">
               {FOOTER_CONFIG.socialLinks.map((social) => (
                 <span
                   key={social.name}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-museum-gold/20 bg-museum-ivory/5 text-museum-muted"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-museum-gold/15 bg-museum-gold/5 text-museum-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
                 >
                   <SocialIcon
                     name={social.name}
@@ -73,7 +73,7 @@ const Footer = () => {
             className="text-center md:text-left"
           >
             <div>
-              <h5 className="mb-4 text-xs font-semibold uppercase tracking-wider text-museum-gold-light">
+              <h5 className="mb-4 text-xs font-semibold uppercase tracking-wider text-museum-gold/90">
                 Quick Links
               </h5>
               <ul className="space-y-2">
@@ -93,7 +93,7 @@ const Footer = () => {
 
           {/* Contact */}
           <div className="flex flex-col items-center gap-3 md:items-start">
-            <h5 className="mb-1 text-xs font-semibold uppercase tracking-wider text-museum-gold-light">
+            <h5 className="mb-1 text-xs font-semibold uppercase tracking-wider text-museum-gold/90">
               Contact
             </h5>
             <div className="flex items-center gap-2 text-museum-muted">
@@ -106,14 +106,14 @@ const Footer = () => {
               </a>
             </div>
             <div className="flex items-center gap-2 text-sm text-museum-muted">
-              <MapPin size={16} className="shrink-0 text-museum-gold-light" />
+              <MapPin size={16} className="shrink-0 text-museum-gold/75" />
               Ho Chi Minh City, Vietnam
             </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 border-t border-museum-gold/15 pt-6 text-center">
+        <div className="mt-10 border-t border-museum-gold/10 pt-6 text-center">
           <p className="text-xs text-museum-muted">
             &copy; {new Date().getFullYear()} {t("footer.brand")}. All rights
             reserved.

@@ -78,7 +78,7 @@ function App() {
   const selectedSites = useMemo(() => [...selectedIds].map(id => sites.find(site => site.id === id)).filter(Boolean), [selectedIds, sites]);
   const popupSite = hoverSite || activeSite;
 
-  useEffect(() => { setSitesLoading(true); fetch(`${API}/api/heritage-sites`).then(r => r.json()).then(d => setSites(Array.isArray(d) ? d : [])).catch(e => setStatus({type:'error',text:`Không tải được dữ liệu: ${e.message}`})).finally(() => setSitesLoading(false)); }, []);
+  useEffect(() => { setSitesLoading(true); fetch(`${API}/heritage-sites`).then(r => r.json()).then(d => setSites(Array.isArray(d) ? d : [])).catch(e => setStatus({type:'error',text:`Không tải được dữ liệu: ${e.message}`})).finally(() => setSitesLoading(false)); }, []);
   useEffect(() => {
     if (!("geolocation" in navigator)) return;
     navigator.geolocation.getCurrentPosition(async position => {
@@ -331,7 +331,7 @@ function App() {
       end_lng: resolvedEnd.lng
     };
     try {
-      const response = await fetch(`${API}/api/trips/recommend`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const response = await fetch(`${API}/trips/recommend`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const data = await response.json();
       if (!response.ok) throw new Error(formatApiError(data));
       const mappedRoute = {
@@ -383,7 +383,7 @@ function App() {
     const resolvedEnd = endPoint || startPoint;
     const body = {province:[...selectedProvinces].join(', '),sites:chosen.map(toPlannerSite),start:{id:null,lat:startPoint.lat,lng:startPoint.lng,label:startPoint.label||'Start'},end:{id:null,lat:resolvedEnd.lat,lng:resolvedEnd.lng,label:resolvedEnd.label||'End'},transport_mode:planner.mode,trip_date:planner.tripDate,available_window:{start_time:planner.windowStart,end_time:planner.windowEnd},num_days:Number(planner.days)||1,constraints:{avoid_highways:planner.avoidHighways,avoid_tolls:planner.avoidTolls,max_total_distance_km:optionalNumber(planner.maxDistanceKm),max_total_duration_min:optionalNumber(planner.maxDurationMin)}};
     try {
-      const response = await fetch(`${API}/api/routes/plan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const response = await fetch(`${API}/routes/plan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const data = await response.json();
       if (!response.ok || data.status === 'error') throw new Error(formatApiError(data));
       setRoute(data); drawRoute(data); setPlannerOpen(false);
@@ -557,7 +557,7 @@ function formatRouteWarnings(warnings) {
 function MiniSitePopup({site, pos, popupRef, selected, toggle, detail, close, keepHover, endHover}) { const cats = site.categories || []; return <div ref={popupRef} className="mini-site-popup" style={{left:pos.x, top:pos.y}} onMouseEnter={keepHover} onMouseLeave={endHover}><button className="mini-close" onClick={close}>×</button><div className="site-kicker">Điểm di sản</div><h2>{site.name}</h2><p className="province">📍 {site.province}</p><div className="badges">{cats.slice(0,3).map(cat => <span key={cat}>{categoryLabel(cat)}</span>)}</div><p>{site.description || site.long_description || 'Đang cập nhật thông tin.'}</p><dl><dt>Giờ mở cửa</dt><dd>{site.opening_hours || '08:00-17:00'}</dd><dt>Thời lượng</dt><dd>{site.estimated_visit_minutes || 60} phút</dd><dt>Giá vé</dt><dd>{formatPrice(site.ticket_price)}</dd></dl><div className="site-actions"><button className="primary" onClick={toggle}>{selected ? 'Bỏ chọn' : 'Chọn điểm này'}</button><button className="ghost" onClick={detail}>Xem chi tiết</button></div></div>; }
 function SiteDetailDialog({site, selected, toggle, close}) {
   const [images, setImages] = useState([]); const [reviews, setReviews] = useState([]); const [enriched, setEnriched] = useState(null); const [slide, setSlide] = useState(0); const [detailLoading, setDetailLoading] = useState(false); const open = Boolean(site);
-  useEffect(() => { if (!site) return; let alive = true; setImages([]); setReviews([]); setEnriched(null); setSlide(0); setDetailLoading(true); Promise.allSettled([fetch(`${API}/api/heritage-sites/${site.id}/images`).then(r => r.json()), fetch(`${API}/api/heritage-sites/${site.id}/reviews`).then(r => r.json()), fetch(`${API}/api/heritage-sites/${site.id}/enrich`).then(r => r.json())]).then(([img, rev, enr]) => { if (!alive) return; if (img.status === 'fulfilled') setImages(img.value.images || []); if (rev.status === 'fulfilled' && Array.isArray(rev.value)) setReviews(rev.value); if (enr.status === 'fulfilled') setEnriched(enr.value); }).finally(() => { if (alive) setDetailLoading(false); }); return () => { alive = false; }; }, [site]);
+  useEffect(() => { if (!site) return; let alive = true; setImages([]); setReviews([]); setEnriched(null); setSlide(0); setDetailLoading(true); Promise.allSettled([fetch(`${API}/heritage-sites/${site.id}/images`).then(r => r.json()), fetch(`${API}/heritage-sites/${site.id}/reviews`).then(r => r.json()), fetch(`${API}/heritage-sites/${site.id}/enrich`).then(r => r.json())]).then(([img, rev, enr]) => { if (!alive) return; if (img.status === 'fulfilled') setImages(img.value.images || []); if (rev.status === 'fulfilled' && Array.isArray(rev.value)) setReviews(rev.value); if (enr.status === 'fulfilled') setEnriched(enr.value); }).finally(() => { if (alive) setDetailLoading(false); }); return () => { alive = false; }; }, [site]);
   if (!site) return null;
   const current = images[slide]; const description = enriched?.long_description || site.long_description || site.description || 'Đang cập nhật thông tin.'; const tips = enriched?.visit_tips || site.visit_tips;
   if (detailLoading) return <Dialog.Root open={open} onOpenChange={value => !value && close()}><Dialog.Portal><Dialog.Overlay className="dialog-overlay" /><Dialog.Content className="detail-modal"><Dialog.Close className="modal-close">×</Dialog.Close><InlineLoading text="Đang mở hồ sơ di sản..." /><div className="detail-hero"><div className="detail-carousel"><div className="detail-placeholder"><span><Spinner /></span><strong>{site.name}</strong><small>Đang tải ảnh và tư liệu...</small></div></div><div className="detail-heading"><div className="site-kicker">Hồ sơ di sản</div><Dialog.Title>{site.name}</Dialog.Title><Dialog.Description>📍 {site.province}</Dialog.Description><div className="badges">{(site.categories || []).map(cat => <span key={cat}>{categoryLabel(cat)}</span>)}</div></div></div><div className="detail-body"><section><h3>Giới thiệu</h3><SkeletonRows count={4} /></section><aside><SkeletonRows count={5} /></aside></div></Dialog.Content></Dialog.Portal></Dialog.Root>;

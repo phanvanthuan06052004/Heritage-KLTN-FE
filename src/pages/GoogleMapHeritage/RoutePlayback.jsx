@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';
+import { API } from './mapUtils';
 
 function decodePolyline(str, precision = 5) {
   let index = 0, lat = 0, lng = 0, coordinates = [];
@@ -151,7 +152,7 @@ export default function RoutePlayback({ route, map, sites }) {
     if (!narrateSite) return;
     setLoadingNarration(true);
     try {
-      const res = await fetch(`/api/heritage-sites/${narrateSite.id}/narrate`);
+      const res = await fetch(`${API}/heritage-sites/${narrateSite.id}/narrate`);
       if (!res.ok) throw new Error(`Narration request failed: ${res.status}`);
       const data = await res.json();
       const narration = data.narration || narrateSite.long_description || narrateSite.description || "Hiện chưa có tư liệu thuyết minh cho địa điểm này.";

@@ -21,8 +21,8 @@ const NavLinks = ({ navLinks }) => {
               "group relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[0.9rem] font-medium leading-none transition-all duration-300 xl:gap-2 xl:px-3.5",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light",
               isActive
-                ? "bg-museum-gold/15 text-museum-gold-light shadow-[inset_0_0_0_1px_rgba(216,162,74,0.26)]"
-                : "text-museum-muted hover:bg-museum-ivory/8 hover:text-museum-ivory",
+                ? "bg-museum-gold/18 text-museum-gold-light shadow-[inset_0_0_0_1px_rgba(216,162,74,0.26)]"
+                : "text-museum-ivory/85 hover:bg-museum-ivory/10 hover:text-museum-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light",
             )}
             aria-current={isActive ? "page" : undefined}
           >
