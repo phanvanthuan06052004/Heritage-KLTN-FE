@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import LoadingScreen from "~/components/common/LoadingScreen";
+import { LoadingScreen } from "~/components/common/LoadingScreen";
 
 const FeatureHighlight = lazy(
   () => import("~/components/Home/FeatureHighlight/FeatureHighlight"),
@@ -15,8 +15,8 @@ const PopularHeritage = lazy(
 const MarqueeStrip = lazy(
   () => import("~/components/Home/MarqueeStrip/MarqueeStrip"),
 );
-const DynastyBar = lazy(
-  () => import("~/components/Home/DynastyBar/DynastyBar"),
+const DynastyScroll = lazy(
+  () => import("~/components/Home/DynastyBar/DynastyScroll"),
 );
 const OnThisDay = lazy(() => import("~/components/Home/OnThisDay/OnThisDay"));
 
@@ -32,15 +32,15 @@ const Home = () => {
         <HeroCarousel />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-8 bg-transparent" aria-hidden="true" />}>
         <MarqueeStrip />
       </Suspense>
 
-      <Suspense fallback={null}>
-        <DynastyBar />
+      <Suspense fallback={<div className="h-14 bg-transparent" aria-hidden="true" />}>
+        <DynastyScroll />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-32 bg-transparent" aria-hidden="true" />}>
         <OnThisDay />
       </Suspense>
 

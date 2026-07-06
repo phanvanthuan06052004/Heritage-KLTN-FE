@@ -1,10 +1,10 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Route, Clock, Flame, MapPin, Globe, Lock, Landmark } from "lucide-react";
 import { fmtDur, fmtKm, timeAgo } from "./tripFormat";
 
-/** Thẻ tóm tắt một hành trình. */
-export default function TripCard({ trip, showAuthor = true }) {
+const TripCard = ({ trip, showAuthor = true }) => {
   const { t } = useTranslation();
   const km = fmtKm(trip.distanceM);
   const heritages = trip.heritages || [];
@@ -55,4 +55,6 @@ export default function TripCard({ trip, showAuthor = true }) {
       </div>
     </Link>
   );
-}
+};
+
+export default memo(TripCard);

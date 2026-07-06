@@ -17,6 +17,16 @@ const AUTH_URLS = [
   '/auth/google/callback',
 ]
 
+const withApiPrefix = (args) => {
+  if (typeof args === 'string') {
+    return args.startsWith('/') ? args.slice(1) : args
+  }
+  if (args && typeof args === 'object' && typeof args.url === 'string') {
+    return args.url.startsWith('/') ? { ...args, url: args.url.slice(1) } : args
+  }
+  return args
+}
+
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   credentials: 'include',
@@ -39,8 +49,9 @@ const baseQuery = fetchBaseQuery({
 })
 
 const baseQueryWithAuth = async (args, api, extraOptions) => {
+  const prefixedArgs = withApiPrefix(args)
   try {
-    let result = await baseQuery(args, api, extraOptions)
+    let result = await baseQuery(prefixedArgs, api, extraOptions)
     if (result?.error?.status === 401 || result?.error?.status === 410) {
       const { accessToken, refreshToken, userInfo } = api.getState().auth
       const isLoggedIn = accessToken && userInfo
@@ -72,7 +83,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
               setAccessToken({ accessToken: newAccessToken })
             )
             // Retry the original query with the new token
-            return await baseQuery(args, api, extraOptions)
+            return await baseQuery(prefixedArgs, api, extraOptions)
           } else {
             // Refresh failed, logout
             await baseQuery(

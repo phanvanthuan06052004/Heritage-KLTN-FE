@@ -1,10 +1,10 @@
-import React from 'react';
-import { cn } from '~/lib/utils';
+import PropTypes from "prop-types";
+import { cn } from "~/lib/utils";
 
 const Card = ({ children, className = '', tone = 'default', ...props }) => {
   const toneClasses = {
-    default: 'bg-[color:var(--card)] text-[color:var(--card-foreground)] border border-[color:var(--border)]',
-    muted: 'bg-[color:var(--muted)] text-[color:var(--muted-foreground)] border border-[color:var(--border)]/60',
+    default: 'bg-card text-card-foreground border border-border',
+    muted: 'bg-muted text-muted-foreground border border-border/60',
   };
 
   return (
@@ -18,4 +18,10 @@ const Card = ({ children, className = '', tone = 'default', ...props }) => {
   );
 };
 
-export default Card;
+Card.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  tone: PropTypes.oneOf(["default", "muted"]),
+};
+
+export { Card };

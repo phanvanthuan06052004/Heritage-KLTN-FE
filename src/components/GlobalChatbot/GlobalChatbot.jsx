@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { Button } from "~/components/common/ui/Button";
 import {
@@ -188,7 +188,7 @@ const ChatbotLauncher = ({ onClick }) => {
       whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.035 }}
       whileTap={{ scale: 0.96 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="fixed bottom-5 right-3 z-50 h-[108px] w-[96px] bg-transparent p-0 text-left outline-none transition focus-visible:ring-4 focus-visible:ring-cyan-300/45 sm:bottom-6 sm:right-6 sm:h-[124px] sm:w-[112px]"
+      className="fixed bottom-4 right-3 z-50 h-[72px] w-[64px] bg-transparent p-0 text-left outline-none transition focus-visible:ring-4 focus-visible:ring-museum-gold-light/45 sm:bottom-5 sm:right-5 sm:h-[84px] sm:w-[72px]"
       aria-label={t("chatbot.fabAria")}
     >
       <MotionSpan
@@ -207,21 +207,21 @@ const ChatbotLauncher = ({ onClick }) => {
           times: prefersReducedMotion ? [0, 0.82, 1] : [0, 0.11, 0.82, 1],
           ease: "easeOut",
         }}
-        className="pointer-events-none absolute bottom-[82px] right-[76px] z-10 w-[min(232px,calc(100vw-8.5rem))] rounded-2xl bg-white/95 px-4 py-3 text-stone-700 shadow-[0_18px_45px_rgba(15,23,42,0.18)] ring-1 ring-stone-200/70 backdrop-blur"
+        className="pointer-events-none absolute bottom-[66px] right-[64px] z-10 w-[min(200px,calc(100vw-7rem))] rounded-2xl bg-museum-espresso/95 px-3.5 py-2.5 text-museum-ivory shadow-museum-card ring-1 ring-museum-gold/20 backdrop-blur"
         aria-hidden="true"
       >
-        <span className="mb-2 flex items-center gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#a95620] text-white shadow-sm">
-            <Sparkles className="h-4 w-4" />
+        <span className="mb-1.5 flex items-center gap-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-museum-gold text-museum-black shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" />
           </span>
-          <span className="truncate text-sm font-semibold text-[#7b2f14]">
+          <span className="truncate text-sm font-semibold text-museum-gold-light">
             {t("chatbot.title")}
           </span>
         </span>
-        <span className="block text-sm leading-5">
+        <span className="block text-[13px] leading-5">
           {t("chatbot.tagline")}
         </span>
-        <span className="mt-1 block text-xs leading-4 text-stone-500">
+        <span className="mt-1 block text-[11px] leading-4 text-museum-muted">
           {t("chatbot.askHint")}
         </span>
       </MotionSpan>
@@ -233,7 +233,7 @@ const ChatbotLauncher = ({ onClick }) => {
             : { opacity: 0, y: 8, scale: 0.92 }
         }
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="pointer-events-none absolute bottom-[104px] right-[4px] z-30 rounded-full border border-cyan-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-cyan-950 shadow-[0_12px_28px_rgba(15,23,42,0.18)] sm:bottom-[120px]"
+        className="pointer-events-none absolute bottom-[82px] right-[4px] z-30 rounded-full border border-museum-gold/30 bg-museum-espresso/95 px-2.5 py-1 text-xs font-semibold text-museum-gold-light shadow-museum-card sm:bottom-[94px]"
         aria-hidden="true"
       >
         {t("chatbot.greeting")}
@@ -352,7 +352,7 @@ const renderInlineMarkdown = (text, isUser = false) => {
       return (
         <strong
           key={`${part}-${index}`}
-          className={cn("font-semibold", isUser ? "text-white" : "text-stone-950")}
+          className={cn("font-semibold", isUser ? "text-museum-black" : "text-museum-ivory")}
         >
           {bold[1]}
         </strong>
@@ -369,7 +369,7 @@ const renderInlineMarkdown = (text, isUser = false) => {
           rel="noreferrer"
           className={cn(
             "font-medium underline underline-offset-2",
-            isUser ? "text-white" : "text-[#8d3d18]",
+            isUser ? "text-museum-black" : "text-museum-seal",
           )}
         >
           {link[1]}
@@ -384,7 +384,7 @@ const renderInlineMarkdown = (text, isUser = false) => {
           key={`${part}-${index}`}
           className={cn(
             "rounded px-1 py-0.5 text-[0.85em]",
-            isUser ? "bg-white/15 text-white" : "bg-stone-100 text-stone-800",
+            isUser ? "bg-museum-black/15 text-museum-black" : "bg-museum-gold/10 text-museum-gold-light",
           )}
         >
           {code[1]}
@@ -463,7 +463,7 @@ const MarkdownContent = ({ content, isUser = false }) => {
           key={`quote-${index}`}
           className={cn(
             "my-2 border-l-2 py-1 pl-3",
-            isUser ? "border-white/40 bg-white/10" : "border-[#a95620]/45 bg-[#fff7ed] text-stone-700",
+            isUser ? "border-museum-black/40 bg-museum-black/10" : "border-museum-seal/45 bg-museum-seal/10 text-museum-parchment",
           )}
         >
           {renderInlineMarkdown(line.replace(/^>\s+/, ""), isUser)}
@@ -485,7 +485,7 @@ const MarkdownContent = ({ content, isUser = false }) => {
     <div
       className={cn(
         "break-words text-sm leading-6",
-        isUser ? "text-white" : "text-stone-900",
+        isUser ? "text-museum-black" : "text-museum-ivory",
       )}
     >
       {elements}
@@ -496,16 +496,16 @@ const MarkdownContent = ({ content, isUser = false }) => {
 const ChatHeader = ({ isMinimized, onMinimize, onClose }) => {
   const { t } = useTranslation();
   return (
-  <div className="flex items-center justify-between border-b border-white/10 bg-[#7b2f14] px-4 py-3 text-white shadow-sm">
-    <div className="flex min-w-0 items-center gap-3">
-      <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/12 ring-1 ring-white/20">
-        <Bot className="h-5 w-5" />
-        <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-[#7b2f14]" />
+  <div className="flex items-center justify-between border-b border-museum-gold/15 bg-museum-seal px-4 py-2.5 text-museum-ivory shadow-sm">
+    <div className="flex min-w-0 items-center gap-2.5">
+      <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-museum-ivory/12 ring-1 ring-museum-ivory/20">
+        <Bot className="h-4 w-4" />
+        <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-museum-jade ring-2 ring-museum-seal" />
       </div>
       <div className="min-w-0">
         <h3 className="truncate text-sm font-semibold">{t("chatbot.title")}</h3>
         {!isMinimized && (
-          <p className="truncate text-xs text-white/72">
+          <p className="truncate text-[11px] text-museum-ivory/72">
             {t("chatbot.headerSubtitle")}
           </p>
         )}
@@ -513,18 +513,18 @@ const ChatHeader = ({ isMinimized, onMinimize, onClose }) => {
     </div>
     <div className="flex items-center gap-1">
       <button
-        className="rounded-md p-2 text-white/75 transition hover:bg-white/12 hover:text-white"
+        className="rounded-md p-1.5 text-museum-ivory/75 transition hover:bg-museum-ivory/12 hover:text-museum-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
         onClick={onMinimize}
         aria-label={isMinimized ? t("chatbot.expand") : t("chatbot.minimize")}
       >
-        <Minimize2 className="h-4 w-4" />
+        <Minimize2 className="h-3.5 w-3.5" />
       </button>
       <button
-        className="rounded-md p-2 text-white/75 transition hover:bg-white/12 hover:text-white"
+        className="rounded-md p-1.5 text-museum-ivory/75 transition hover:bg-museum-ivory/12 hover:text-museum-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light"
         onClick={onClose}
         aria-label={t("chatbot.close")}
       >
-        <X className="h-4 w-4" />
+        <X className="h-3.5 w-3.5" />
       </button>
     </div>
   </div>
@@ -539,7 +539,7 @@ const SourcePanel = ({ sources = [], mode }) => {
 
   if (!sources.length) {
     return (
-      <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+      <div className="mt-3 flex items-center gap-2 rounded-lg border border-museum-gold/20 bg-museum-black/40 px-3 py-2 text-xs text-museum-gold-light">
         <Search className="h-3.5 w-3.5 shrink-0" />
         <span>{t("chatbot.noSources")}</span>
       </div>
@@ -547,14 +547,14 @@ const SourcePanel = ({ sources = [], mode }) => {
   }
 
   return (
-    <div className="mt-3 overflow-hidden rounded-lg border border-stone-200 bg-stone-50/80">
+    <div className="mt-3 overflow-hidden rounded-lg border border-museum-gold/15 bg-museum-black/50">
       <button
         type="button"
         onClick={() => setIsExpanded((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition hover:bg-stone-100"
+        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition hover:bg-museum-gold/8"
       >
-        <span className="flex min-w-0 items-center gap-2 text-xs font-semibold text-stone-700">
-          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-700" />
+        <span className="flex min-w-0 items-center gap-2 text-xs font-semibold text-museum-parchment">
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-museum-jade" />
           <span className="truncate">
             {t("chatbot.basedOnWiki", { count: sources.length })}
             {modeLabel ? ` • ${modeLabel}` : ""}
@@ -562,29 +562,29 @@ const SourcePanel = ({ sources = [], mode }) => {
         </span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-stone-500 transition-transform",
+            "h-4 w-4 shrink-0 text-museum-muted transition-transform",
             isExpanded && "rotate-180",
           )}
         />
       </button>
-      <div className="space-y-2 border-t border-stone-200 px-3 py-2">
+      <div className="space-y-2 border-t border-museum-gold/15 px-3 py-2">
         {visibleSources.map((source, index) => (
           <div
             key={`${source.slug || source.title}-${index}`}
-            className="rounded-md bg-white px-2.5 py-2 text-xs shadow-sm ring-1 ring-stone-200"
+            className="rounded-md bg-museum-espresso/60 px-2.5 py-2 text-xs shadow-sm ring-1 ring-museum-gold/15"
           >
             <div className="flex items-start gap-2">
-              <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#a95620]" />
+              <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-museum-gold-light" />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-stone-800">
+                <p className="truncate font-semibold text-museum-ivory">
                   {source.title || t("chatbot.untitledSource")}
                 </p>
-                <p className="truncate text-stone-500">
+                <p className="truncate text-museum-muted">
                   {source.slug || source.pageType || t("chatbot.wikiPage")}
                 </p>
               </div>
               {typeof source.similarity === "number" && (
-                <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+                <span className="rounded bg-museum-jade/15 px-1.5 py-0.5 text-[10px] font-semibold text-museum-jade-light">
                   {Math.round(source.similarity * 100)}%
                 </span>
               )}
@@ -595,7 +595,7 @@ const SourcePanel = ({ sources = [], mode }) => {
           <button
             type="button"
             onClick={() => setIsExpanded((prev) => !prev)}
-            className="text-xs font-medium text-[#9b461c] hover:text-[#703012]"
+            className="text-xs font-medium text-museum-gold-light hover:text-museum-gold"
           >
             {isExpanded
               ? t("chatbot.collapseSources")
@@ -620,13 +620,13 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
   const total = citations.length || rawSources.length;
 
   return (
-    <div className="mt-3 overflow-hidden rounded-lg border border-emerald-200 bg-emerald-50/70 text-xs text-emerald-900">
+    <div className="mt-3 overflow-hidden rounded-lg border border-museum-jade/25 bg-museum-jade/10 text-xs text-museum-ivory">
       <button
         type="button"
         onClick={() => setIsExpanded((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition hover:bg-emerald-100/60"
+        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left transition hover:bg-museum-jade/15"
       >
-        <span className="flex min-w-0 items-center gap-2 font-semibold">
+        <span className="flex min-w-0 items-center gap-2 font-semibold text-museum-jade-light">
           <FileSearch className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">
             {t("chatbot.rawDocuments")} {total ? `(${total})` : ""}
@@ -634,7 +634,7 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
         </span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-emerald-700 transition-transform",
+            "h-4 w-4 shrink-0 text-museum-jade-light transition-transform",
             isExpanded && "rotate-180",
           )}
         />
@@ -643,18 +643,18 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
         {visibleCitations.map((citation, index) => (
           <div
             key={`${citation.sourceId || citation.title || "citation"}-${index}`}
-            className="mx-3 rounded-md bg-white/80 px-2.5 py-2 ring-1 ring-emerald-100 last:mb-3"
+            className="mx-3 rounded-md bg-museum-espresso/50 px-2.5 py-2 ring-1 ring-museum-jade/20 last:mb-3"
           >
-            <p className="font-semibold text-emerald-950">
+            <p className="font-semibold text-museum-ivory">
               {citation.title || citation.sourceTitle || t("chatbot.citationSource")}
             </p>
             {(citation.page || citation.pageNumber) && (
-              <p className="mt-0.5 text-emerald-700">
+              <p className="mt-0.5 text-museum-muted">
                 {t("chatbot.page", { page: citation.page || citation.pageNumber })}
               </p>
             )}
             {citation.snippet && (
-              <p className={cn("mt-1 text-emerald-800", !isExpanded && "line-clamp-2")}>
+              <p className={cn("mt-1 text-museum-parchment/80", !isExpanded && "line-clamp-2")}>
                 {citation.snippet}
               </p>
             )}
@@ -664,9 +664,9 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
         {visibleRawSources.map((source, index) => (
           <div
             key={`${source.sourceId || source.id || source.title || "raw"}-${index}`}
-            className="mx-3 rounded-md bg-white/80 px-2.5 py-2 ring-1 ring-emerald-100 last:mb-3"
+            className="mx-3 rounded-md bg-museum-espresso/50 px-2.5 py-2 ring-1 ring-museum-jade/20 last:mb-3"
           >
-            <p className="font-semibold text-emerald-950">
+            <p className="font-semibold text-museum-ivory">
               {source.title || source.fileName || t("chatbot.rawSource")}
             </p>
             {source.url && (
@@ -674,7 +674,7 @@ const EvidencePanel = ({ citations = [], rawSources = [] }) => {
                 href={source.url}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-0.5 block truncate text-emerald-700 underline-offset-2 hover:underline"
+                className="mt-0.5 block truncate text-museum-gold-light underline-offset-2 hover:underline"
               >
                 {source.url}
               </a>
@@ -695,7 +695,7 @@ const FollowUpActions = ({ message, onAction }) => {
         key={action.id}
         type="button"
         onClick={() => onAction(action, message)}
-        className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm transition hover:border-[#a95620]/40 hover:bg-[#fff7ed] hover:text-[#7b2f14]"
+        className="inline-flex items-center gap-1.5 rounded-full border border-museum-gold/20 bg-museum-espresso/60 px-2.5 py-1.5 text-xs font-medium text-museum-parchment shadow-sm transition hover:border-museum-gold/40 hover:bg-museum-gold/10 hover:text-museum-gold-light"
       >
         <action.icon className="h-3.5 w-3.5" />
         {t(action.labelKey)}
@@ -725,8 +725,8 @@ const MessageBubble = ({ message, onAction }) => {
           className={cn(
             "mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
             isUser
-              ? "bg-stone-900 text-white"
-              : "bg-[#a95620] text-white shadow-sm",
+              ? "bg-museum-gold text-museum-black"
+              : "bg-museum-seal text-museum-ivory shadow-sm",
           )}
         >
           {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
@@ -736,8 +736,8 @@ const MessageBubble = ({ message, onAction }) => {
           className={cn(
             "message-bubble rounded-2xl px-3.5 py-3 text-sm shadow-sm min-w-0 flex-1",
             isUser
-              ? "rounded-tr-md bg-stone-900 text-white"
-              : "rounded-tl-md border border-stone-200 bg-white text-stone-900",
+              ? "rounded-tr-md bg-museum-gold text-museum-black"
+              : "rounded-tl-md border border-museum-gold/20 bg-museum-black/70 text-museum-ivory",
           )}
         >
           <MarkdownContent content={message.content} isUser={isUser} />
@@ -762,7 +762,7 @@ const MessageBubble = ({ message, onAction }) => {
           <p
             className={cn(
               "mt-2 text-[11px]",
-              isUser ? "text-white/62" : "text-stone-400",
+              isUser ? "text-museum-black/62" : "text-museum-muted",
             )}
           >
             {message.timestamp}
@@ -776,9 +776,9 @@ const MessageBubble = ({ message, onAction }) => {
 const WelcomePrompts = ({ onPick }) => {
   const { t } = useTranslation();
   return (
-  <div className="rounded-xl border border-stone-200 bg-white/72 p-3 shadow-sm">
-    <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-stone-600">
-      <Sparkles className="h-3.5 w-3.5 text-[#a95620]" />
+  <div className="rounded-xl border border-museum-gold/15 bg-museum-espresso/40 p-3 shadow-sm">
+    <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-museum-gold-light">
+      <Sparkles className="h-3.5 w-3.5 text-museum-gold" />
       {t("chatbot.startSuggestions")}
     </div>
     <div className="flex flex-wrap gap-2">
@@ -789,7 +789,7 @@ const WelcomePrompts = ({ onPick }) => {
             key={questionKey}
             type="button"
             onClick={() => onPick(question)}
-            className="rounded-full border border-stone-200 bg-white px-3 py-2 text-left text-xs text-stone-600 transition hover:border-[#a95620]/40 hover:bg-[#fff7ed] hover:text-[#7b2f14]"
+            className="rounded-full border border-museum-gold/20 bg-museum-espresso/60 px-3 py-2 text-left text-xs text-museum-parchment transition hover:border-museum-gold/40 hover:bg-museum-gold/10 hover:text-museum-gold-light"
           >
             {question}
           </button>
@@ -805,17 +805,17 @@ const TypingIndicator = () => {
   return (
   <div className="flex justify-start">
     <div className="flex items-start gap-2">
-      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#a95620] text-white">
+      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-museum-seal text-museum-ivory">
         <Bot className="h-4 w-4" />
       </div>
-      <div className="rounded-2xl rounded-tl-md border border-stone-200 bg-white px-3.5 py-3 shadow-sm">
-        <div className="flex items-center gap-2 text-sm text-stone-600">
-          <Loader2 className="h-4 w-4 animate-spin text-[#a95620]" />
+      <div className="rounded-2xl rounded-tl-md border border-museum-gold/20 bg-museum-black/70 px-3.5 py-3 shadow-sm">
+        <div className="flex items-center gap-2 text-sm text-museum-parchment">
+          <Loader2 className="h-4 w-4 animate-spin text-museum-gold-light" />
           {t("chatbot.searching")}
           <span className="flex gap-1">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620]" />
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620] [animation-delay:150ms]" />
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a95620] [animation-delay:300ms]" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-museum-gold" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-museum-gold [animation-delay:150ms]" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-museum-gold [animation-delay:300ms]" />
           </span>
         </div>
       </div>
@@ -834,8 +834,8 @@ const ChatInput = ({
 }) => {
   const { t } = useTranslation();
   return (
-  <div className="border-t border-stone-200 bg-white p-3">
-    <div className="flex items-end gap-2 rounded-xl border border-stone-200 bg-stone-50 p-2 shadow-inner transition focus-within:border-[#a95620] focus-within:ring-2 focus-within:ring-[#a95620]/15">
+  <div className="border-t border-museum-gold/15 bg-museum-black/60 p-3 text-museum-ivory">
+    <div className="flex items-end gap-2 rounded-xl border border-museum-gold/20 bg-museum-charcoal/60 p-2 shadow-inner transition focus-within:border-museum-gold focus-within:ring-2 focus-within:ring-museum-gold/15">
       <textarea
         ref={inputRef}
         value={value}
@@ -844,13 +844,13 @@ const ChatInput = ({
         placeholder={t("chatbot.inputPlaceholder")}
         rows={1}
         disabled={disabled}
-        className="max-h-28 min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-5 text-stone-900 outline-none placeholder:text-stone-400 disabled:cursor-not-allowed disabled:opacity-60"
+        className="max-h-28 min-h-10 flex-1 resize-none bg-transparent px-2 text-sm leading-5 text-museum-ivory outline-none placeholder:text-museum-muted disabled:cursor-not-allowed disabled:opacity-60"
       />
       <Button
         onClick={onSubmit}
         disabled={disabled || !value.trim()}
         size="icon"
-        className="h-10 w-10 shrink-0 rounded-lg bg-[#a95620] text-white hover:bg-[#7b2f14]"
+        className="h-10 w-10 shrink-0 rounded-lg bg-museum-gold text-museum-black hover:bg-museum-gold-light focus-visible:outline-museum-gold-light"
         aria-label={t("chatbot.send")}
       >
         {disabled ? (
@@ -860,7 +860,7 @@ const ChatInput = ({
         )}
       </Button>
     </div>
-    <p className="mt-2 text-center text-[10px] leading-4 text-stone-400">
+    <p className="mt-2 text-center text-[10px] leading-4 text-museum-muted">
       {t("chatbot.disclaimer")}
     </p>
   </div>
@@ -988,7 +988,16 @@ const GlobalChatbot = () => {
     setIsMinimized(false);
   };
 
-  if (location.pathname.includes("/chat/heritage/")) {
+  const hiddenRoutes = [
+    "/chat/heritage/",
+    "/admin",
+    "/login",
+    "/register",
+    "/explore",
+    "/historical-map",
+    "/passport/track",
+  ];
+  if (hiddenRoutes.some((p) => location.pathname.startsWith(p))) {
     return null;
   }
 
@@ -1001,10 +1010,10 @@ const GlobalChatbot = () => {
       {isOpen && (
         <section
           className={cn(
-            "fixed bottom-4 right-4 z-50 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_24px_80px_rgba(28,25,23,0.24)] transition-all duration-300 sm:bottom-6 sm:right-6",
+            "fixed bottom-3 right-3 z-50 overflow-hidden rounded-2xl border border-museum-gold/25 bg-museum-black/98 shadow-[0_12px_56px_rgba(0,0,0,0.55),0_0_0_1px_rgba(216,162,74,0.12)] transition-all duration-300 sm:bottom-4 sm:right-4",
             isMinimized
-              ? "h-[64px] w-[min(calc(100vw-2rem),380px)]"
-              : "h-[min(720px,calc(100vh-2rem))] w-[min(calc(100vw-2rem),430px)]",
+              ? "h-[56px] w-[min(calc(100vw-2rem),320px)]"
+              : "h-[min(580px,calc(100vh-2rem))] w-[min(calc(100vw-2rem),360px)]",
           )}
         >
           <div className="flex h-full flex-col">
@@ -1016,7 +1025,8 @@ const GlobalChatbot = () => {
 
             {!isMinimized && (
               <>
-                <div className="flex-1 space-y-4 overflow-y-auto bg-[#f8f5ef] px-3 py-4 sm:px-4">
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                  <div className="flex-1 space-y-4 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-museum-gold/25 hover:[&::-webkit-scrollbar-thumb]:bg-museum-gold/40 bg-museum-black px-3 py-4 sm:px-4">
                   {messages.map((message) => (
                     <MessageBubble
                       key={message.id}
@@ -1041,6 +1051,7 @@ const GlobalChatbot = () => {
                   onSubmit={handleSendMessage}
                   onKeyDown={handleKeyDown}
                 />
+                </div>
               </>
             )}
           </div>

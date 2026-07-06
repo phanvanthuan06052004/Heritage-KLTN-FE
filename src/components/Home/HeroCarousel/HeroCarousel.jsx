@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "framer-motion";
 import { BookOpen, Map, ShieldCheck, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

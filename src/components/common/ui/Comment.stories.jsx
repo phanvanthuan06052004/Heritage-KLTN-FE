@@ -1,5 +1,5 @@
 import React from 'react'
-import Comment from './Comment'
+import { Comment } from './Comment'
 
 export default {
   title: 'Common/UI/Comment',

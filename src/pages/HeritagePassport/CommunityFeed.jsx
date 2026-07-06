@@ -27,9 +27,28 @@ function fullDate(iso) {
 
 export default function CommunityFeed({ heritageId, title, limit = 12, showHeritage = false }) {
   const { t } = useTranslation();
-  const { data: items = [] } = useGetCommunityQuery({ heritageId, limit });
+  const { data: items = [], isLoading } = useGetCommunityQuery({ heritageId, limit });
   const [selected, setSelected] = useState(null);
   const headerTitle = title ?? t("passport.communityVisited");
+
+  if (isLoading) {
+    return (
+      <div className="rounded-2xl border border-museum-gold/20 bg-museum-black/30 p-5">
+        <div className="mb-3 h-4 w-32 rounded bg-museum-gold/10 animate-pulse" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="overflow-hidden rounded-2xl border border-museum-gold/15 bg-museum-black/45 animate-pulse">
+              <div className="h-28 bg-museum-gold/10" />
+              <div className="p-2.5 space-y-2">
+                <div className="h-4 w-2/3 rounded bg-museum-gold/10" />
+                <div className="h-3 w-1/2 rounded bg-museum-gold/10" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (!items.length) {
     return (

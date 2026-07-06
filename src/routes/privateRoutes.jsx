@@ -1,16 +1,17 @@
+import { lazy } from "react"
 import { Navigate } from "react-router-dom"
-import AdminLayout from "~/layout/AdminLayout"
-import AddHeritage from "~/pages/Admin/Heritage/AddHeritage"
-import HeritageDetail from "~/pages/Admin/Heritage/HeritageDetail"
-import HeritageManagement from "~/pages/Admin/Heritage/HeritageManagement"
-import AddKnowledgeTest from "~/pages/Admin/Knowledge/AddKnowledgeTest"
-import KnowledgeTestManagement from "~/pages/Admin/Knowledge/KnowledgeTestManagement"
-import UpdateKnowledgeTest from "~/pages/Admin/Knowledge/UpdateKnowledgeTest"
-import KnowledgeBase from "~/pages/Admin/KnowledgeBase/KnowledgeBase"
-import UserDetail from "~/pages/Admin/User/UserDetail"
-import UserManagement from "~/pages/Admin/User/UserManagement"
-import GraphManagement from "~/pages/Admin/Graph/GraphManagement"
 
+const AdminLayout = lazy(() => import("~/layout/AdminLayout"))
+const AddHeritage = lazy(() => import("~/pages/Admin/Heritage/AddHeritage"))
+const HeritageDetail = lazy(() => import("~/pages/Admin/Heritage/HeritageDetail"))
+const HeritageManagement = lazy(() => import("~/pages/Admin/Heritage/HeritageManagement"))
+const AddKnowledgeTest = lazy(() => import("~/pages/Admin/Knowledge/AddKnowledgeTest"))
+const KnowledgeTestManagement = lazy(() => import("~/pages/Admin/Knowledge/KnowledgeTestManagement"))
+const UpdateKnowledgeTest = lazy(() => import("~/pages/Admin/Knowledge/UpdateKnowledgeTest"))
+const KnowledgeBase = lazy(() => import("~/pages/Admin/KnowledgeBase/KnowledgeBase"))
+const UserDetail = lazy(() => import("~/pages/Admin/User/UserDetail"))
+const UserManagement = lazy(() => import("~/pages/Admin/User/UserManagement"))
+const GraphManagement = lazy(() => import("~/pages/Admin/Graph/GraphManagement"))
 
 const privateRoutes = [
   {

@@ -4,7 +4,7 @@ const SocialIcon = ({ name, url, iconPath }) => (
     target='_blank'
     rel='noopener noreferrer'
     aria-label={`Follow us on ${name}`}
-    className='group focus:outline-none'
+    className='group focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light rounded-full'
   >
     <svg
       role='img'

@@ -4,37 +4,39 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 224 71% 4%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    --primary: 222 47% 31%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 222 47% 31%;
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 222 47% 96%;
-    --accent-foreground: 222 47% 31%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 47% 31%;
-    --sidebar: 223 47% 11%;
-    --sidebar-accent: 222 47% 17%;
+    --background: 36 38% 97%;
+    --foreground: 30 35% 8%;
+    --card: 36 50% 99%;
+    --card-foreground: 30 35% 8%;
+    --primary: 0 52% 30%;
+    --primary-foreground: 36 40% 98%;
+    --secondary: 36 45% 94%;
+    --secondary-foreground: 0 52% 30%;
+    --muted: 36 35% 93%;
+    --muted-foreground: 30 12% 40%;
+    --accent: 36 55% 93%;
+    --accent-foreground: 0 52% 30%;
+    --border: 36 22% 87%;
+    --input: 36 22% 87%;
+    --ring: 0 52% 30%;
+    --sidebar: 30 38% 10%;
+    --sidebar-accent: 0 45% 17%;
 
-    --destructive: 0 85% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 36 40% 98%;
+    --success: 158 45% 37%;
+    --success-foreground: 36 40% 98%;
     --warning: 38 92% 50%;
-    --warning-foreground: 210 40% 98%;
+    --warning-foreground: 30 35% 8%;
+    --warning-badge: 43 74% 49%;
+    --warning-badge-foreground: 30 35% 8%;
 
-    --heritage-primary: 25 70% 47%;
-    --heritage-light: 30 75% 93%;
-    --heritage-dark: 25 80% 25%;
+    --heritage-primary: 0 52% 30%;
+    --heritage-light: 36 50% 94%;
+    --heritage-dark: 0 55% 20%;
 
-    --gold: 43 74% 49%;
-    --text3: 215 16% 47%;
+    --gold: 38 74% 52%;
+    --text3: 30 12% 40%;
 
     --museum-black: 11, 10, 7;
     --museum-charcoal: 20, 16, 11;
@@ -47,41 +49,44 @@
     --museum-jade-light: 111, 174, 141;
     --museum-ivory: 247, 239, 226;
     --museum-parchment: 232, 221, 200;
-    --museum-seal: 143, 29, 29;
+    --museum-seal: 122, 31, 31;
     --museum-muted: 169, 157, 138;
+    --museum-amber: 200, 152, 17;
   }
   .dark {
-    --background: 222 24% 9%;
-    --foreground: 210 30% 96%;
-    --card: 222 22% 12%;
-    --card-foreground: 210 30% 96%;
-    --primary: 25 80% 60%;
-    --primary-foreground: 222 24% 9%;
-    --secondary: 217 19% 17%;
-    --secondary-foreground: 210 30% 96%;
-    --muted: 217 19% 17%;
-    --muted-foreground: 215 16% 65%;
-    --accent: 25 70% 47%;
-    --accent-foreground: 210 30% 96%;
-    --border: 217 19% 22%;
-    --input: 217 19% 22%;
-    --ring: 25 80% 60%;
-    --sidebar: 222 26% 7%;
-    --sidebar-accent: 222 24% 13%;
+    --background: 27 28% 7%;
+    --foreground: 36 28% 94%;
+    --card: 27 24% 10%;
+    --card-foreground: 36 28% 94%;
+    --primary: 0 45% 55%;
+    --primary-foreground: 27 28% 7%;
+    --secondary: 27 18% 14%;
+    --secondary-foreground: 36 28% 94%;
+    --muted: 27 18% 14%;
+    --muted-foreground: 30 14% 62%;
+    --accent: 0 38% 22%;
+    --accent-foreground: 36 28% 94%;
+    --border: 27 18% 18%;
+    --input: 27 18% 18%;
+    --ring: 0 45% 55%;
+    --sidebar: 27 30% 5%;
+    --sidebar-accent: 0 38% 12%;
 
-    --destructive: 0 65% 50%;
-    --destructive-foreground: 210 30% 96%;
-    --success: 142 60% 45%;
-    --success-foreground: 210 30% 96%;
-    --warning: 38 90% 55%;
-    --warning-foreground: 222 24% 9%;
+    --destructive: 0 55% 48%;
+    --destructive-foreground: 36 28% 94%;
+    --success: 158 38% 42%;
+    --success-foreground: 36 28% 94%;
+    --warning: 38 88% 55%;
+    --warning-foreground: 27 28% 7%;
+    --warning-badge: 41 70% 55%;
+    --warning-badge-foreground: 27 28% 7%;
 
-    --heritage-primary: 25 80% 60%;
-    --heritage-light: 25 35% 22%;
-    --heritage-dark: 25 90% 75%;
+    --heritage-primary: 0 45% 55%;
+    --heritage-light: 27 30% 18%;
+    --heritage-dark: 0 38% 75%;
 
-    --gold: 43 90% 60%;
-    --text3: 215 16% 65%;
+    --gold: 41 80% 58%;
+    --text3: 30 14% 62%;
   }
 }
 

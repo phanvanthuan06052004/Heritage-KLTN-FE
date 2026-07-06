@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useId } from "react";
+import PropTypes from "prop-types";
 import { cn } from "~/lib/utils";
 
 const Dialog = ({ open, onClose, children, className, ...props }) => {
@@ -124,27 +125,69 @@ const DialogFooter = ({ className, children, ...props }) => (
   </div>
 );
 
-const DialogTitle = ({ className, children, ...props }) => (
-  <h2
-    id="dialog-title"
-    className={cn(
-      "text-lg font-semibold leading-none tracking-tight",
-      className,
-    )}
-    {...props}
-  >
-    {children}
-  </h2>
-);
+const DialogTitle = ({ className, children, id, ...props }) => {
+  const generatedId = useId();
+  const titleId = id || `dialog-title-${generatedId}`;
 
-const DialogDescription = ({ className, children, ...props }) => (
-  <p
-    id="dialog-description"
-    className={cn("text-sm text-[color:var(--muted-foreground)]", className)}
-    {...props}
-  >
-    {children}
-  </p>
-);
+  return (
+    <h2
+      id={titleId}
+      className={cn(
+        "text-lg font-semibold leading-none tracking-tight",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </h2>
+  );
+};
+
+const DialogDescription = ({ className, children, id, ...props }) => {
+  const generatedId = useId();
+  const descriptionId = id || `dialog-description-${generatedId}`;
+
+  return (
+    <p
+      id={descriptionId}
+      className={cn(
+        "text-sm text-[color:var(--muted-foreground)]",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+};
+
+Dialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func,
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+DialogHeader.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+
+DialogFooter.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+
+DialogTitle.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+  id: PropTypes.string,
+};
+
+DialogDescription.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+  id: PropTypes.string,
+};
 
 export { Dialog, DialogHeader, DialogFooter, DialogTitle, DialogDescription };

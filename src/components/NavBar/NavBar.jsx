@@ -38,7 +38,7 @@ const NavBar = () => {
     'fixed top-0 inset-x-0 z-50 h-[76px] transition-all duration-300',
     {
       'border-b border-museum-gold/15 bg-museum-black/82 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur-2xl': isScrolled,
-      'bg-museum-black/24 backdrop-blur-md': !isScrolled
+      'border-b border-museum-gold/10 bg-gradient-to-b from-museum-black/78 to-museum-black/62 backdrop-blur-lg': !isScrolled
     }
   )
 

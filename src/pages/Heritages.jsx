@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo } from "react";
-import { Search, RefreshCw, AlertTriangle } from "lucide-react";
+import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   heritageSlice,
@@ -11,6 +11,7 @@ import { Pagination } from "~/components/common/Pagination";
 import MuseumSectionHeader from "~/components/common/MuseumSectionHeader";
 import {
   MuseumEmptyState,
+  MuseumErrorState,
   MuseumSkeletonGrid,
 } from "~/components/common/MuseumStates";
 import { setHeritagesPage } from "~/store/slices/paginationSlice";
@@ -20,7 +21,6 @@ import {
   selectHeritagesSearchQuery,
 } from "~/store/selectors/paginationSelectors";
 import { useLanguage, useLanguageChange } from "~/hooks/useLanguage";
-import { Button } from "~/components/common/ui/Button";
 
 const Heritages = () => {
   const dispatch = useDispatch();
@@ -129,27 +129,11 @@ const Heritages = () => {
 
   // Error state
   const renderErrorState = () => (
-    <div className="col-span-full flex flex-col items-center gap-4 rounded-[2rem] border border-museum-gold/20 bg-museum-ivory/5 px-6 py-16 text-center text-museum-ivory">
-      <div className="rounded-full bg-museum-seal/25 p-4">
-        <AlertTriangle className="h-10 w-10 text-museum-gold-light" />
-      </div>
-      <div>
-        <p className="text-lg font-medium text-museum-ivory">
-          Failed to load heritage sites
-        </p>
-        <p className="mt-1 text-sm text-museum-muted">
-          {error?.data?.message || "Please try again later"}
-        </p>
-      </div>
-      <Button
-        onClick={() => trigger(queryParams)}
-        variant="outline"
-        className="mt-2 rounded-full border-museum-gold/35 bg-museum-ivory/8 text-museum-ivory hover:bg-museum-gold hover:text-museum-black"
-      >
-        <RefreshCw className="w-4 h-4 mr-2" />
-        Try again
-      </Button>
-    </div>
+    <MuseumErrorState
+      title="Failed to load heritage sites"
+      description={error?.data?.message || "Please try again later"}
+      onRetry={() => trigger(queryParams)}
+    />
   );
 
   return (

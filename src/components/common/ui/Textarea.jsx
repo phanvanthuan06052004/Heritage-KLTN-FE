@@ -1,4 +1,5 @@
 import { forwardRef, useState, useCallback } from "react";
+import PropTypes from "prop-types";
 import { cn } from "~/lib/utils";
 
 const Textarea = forwardRef(
@@ -60,5 +61,13 @@ const Textarea = forwardRef(
 );
 
 Textarea.displayName = "Textarea";
+
+Textarea.propTypes = {
+  className: PropTypes.string,
+  maxLength: PropTypes.number,
+  showCharCount: PropTypes.bool,
+  onChange: PropTypes.func,
+  error: PropTypes.bool,
+};
 
 export { Textarea };

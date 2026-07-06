@@ -3,8 +3,9 @@ import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "~/store/slices/authSlice";
 import MainLayout from "~/layout/MainLayout";
-// import ScrollToTop from "~/components/common/ScrollToTop";
-import LoadingScreen from "~/components/common/LoadingScreen";
+import ScrollToTop from "~/components/common/ScrollToTop";
+import { LoadingScreen } from "~/components/common/LoadingScreen";
+import { ErrorBoundary } from "~/components/ErrorBoundary";
 import publicRoutes from "./publicRoutes";
 import privateRoutes from "./privateRoutes";
 
@@ -16,8 +17,8 @@ const ChatHeritagePage = lazy(
 );
 const EmailVerification = lazy(() => import("~/pages/EmailVerification"));
 const Favorites = lazy(() => import("~/pages/Favorites"));
-const GenericMapExplorer = lazy(
-  () => import("~/pages/GoogleMapHeritage/GenericMapExplorer"),
+const MapExplorer = lazy(
+  () => import("~/pages/GoogleMapHeritage/MapExplorer"),
 );
 const HeritageDetail = lazy(
   () => import("~/pages/HeritageDetail/HeritageDetail"),
@@ -54,7 +55,7 @@ const routeComponents = {
   "/chat/heritage/:nameSlug": <ChatHeritagePage />,
   "/profile": <Profile />,
   "/favorites": <Favorites />,
-  "/explore": <GenericMapExplorer />,
+  "/explore": <MapExplorer />,
   "/historical-map": <HistoricalMap />,
   "/passport": <HeritagePassport />,
   "/passport/track": <TripRecorder />,
@@ -113,13 +114,15 @@ const PrivateRoutes = ({ children }) => {
  * Suspense wrapper for lazy-loaded components
  */
 const SuspenseWrapper = ({ children }) => (
-  <Suspense fallback={<LoadingScreen />}>{children}</Suspense>
+  <ErrorBoundary>
+    <Suspense fallback={<LoadingScreen />}>{children}</Suspense>
+  </ErrorBoundary>
 );
 
 const AppRoutes = () => {
   return (
     <>
-      {/* <ScrollToTop /> */}
+      <ScrollToTop />
       <Routes>
         {/* Public Routes with MainLayout */}
         <Route path="/" element={<MainLayout />}>

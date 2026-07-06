@@ -26,8 +26,34 @@ export function useUserId() {
  */
 export default function PassportCollection({ userId }) {
   const { t } = useTranslation();
-  const { data: progress } = useGetProgressQuery(userId, { skip: !userId });
-  const { data: stamps = [] } = useGetPassportQuery(userId, { skip: !userId });
+  const { data: progress, isLoading: progressLoading } = useGetProgressQuery(userId, { skip: !userId });
+  const { data: stamps = [], isLoading: stampsLoading } = useGetPassportQuery(userId, { skip: !userId });
+
+  const loading = progressLoading || stampsLoading;
+
+  if (loading) return (
+    <div>
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="museum-card rounded-2xl border border-museum-gold/20 bg-museum-black/55 p-5 animate-pulse">
+            <div className="h-5 w-24 rounded bg-museum-gold/15" />
+            <div className="mt-3 h-6 w-16 rounded bg-museum-gold/10" />
+            <div className="mt-3 h-2 w-full rounded-full bg-museum-gold/10" />
+          </div>
+        ))}
+      </div>
+      <div className="mb-3 h-4 w-40 rounded bg-museum-gold/10 animate-pulse" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="rounded-2xl border border-museum-gold/20 bg-museum-black/40 p-3 animate-pulse">
+            <div className="mb-2 h-24 rounded-xl bg-museum-gold/10" />
+            <div className="h-4 w-3/4 rounded bg-museum-gold/10" />
+            <div className="mt-1 h-3 w-1/2 rounded bg-museum-gold/10" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   const xpInto = progress?.xpIntoLevel ?? 0;
   const xpNeed = progress?.xpForNextLevel ?? 100;

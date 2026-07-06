@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { cn } from "~/lib/utils";
 
 const LoadingScreen = ({ fullScreen = true, message = "Đang tải..." }) => {
@@ -28,4 +29,9 @@ const LoadingScreen = ({ fullScreen = true, message = "Đang tải..." }) => {
   );
 };
 
-export default LoadingScreen;
+LoadingScreen.propTypes = {
+  fullScreen: PropTypes.bool,
+  message: PropTypes.string,
+};
+
+export { LoadingScreen };

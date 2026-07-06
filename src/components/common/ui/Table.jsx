@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { cn } from "~/lib/utils";
 
 const Table = ({ children, className, wrapperClassName }) => (
@@ -100,5 +101,41 @@ const TableCell = ({ children, className, maxWidth = "none", ...props }) => (
     {children}
   </td>
 );
+
+Table.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  wrapperClassName: PropTypes.string,
+};
+
+TableHeader.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+TableBody.propTypes = {
+  children: PropTypes.node,
+};
+
+TableRow.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  onClick: PropTypes.func,
+  hoverable: PropTypes.bool,
+};
+
+TableHead.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  sortable: PropTypes.bool,
+  sortDirection: PropTypes.oneOf(["asc", "desc"]),
+  onSort: PropTypes.func,
+};
+
+TableCell.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+  maxWidth: PropTypes.string,
+};
 
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell };

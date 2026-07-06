@@ -196,7 +196,7 @@ const ForgotPassword = () => {
                     {t("auth.email")}
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-terracotta" />
                     <input
                       type="email"
                       id="email"
@@ -207,7 +207,7 @@ const ForgotPassword = () => {
                         setEmail(e.target.value);
                         if (error) setError(null);
                       }}
-                      className="w-full h-11 pl-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
+                      className="w-full h-11 pl-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-terracotta/60 focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -261,7 +261,7 @@ const ForgotPassword = () => {
                         setVerificationCode(e.target.value);
                         if (error) setError(null);
                       }}
-                      className="w-full h-11 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
+                      className="w-full h-11 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-terracotta/60 focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                     />
                   </div>
 
@@ -270,7 +270,7 @@ const ForgotPassword = () => {
                       {t("auth.forgotPassword.newPassword")}
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-terracotta" />
                       <input
                         type={showPassword ? "text" : "password"}
                         id="newPassword"
@@ -281,12 +281,12 @@ const ForgotPassword = () => {
                           setNewPassword(e.target.value);
                           if (error) setError(null);
                         }}
-                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
+                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-terracotta/60 focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-muted hover:text-museum-black transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-terracotta hover:text-museum-seal transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="w-4 h-4" />
@@ -302,7 +302,7 @@ const ForgotPassword = () => {
                       {t("auth.confirmPassword")}
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-muted" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-museum-terracotta" />
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         id="confirmPassword"
@@ -313,12 +313,12 @@ const ForgotPassword = () => {
                           setConfirmPassword(e.target.value);
                           if (error) setError(null);
                         }}
-                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
+                        className="w-full h-11 pl-10 pr-10 rounded-xl border border-museum-gold/20 bg-museum-ivory px-3 py-2 text-sm text-museum-black placeholder:text-museum-terracotta/60 focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-muted hover:text-museum-black transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-museum-terracotta hover:text-museum-seal transition-colors"
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="w-4 h-4" />

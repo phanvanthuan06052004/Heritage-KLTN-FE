@@ -146,7 +146,7 @@ const AuthenConfirm = () => {
                     if (error) setError(null);
                   }}
                   maxLength={8}
-                  className="w-full h-12 text-center text-lg font-mono tracking-widest rounded-xl border border-museum-gold/20 bg-museum-ivory text-museum-black placeholder:text-museum-muted focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
+                  className="w-full h-12 text-center text-lg font-mono tracking-widest rounded-xl border border-museum-gold/20 bg-museum-ivory text-museum-black placeholder:text-museum-terracotta/60 focus:ring-2 focus:ring-museum-gold-light focus:border-museum-gold focus:outline-none transition-colors"
                 />
               </div>
 

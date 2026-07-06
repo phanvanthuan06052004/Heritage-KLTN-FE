@@ -65,7 +65,7 @@ export default {
           "jade-light": "#6FAE8D",
           ivory: "#F7EFE2",
           parchment: "#E8DDC8",
-          seal: "#8F1D1D",
+          seal: "#7A1F1F",
           muted: "#A99D8A",
         },
       },

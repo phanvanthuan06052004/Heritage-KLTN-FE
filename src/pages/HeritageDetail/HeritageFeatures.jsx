@@ -32,8 +32,11 @@ const HeritageFeatures = ({ handleFeatureClick }) => {
       {features.map(feature => (
         <div
           key={feature.value}
-          className='cursor-pointer rounded-[1.5rem] border border-museum-gold/20 bg-museum-ivory/6 p-5 text-center text-museum-ivory transition duration-200 hover:-translate-y-0.5 hover:border-museum-gold/45 hover:bg-museum-gold/12 hover:shadow-museum-gold'
+          role="button"
+          tabIndex={0}
+          className='cursor-pointer rounded-[1.5rem] border border-museum-gold/20 bg-museum-ivory/6 p-5 text-center text-museum-ivory transition duration-200 hover:-translate-y-0.5 hover:border-museum-gold/45 hover:bg-museum-gold/12 hover:shadow-museum-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light'
           onClick={() => handleFeatureClick(feature.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleFeatureClick(feature.value); } }}
         >
           {feature.icon}
           <p className='text-sm font-medium'>{feature.label}</p>
