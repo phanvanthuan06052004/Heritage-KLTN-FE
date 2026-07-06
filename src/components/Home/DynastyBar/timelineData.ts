@@ -1,0 +1,355 @@
+export type Era = {
+  id: string;
+  period: string;
+  title: string;
+  short: string;
+  theme: string;
+  summary: string;
+  detail: string;
+  person: string;
+  role: string;
+  place: string;
+  mark: string;
+  file: string;
+  source: string;
+  events: string[];
+  seal: string;
+  drop: string;
+  capital: string;
+  figure: string;
+  milestone: string;
+  quote: string;
+  quoteAuthor: string;
+  imageCaption: string;
+};
+
+function commonsUrl(file: string, width = 1000): string {
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
+}
+
+function fallbackImage(text = "VIỆT", label = "Lịch sử"): string {
+  const s = String(text).replace(/[<>&]/g, "");
+  const l = String(label).replace(/[<>&]/g, "");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#140b06"/><stop offset=".5" stop-color="#9d2f22"/><stop offset="1" stop-color="#d8b65a"/></linearGradient><pattern id="p" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M0 40H80M40 0V80" stroke="rgba(255,240,163,.16)" stroke-width="1.5"/></pattern></defs><rect width="1200" height="750" fill="url(#g)"/><rect width="1200" height="750" fill="url(#p)" opacity=".4"/><circle cx="950" cy="120" r="210" fill="rgba(255,230,150,.14)"/><text x="80" y="365" font-family="Georgia,serif" font-size="120" font-weight="800" fill="#f5ebd8">${s}</text><text x="84" y="440" font-family="Arial,sans-serif" font-size="34" fill="rgba(255,255,255,.7)">${l}</text></svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+export const eras: Era[] = [
+  {
+    id: "hong-bang",
+    period: "~2879 – 258 TCN",
+    title: "Hồng Bàng – Văn Lang",
+    short: "Hồng Bàng",
+    theme: "khởi nguyên",
+    summary: "Lớp huyền sử đặt nền cho ý niệm cội nguồn dân tộc, gắn với nước Văn Lang, trống đồng và nền văn minh lúa nước.",
+    detail: "Thời kỳ Hồng Bàng được coi là khởi đầu của lịch sử Việt Nam. Theo truyền thuyết, Lạc Long Quân kết duyên cùng Âu Cơ sinh ra bọc trăm trứng, nở trăm người con — nguồn gốc của dân tộc. Người con trưởng được tôn làm vua, lấy hiệu Hùng Vương, đặt quốc hiệu là Văn Lang. Kinh đô đặt ở Phong Châu (Phú Thọ ngày nay). Thời kỳ này gắn liền với nền văn minh Đông Sơn và trống đồng — biểu tượng của nền văn hóa lúa nước phát triển rực rỡ. Tín ngưỡng thờ cúng Hùng Vương đã được UNESCO công nhận là Di sản văn hóa phi vật thể đại diện của nhân loại vào năm 2012.",
+    person: "Vua Hùng",
+    role: "biểu tượng khởi nguyên dựng nước",
+    place: "Đền Hùng, Phú Thọ",
+    mark: "Truyền thuyết Lạc Long Quân – Âu Cơ, 18 đời Hùng Vương",
+    file: "Cổng đền Hùng (Phú Thọ).jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Cổng_đền_Hùng_(Phú_Thọ).jpg",
+    events: [
+      "Thành lập nước Văn Lang — nhà nước sơ khai đầu tiên của người Việt",
+      "Phát triển nền văn minh Đông Sơn với kỹ thuật đúc đồng đỉnh cao",
+      "Trống đồng Đông Sơn — kiệt tác văn hóa, biểu tượng quyền lực và tín ngưỡng",
+      "Tục thờ cúng tổ tiên và tín ngưỡng đa thần phát triển mạnh mẽ",
+    ],
+  },
+  {
+    id: "au-lac",
+    period: "257 – 207 TCN",
+    title: "Âu Lạc – An Dương Vương",
+    short: "Âu Lạc",
+    theme: "thành lũy",
+    summary: "An Dương Vương hợp nhất hai bộ tộc Âu Việt và Lạc Việt, dời đô xuống đồng bằng và xây dựng thành Cổ Loa.",
+    detail: "Thục Phán (An Dương Vương) thống nhất hai tộc Âu Việt và Lạc Việt, lập nước Âu Lạc. Ông dời đô từ vùng núi Phú Thọ xuống đồng bằng Cổ Loa (Đông Anh, Hà Nội ngày nay). Thành Cổ Loa được xây dựng theo kiến trúc vòng xoáy trôn ốc 9 vòng, là tòa thành cổ nhất Đông Nam Á còn dấu tích. Bi kịch Mỵ Châu – Trọng Thủy đánh dấu sự sụp đổ của Âu Lạc trước nhà Triệu năm 207 TCN.",
+    person: "An Dương Vương",
+    role: "người dựng thành Cổ Loa",
+    place: "Cổ Loa, Đông Anh, Hà Nội",
+    mark: "Hợp nhất Âu Việt – Lạc Việt, thành Cổ Loa, truyền thuyết nỏ thần",
+    file: "An Duong Vuong Temple Co Loa Golden Turtle Magic Crossbow.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:An_Duong_Vuong_Temple_Co_Loa_Golden_Turtle_Magic_Crossbow.jpg",
+    events: [
+      "Hợp nhất Âu Việt và Lạc Việt thành nước Âu Lạc",
+      "Xây dựng thành Cổ Loa — kiến trúc quân sự độc đáo hình xoáy trôn ốc",
+      "Chế tạo nỏ Liên Châu bắn nhiều mũi tên cùng lúc",
+      "Bi kịch Mỵ Châu – Trọng Thủy dẫn đến sự sụp đổ của Âu Lạc",
+    ],
+  },
+  {
+    id: "bac-thuoc",
+    period: "207 TCN – 938",
+    title: "Bắc thuộc & khởi nghĩa",
+    short: "Bắc thuộc",
+    theme: "kháng cự",
+    summary: "Hơn nghìn năm đô hộ phương Bắc cũng là nghìn năm hun đúc tinh thần độc lập dân tộc qua liên tiếp các cuộc khởi nghĩa.",
+    detail: "Thời kỳ dài nhất trong lịch sử Việt Nam kéo dài hơn 1000 năm. Trong suốt thời gian này, người Việt liên tục nổi dậy chống lại ách đô hộ. Tiêu biểu nhất là khởi nghĩa Hai Bà Trưng (40-43) — cuộc khởi nghĩa đầu tiên giành được độc lập, Bà Triệu (248) với câu nói bất hủ 'Tôi muốn cưỡi cơn gió mạnh, đạp luồng sóng dữ'. Lý Bí lập nước Vạn Xuân (544), Mai Thúc Loan xưng Mai Hắc Đế (722), Phùng Hưng xưng Bố Cái Đại Vương (791). Họ Khúc và Dương Đình Nghệ đã từng bước giành lại quyền tự chủ, tạo tiền đề cho chiến thắng Bạch Đằng của Ngô Quyền.",
+    person: "Hai Bà Trưng",
+    role: "biểu tượng kháng cự",
+    place: "Đền Hai Bà Trưng, Hà Nội",
+    mark: "Hai Bà Trưng, Bà Triệu, Lý Bí, Mai Hắc Đế, Phùng Hưng và nhiều cuộc khởi nghĩa khác",
+    file: "Hai Bà Trưng Temple, Hanoi.JPG",
+    source: "https://commons.wikimedia.org/wiki/File:Hai_Bà_Trưng_Temple,_Hanoi.JPG",
+    events: [
+      "Khởi nghĩa Hai Bà Trưng (40-43) — đánh đuổi Thái thú Tô Định, xưng vương",
+      "Khởi nghĩa Bà Triệu (248) — 'Tôi muốn cưỡi cơn gió mạnh, đạp luồng sóng dữ'",
+      "Lý Bí lập nước Vạn Xuân (544-602) — khẳng định nền độc lập lâu dài",
+      "Mai Thúc Loan xưng Mai Hắc Đế (722), Phùng Hưng (791) — các cuộc nổi dậy lớn",
+    ],
+  },
+  {
+    id: "ngo",
+    period: "939 – 965",
+    title: "Nhà Ngô – mở nền tự chủ",
+    short: "Ngô",
+    theme: "tự chủ",
+    summary: "Chiến thắng Bạch Đằng năm 938 chấm dứt nghìn năm Bắc thuộc. Ngô Quyền xưng vương, mở kỷ nguyên độc lập.",
+    detail: "Năm 938, Ngô Quyền chỉ huy trận địa cọc trên sông Bạch Đằng tiêu diệt quân Nam Hán. Với chiến thuật lợi dụng thủy triều, ông cho quân đóng cọc gỗ bịt sắt xuống lòng sông, nhử địch vào bãi cọc khi thủy triều lên và tiêu diệt khi nước rút. Sau chiến thắng, Ngô Quyền xưng vương, đóng đô ở Cổ Loa, thiết lập triều đình riêng. Dù triều Ngô chỉ tồn tại 26 năm, nhưng lần đầu tiên người Việt thiết lập một vương triều độc lập hoàn toàn.",
+    person: "Ngô Quyền",
+    role: "người kết thúc nghìn năm Bắc thuộc",
+    place: "Đường Lâm / Bạch Đằng",
+    mark: "Chiến thắng Bạch Đằng 938, xưng vương, đóng đô ở Cổ Loa",
+    file: "Tượng Ngô Quyền.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Tượng_Ngô_Quyền.jpg",
+    events: [
+      "Trận Bạch Đằng 938 — chiến thuật cọc gỗ thiên tài",
+      "Ngô Quyền xưng vương, lập triều đình độc lập",
+      "Đóng đô ở Cổ Loa, kế thừa truyền thống Âu Lạc",
+      "Sau khi ông mất, loạn 12 sứ quân nổ ra",
+    ],
+  },
+  {
+    id: "dinh",
+    period: "968 – 980",
+    title: "Nhà Đinh – Đại Cồ Việt",
+    short: "Đinh",
+    theme: "thống nhất",
+    summary: "Đinh Bộ Lĩnh dẹp loạn 12 sứ quân thống nhất đất nước, xưng hoàng đế, lập quốc hiệu Đại Cồ Việt.",
+    detail: "Sau cái chết của Ngô Quyền, đất nước rơi vào loạn 12 sứ quân. Đinh Bộ Lĩnh tập hợp lực lượng, lần lượt đánh dẹp các sứ quân, thống nhất đất nước năm 968. Ông lên ngôi hoàng đế, đặt quốc hiệu là Đại Cồ Việt — nhà nước phong kiến tập quyền đầu tiên của Việt Nam. Ông chọn Hoa Lư (Ninh Bình) làm kinh đô và là người đầu tiên cho đúc tiền đồng (tiền Thái Bình Hưng Bảo).",
+    person: "Đinh Tiên Hoàng",
+    role: "người dẹp loạn 12 sứ quân",
+    place: "Hoa Lư, Ninh Bình",
+    mark: "Đặt quốc hiệu Đại Cồ Việt, xây kinh đô Hoa Lư",
+    file: "Tuongdaidinhtienhoangde2.JPG",
+    source: "https://commons.wikimedia.org/wiki/File:Tuongdaidinhtienhoangde2.JPG",
+    events: [
+      "Dẹp loạn 12 sứ quân, thống nhất đất nước",
+      "Xưng hoàng đế — Đinh Tiên Hoàng, đặt niên hiệu Thái Bình",
+      "Đặt quốc hiệu Đại Cồ Việt, đóng đô Hoa Lư",
+      "Đúc tiền Thái Bình Hưng Bảo — đồng tiền đầu tiên của Việt Nam",
+    ],
+  },
+  {
+    id: "tien-le",
+    period: "980 – 1009",
+    title: "Nhà Tiền Lê – giữ nước",
+    short: "Tiền Lê",
+    theme: "giữ nước",
+    summary: "Lê Hoàn lên ngôi khi Đại Cồ Việt đối mặt nguy cơ xâm lược từ phương Bắc, lập chiến công phá Tống, bình Chiêm.",
+    detail: "Năm 979, Đinh Tiên Hoàng và con trưởng Đinh Liễn bị sát hại. Nhân cơ hội triều đình rối loạn, nhà Tống phát binh xâm lược. Thái hậu Dương Vân Nga cùng triều đình tôn Lê Hoàn lên làm vua. Lê Đại Hành trực tiếp cầm quân ra trận, đánh bại quân Tống trên sông Bạch Đằng và đường bộ năm 981. Ông cũng tiến đánh Chiêm Thành, mở rộng lãnh thổ về phía Nam. Đây là giai đoạn 'giữ nước sau dựng nước' quan trọng, bảo vệ nền độc lập non trẻ.",
+    person: "Lê Đại Hành",
+    role: "vị vua phá Tống, bình Chiêm",
+    place: "Hoa Lư, Ninh Bình",
+    mark: "Kháng chiến chống Tống, bình Chiêm, củng cố Đại Cồ Việt",
+    file: "Le Dai Hanh statue.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Le_Dai_Hanh_statue.jpg",
+    events: [
+      "Lê Hoàn lên ngôi trong bối cảnh triều Đinh khủng hoảng",
+      "Chiến thắng quân Tống xâm lược năm 981 trên sông Bạch Đằng",
+      "Tiến đánh Chiêm Thành, mở rộng biên cương phía Nam",
+      "Phát triển nông nghiệp, tổ chức cày ruộng tịch điền đầu năm",
+    ],
+  },
+  {
+    id: "ly",
+    period: "1009 – 1225",
+    title: "Nhà Lý – Thăng Long rồng bay",
+    short: "Lý",
+    theme: "văn hiến",
+    summary: "Lý Công Uẩn dời đô từ Hoa Lư ra Thăng Long, mở ra thời kỳ huy hoàng của văn minh Đại Việt suốt hơn 200 năm.",
+    detail: "Năm 1009, Lý Công Uẩn được triều đình tôn lên làm vua. Ngay năm sau (1010), ông ban Chiếu dời đô, chuyển kinh đô từ Hoa Lư ra thành Đại La, đổi tên là Thăng Long. Thời Lý chứng kiến sự phát triển rực rỡ về văn hóa, giáo dục: xây dựng Văn Miếu (1070), mở Quốc Tử Giám (1076) — trường đại học đầu tiên. Phật giáo phát triển mạnh với nhiều công trình như chùa Một Cột. Lý Thường Kiệt đánh tan quân Tống, viết bài thơ 'Nam quốc sơn hà' — bản tuyên ngôn độc lập đầu tiên.",
+    person: "Lý Thái Tổ",
+    role: "người dời đô ra Thăng Long",
+    place: "Thăng Long, Hà Nội",
+    mark: "Chiếu dời đô 1010, Văn Miếu, chùa Một Cột, 216 năm thịnh trị",
+    file: "Ly Thai To statue.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Ly_Thai_To_statue.jpg",
+    events: [
+      "Chiếu dời đô 1010 — chuyển kinh đô từ Hoa Lư ra Thăng Long",
+      "Xây dựng Văn Miếu (1070), Quốc Tử Giám (1076) — trường đại học đầu tiên",
+      "Lý Thường Kiệt chống Tống — bài thơ Nam quốc sơn hà",
+      "Phật giáo hưng thịnh, xây dựng nhiều chùa tháp nổi tiếng",
+    ],
+  },
+  {
+    id: "tran",
+    period: "1225 – 1400",
+    title: "Nhà Trần – hào khí Đông A",
+    short: "Trần",
+    theme: "hào khí",
+    summary: "Nhà Trần đánh bại quân Nguyên Mông ba lần, đỉnh cao của tinh thần quân dân Đại Việt thế kỷ XIII.",
+    detail: "Nhà Trần thay thế nhà Lý năm 1225. Thời Trần nổi tiếng nhất với ba lần kháng chiến chống quân Nguyên Mông (1258, 1285, 1288). Hội nghị Diên Hồng — nơi các bô lão đồng thanh hô 'Đánh!' — thể hiện tinh thần đoàn kết toàn dân. Trần Hưng Đạo viết Hịch tướng sĩ khích lệ tướng sĩ. Chiến thắng Bạch Đằng 1288 đã chôn vùi hoàn toàn tham vọng xâm lược Đại Việt của đế chế Nguyên Mông. Trần Nhân Tông sáng lập Thiền phái Trúc Lâm Yên Tử.",
+    person: "Trần Hưng Đạo",
+    role: "thống soái kháng Nguyên – Mông",
+    place: "Nam Định / Bạch Đằng / Thăng Long",
+    mark: "Ba lần kháng chiến chống Nguyên Mông, hội nghị Diên Hồng, Hịch tướng sĩ",
+    file: "Tran Hung Dao statue.JPG",
+    source: "https://commons.wikimedia.org/wiki/File:Tran_Hung_Dao_statue.JPG",
+    events: [
+      "Ba lần kháng chiến chống Nguyên Mông (1258, 1285, 1288)",
+      "Hội nghị Diên Hồng — các bô lão đồng thanh 'Đánh!'",
+      "Trần Hưng Đạo soạn Hịch tướng sĩ",
+      "Trần Nhân Tông sáng lập Thiền phái Trúc Lâm Yên Tử",
+    ],
+  },
+  {
+    id: "ho",
+    period: "1400 – 1407",
+    title: "Nhà Hồ – cải cách & Thành Tây Đô",
+    short: "Hồ",
+    theme: "cải cách",
+    summary: "Hồ Quý Ly soán ngôi nhà Trần, tiến hành cải cách toàn diện và xây dựng thành nhà Hồ — di sản thế giới UNESCO.",
+    detail: "Năm 1400, Hồ Quý Ly truất ngôi vua Trần, lập nhà Hồ, đổi quốc hiệu là Đại Ngu. Ông tiến hành cải cách toàn diện: phát hành tiền giấy đầu tiên trong lịch sử Việt Nam, ban hành phép hạn điền, cải cách chế độ thi cử đưa toán học vào nội dung thi, xây dựng thành Tây Đô bằng đá — công trình được UNESCO công nhận là Di sản văn hóa thế giới. Tuy nhiên, nhà Hồ chỉ tồn tại 7 năm trước khi quân Minh xâm lược.",
+    person: "Hồ Quý Ly",
+    role: "nhà cải cách quyết liệt",
+    place: "Thành nhà Hồ, Thanh Hóa",
+    mark: "Đổi quốc hiệu Đại Ngu, cải cách toàn diện, xây thành Tây Đô",
+    file: "Cổng Nam.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Cổng_Nam.jpg",
+    events: [
+      "Hồ Quý Ly soán ngôi nhà Trần, lập nhà Hồ, đổi quốc hiệu Đại Ngu",
+      "Phát hành tiền giấy Thông Bảo Hội Sao — tiền giấy đầu tiên",
+      "Cải cách thi cử, đưa toán học vào nội dung thi",
+      "Xây dựng thành Tây Đô — di sản văn hóa thế giới UNESCO",
+    ],
+  },
+  {
+    id: "lam-son",
+    period: "1407 – 1427",
+    title: "Thuộc Minh & Lam Sơn",
+    short: "Lam Sơn",
+    theme: "phục quốc",
+    summary: "Sau khi nhà Hồ sụp đổ, Lê Lợi phất cờ khởi nghĩa Lam Sơn, mười năm nếm mật nằm gai giành lại độc lập.",
+    detail: "Sau khi nhà Minh đô hộ, Lê Lợi — một hào trưởng ở Lam Sơn (Thanh Hóa) — đã phất cờ khởi nghĩa năm 1418. Những năm đầu, nghĩa quân gặp vô vàn khó khăn. Được sự phò tá của Nguyễn Trãi, nghĩa quân chuyển từ thế phòng ngự sang phản công. Sau 10 năm, khởi nghĩa thành công, quân Minh rút về nước. Nguyễn Trãi viết Bình Ngô đại cáo — áng thiên cổ hùng văn tuyên bố độc lập, khẳng định chủ quyền dân tộc và nền văn hiến lâu đời.",
+    person: "Lê Lợi",
+    role: "lãnh tụ khởi nghĩa Lam Sơn",
+    place: "Lam Sơn, Thanh Hóa",
+    mark: "Mười năm khởi nghĩa, Bình Ngô đại cáo của Nguyễn Trãi",
+    file: "Le Loi statue.JPG",
+    source: "https://commons.wikimedia.org/wiki/File:Le_Loi_statue.JPG",
+    events: [
+      "Lê Lợi phất cờ khởi nghĩa ở Lam Sơn 1418",
+      "Mười năm kháng chiến gian khổ, từ phòng ngự đến phản công",
+      "Nguyễn Trãi dâng Bình Ngô sách, viết Bình Ngô đại cáo",
+      "Chiến thắng Chi Lăng – Xương Giang 1427, quân Minh rút về nước",
+    ],
+  },
+  {
+    id: "hau-le",
+    period: "1428 – 1527",
+    title: "Hậu Lê sơ – luật pháp & văn trị",
+    short: "Hậu Lê",
+    theme: "văn trị",
+    summary: "Thời Lê Thánh Tông là đỉnh cao của chế độ phong kiến Việt Nam với bộ luật Hồng Đức và nền hành chính hoàn thiện.",
+    detail: "Sau chiến thắng, Lê Lợi lên ngôi lập nhà Hậu Lê. Thời kỳ rực rỡ nhất là dưới thời Lê Thánh Tông (1460-1497). Ông ban hành bộ luật Hồng Đức — bộ luật tiến bộ vào bậc nhất Đông Nam Á, có nhiều điều khoản bảo vệ quyền lợi phụ nữ. Ông cải cách hành chính, hoàn thiện bộ máy quan lại. Ông mở rộng bờ cõi về phía Nam, thần phục Chiêm Thành. Nho giáo phát triển cực thịnh, khoa cử được tổ chức quy củ. Ông cũng sáng lập Hội Tao Đàn và để lại nhiều tác phẩm văn thơ Nôm.",
+    person: "Lê Thánh Tông",
+    role: "vị vua anh minh nhất sử Việt",
+    place: "Đông Kinh / Thăng Long",
+    mark: "Bộ luật Hồng Đức, mở rộng bờ cõi, Nho học cực thịnh",
+    file: "Statue of Lê Lợi.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Statue_of_Lê_Lợi.jpg",
+    events: [
+      "Ban hành Bộ luật Hồng Đức — bộ luật tiến bộ nhất Đông Nam Á đương thời",
+      "Cải cách hành chính chia nước thành 13 đạo thừa tuyên",
+      "Mở rộng bờ cõi về phía Nam, thần phục Chiêm Thành",
+      "Nho giáo cực thịnh, khoa cử tổ chức định kỳ 3 năm",
+    ],
+  },
+  {
+    id: "mac",
+    period: "1527 – 1592",
+    title: "Nhà Mạc – chuyển giao",
+    short: "Mạc",
+    theme: "chính thống",
+    summary: "Nhà Mạc mở ra thời kỳ phân tranh quyền lực kéo dài, với nhiều tranh luận về tính chính thống trong sử Việt.",
+    detail: "Năm 1527, Mạc Đăng Dung ép vua Lê Cung Hoàng nhường ngôi, lập ra nhà Mạc, đóng đô ở Thăng Long. Dưới thời Mạc, kinh tế phát triển, thủ công nghiệp và thương mại được khuyến khích, đặc biệt là ngoại thương với phương Tây. Tuy nhiên, nhà Mạc bị lực lượng Lê – Trịnh chống đối. Sau nhiều năm chiến tranh, nhà Mạc thất thủ ở Thăng Long (1592) và phải rút lên Cao Bằng. Dù bị coi là 'ngụy triều', nhà Mạc có những đóng góp nhất định về phát triển kinh tế và thương mại.",
+    person: "Mạc Đăng Dung",
+    role: "người mở triều Mạc ở Thăng Long",
+    place: "Đông Kinh / Cao Bằng",
+    mark: "Lên thay Hậu Lê, đối đầu Nam triều Lê – Trịnh",
+    file: "Statue of Emperor Mạc Thái Tông.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Statue_of_Emperor_Mạc_Thái_Tông.jpg",
+    events: [
+      "Mạc Đăng Dung soán ngôi nhà Lê, lập nhà Mạc tại Thăng Long",
+      "Phát triển kinh tế, thủ công nghiệp và ngoại thương",
+      "Chiến tranh Nam – Bắc triều với Lê – Trịnh",
+      "Thất thủ Thăng Long 1592, rút lên Cao Bằng tồn tại đến 1677",
+    ],
+  },
+  {
+    id: "le-trung-hung",
+    period: "1533 – 1789",
+    title: "Lê Trung Hưng – Trịnh Nguyễn",
+    short: "Lê Trung Hưng",
+    theme: "phân tranh",
+    summary: "Thời kỳ vua Lê – chúa Trịnh cai trị Đàng Ngoài, chúa Nguyễn mở rộng Đàng Trong, đất nước bị chia cắt.",
+    detail: "Sau khi nhà Mạc chiếm Thăng Long, lực lượng trung hưng nhà Lê nổi dậy. Vua Lê chỉ còn là bù nhìn, chúa Trịnh nắm thực quyền ở Đàng Ngoài. Nguyễn Hoàng xin vào trấn thủ Thuận Hóa, xây dựng cơ nghiệp riêng ở Đàng Trong. Sông Gianh trở thành ranh giới chia cắt đất nước suốt hơn 150 năm. Chúa Nguyễn mở rộng lãnh thổ về phía Nam, khai phá đồng bằng sông Cửu Long. Đây là thời kỳ phức tạp nhưng cũng mở ra công cuộc Nam tiến vĩ đại.",
+    person: "Nguyễn Hoàng",
+    role: "người mở cơ nghiệp chúa Nguyễn Đàng Trong",
+    place: "Đàng Ngoài / Đàng Trong / sông Gianh",
+    mark: "Vua Lê – chúa Trịnh ở Bắc, chúa Nguyễn ở Nam, chia cắt kéo dài",
+    file: "Nguyen hoang.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Nguyen_hoang.jpg",
+    events: [
+      "Nguyễn Kim lập Lê Trang Tông, bắt đầu thời Lê Trung Hưng",
+      "Chúa Trịnh nắm quyền Đàng Ngoài, vua Lê chỉ còn hư vị",
+      "Nguyễn Hoàng vào Nam, mở cơ nghiệp chúa Nguyễn",
+      "Đất nước bị chia cắt bởi sông Gianh suốt hơn 150 năm",
+    ],
+  },
+  {
+    id: "tay-son",
+    period: "1778 – 1802",
+    title: "Tây Sơn – Quang Trung",
+    short: "Tây Sơn",
+    theme: "thần tốc",
+    summary: "Phong trào nông dân Tây Sơn lật đổ ba tập đoàn phong kiến, Nguyễn Huệ đại phá quân Thanh, thống nhất đất nước.",
+    detail: "Phong trào Tây Sơn khởi phát từ ấp Tây Sơn (Bình Định) do ba anh em Nguyễn Nhạc, Nguyễn Huệ, Nguyễn Lữ lãnh đạo. Trong một thời gian ngắn, quân Tây Sơn lần lượt lật đổ chúa Nguyễn ở Đàng Trong, chúa Trịnh ở Đàng Ngoài và vua Lê. Đỉnh cao là chiến thắng Ngọc Hồi – Đống Đa của Nguyễn Huệ (Quang Trung) năm 1789: hành quân thần tốc ra Bắc ngay Tết Kỷ Dậu, đánh tan 29 vạn quân Thanh chỉ trong 5 ngày. Quang Trung tiến hành nhiều cải cách tiến bộ: đề cao chữ Nôm, cải cách giáo dục, khuyến khích sản xuất. Ông đột ngột qua đời năm 1792 ở tuổi 40, nhà Tây Sơn nhanh chóng suy yếu.",
+    person: "Quang Trung – Nguyễn Huệ",
+    role: "anh hùng áo vải, hoàng đế",
+    place: "Bình Định / Phú Xuân / Đống Đa",
+    mark: "Lật đổ chúa Nguyễn, chúa Trịnh, vua Lê; đại phá quân Thanh 1789",
+    file: "Quang Trung Nguyễn Huệ, Gò Đống Đa.JPG",
+    source: "https://commons.wikimedia.org/wiki/File:Quang_Trung_Nguyễn_Huệ,_Gò_Đống_Đa.JPG",
+    events: [
+      "Ba anh em Tây Sơn lãnh đạo phong trào nông dân lớn nhất lịch sử",
+      "Chiến thắng Rạch Gầm – Xoài Mút đánh tan quân Xiêm 1785",
+      "Đại phá 29 vạn quân Thanh tại Ngọc Hồi – Đống Đa 1789",
+      "Quang Trung cải cách toàn diện: chữ Nôm, giáo dục, nông nghiệp",
+    ],
+  },
+  {
+    id: "nguyen",
+    period: "1802 – 1945",
+    title: "Nhà Nguyễn – kinh đô Huế",
+    short: "Nguyễn",
+    theme: "di sản Huế",
+    summary: "Triều Nguyễn thống nhất đất nước, xây dựng kinh đô Huế, để lại di sản kiến trúc đồ sộ và là triều đại phong kiến cuối cùng.",
+    detail: "Năm 1802, Nguyễn Ánh đánh bại nhà Tây Sơn, lên ngôi lấy hiệu Gia Long, lập ra nhà Nguyễn. Ông chọn Phú Xuân (Huế) làm kinh đô, cho xây dựng quần thể Kinh thành Huế đồ sộ được UNESCO công nhận là Di sản văn hóa thế giới. Dưới thời Minh Mạng, nhà Nguyễn đạt đến đỉnh cao về quyền lực và lãnh thổ. Từ giữa thế kỷ 19, Việt Nam đối mặt với sự xâm lược của thực dân Pháp. Năm 1945, vua Bảo Đại thoái vị, chấm dứt chế độ quân chủ kéo dài hàng nghìn năm.",
+    person: "Gia Long / Bảo Đại",
+    role: "triều đại quân chủ cuối cùng",
+    place: "Phú Xuân – Huế",
+    mark: "Thống nhất lãnh thổ, xây Kinh thành Huế; kết thúc chế độ phong kiến 1945",
+    file: "Emperor Gia Long.jpg",
+    source: "https://commons.wikimedia.org/wiki/File:Emperor_Gia_Long.jpg",
+    events: [
+      "Gia Long thống nhất đất nước, xây dựng Kinh thành Huế",
+      "Minh Mạng cải cách hành chính, mở rộng lãnh thổ",
+      "Thực dân Pháp xâm lược, Việt Nam thành thuộc địa",
+      "Bảo Đại thoái vị 1945 — chấm dứt chế độ quân chủ Việt Nam",
+    ],
+  },
+];
+
+export { commonsUrl, fallbackImage };

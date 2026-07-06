@@ -15,8 +15,8 @@ const PopularHeritage = lazy(
 const MarqueeStrip = lazy(
   () => import("~/components/Home/MarqueeStrip/MarqueeStrip"),
 );
-const DynastyBar = lazy(
-  () => import("~/components/Home/DynastyBar/DynastyBar"),
+const DynastyScroll = lazy(
+  () => import("~/components/Home/DynastyBar/DynastyScroll"),
 );
 const OnThisDay = lazy(() => import("~/components/Home/OnThisDay/OnThisDay"));
 
@@ -37,7 +37,7 @@ const Home = () => {
       </Suspense>
 
       <Suspense fallback={<div className="h-14 bg-transparent" aria-hidden="true" />}>
-        <DynastyBar />
+        <DynastyScroll />
       </Suspense>
 
       <Suspense fallback={<div className="h-32 bg-transparent" aria-hidden="true" />}>
