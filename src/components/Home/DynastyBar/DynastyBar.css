@@ -24,7 +24,7 @@
 
 /* ---- Scroll-triggered progress bar ---- */
 .dt-progress {
-  position: sticky; top: 0; left: 0; height: 3px; width: 100%; z-index: 60;
+  position: sticky; top: 0; left: 0; height: 3px; width: 100%; z-index: 40;
   transform-origin: left;
   background: linear-gradient(90deg, var(--dt-jade), var(--dt-gold2), var(--dt-lacquer));
   box-shadow: 0 0 12px rgba(255, 240, 163, .55);
@@ -40,7 +40,7 @@
 
 /* ---- Badge (current era indicator) ---- */
 .dt-badge {
-  position: sticky; top: .6rem; z-index: 50;
+  position: sticky; top: .6rem; z-index: 40;
   display: inline-flex; align-items: center; gap: .55rem;
   padding: .4rem .7rem; margin: 0 auto;
   border: 1px solid rgba(216,182,90,.32);

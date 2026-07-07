@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -10,6 +10,8 @@ import {
 } from "~/store/apis/authSlice";
 import { setCredentials } from "~/store/slices/authSlice";
 
+const SESSION_KEY = "otp_verify_session";
+
 const AuthenConfirm = () => {
   const [code, setCode] = useState("");
   const [error, setError] = useState(null);
@@ -19,11 +21,31 @@ const AuthenConfirm = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email || "";
+
+  // Persist authToken + email in sessionStorage so resend works even after re-render
+  const emailFromState = location.state?.email;
+  const authTokenFromState = location.state?.authToken;
+
+  const [sessionData] = useState(() => {
+    if (emailFromState && authTokenFromState) {
+      const data = { email: emailFromState, authToken: authTokenFromState };
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(data));
+      return data;
+    }
+    // Try to restore from sessionStorage (e.g. after hot-reload)
+    try {
+      const stored = sessionStorage.getItem(SESSION_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const email = sessionData?.email || "";
+  const authToken = sessionData?.authToken || null;
 
   const [verifyOtp] = useVerifyOtpMutation();
   const [resendOtp] = useResendOtpMutation();
-  const authToken = location.state?.authToken;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -56,6 +78,9 @@ const AuthenConfirm = () => {
 
       const { accessToken, refreshToken, sessionId, user } = response;
 
+      // Clear persisted session after successful verification
+      sessionStorage.removeItem(SESSION_KEY);
+
       dispatch(setCredentials({ user, accessToken, refreshToken, sessionId }));
       toast.success("Email verification successful! Logged in.");
       navigate("/");
@@ -64,7 +89,6 @@ const AuthenConfirm = () => {
         err?.data?.message || "Verification failed. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
-      console.error("Verify OTP error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -72,6 +96,11 @@ const AuthenConfirm = () => {
 
   const handleResendCode = async () => {
     if (resendCooldown > 0) return;
+    if (!authToken) {
+      toast.error("Session expired. Please register again.");
+      navigate("/register");
+      return;
+    }
 
     setError(null);
     setResendMessage(null);
@@ -87,7 +116,6 @@ const AuthenConfirm = () => {
         err?.data?.message || "Failed to resend OTP. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
-      console.error("Resend OTP error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -97,6 +125,7 @@ const AuthenConfirm = () => {
     navigate("/register");
     return null;
   }
+
 
   return (
     <section className="museum-shell flex min-h-screen items-center justify-center px-4 py-12 pt-navbar-mobile sm:pt-navbar">
