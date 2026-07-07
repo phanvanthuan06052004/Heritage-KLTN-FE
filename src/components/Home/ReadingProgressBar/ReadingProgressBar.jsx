@@ -19,7 +19,7 @@ const ReadingProgressBar = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[200] h-[3px] pointer-events-none">
+    <div className="fixed top-0 left-0 right-0 z-40 h-[3px] pointer-events-none">
       <div className="absolute inset-0 bg-foreground/5" />
       <div
         className="absolute top-0 left-0 h-full w-full origin-left rounded-r-full"

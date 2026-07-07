@@ -41,28 +41,6 @@ const steps = [
       align: 'center',
     },
   },
-  {
-    element: '.province-grid',
-    popover: {
-      title: 'Chọn vùng đất',
-      description: 'Trong modal tạo lịch trình, chọn tỉnh bạn muốn khám phá. Sau đó bạn có thể đóng modal để chọn điểm trực tiếp trên bản đồ.',
-      side: 'top',
-      align: 'center',
-    },
-    onPopoverRender: (popover) => {
-      // The province grid is inside the planner modal, need to activate step 1 first
-      const modalBtn = document.querySelector('.create-trip-btn');
-      if (modalBtn && document.querySelector('.planner-modal')) return;
-      if (modalBtn) {
-        setTimeout(() => modalBtn.click(), 100);
-      }
-      setTimeout(() => {
-        // Navigate to Step 1 if modal is open
-        const step1Btn = document.querySelector('.wizard-tabs button');
-        if (step1Btn) step1Btn.click();
-      }, 300);
-    },
-  },
 ];
 
 export default function ExploreOnboarding() {
@@ -85,9 +63,6 @@ export default function ExploreOnboarding() {
         })),
         onDestroyed: () => {
           localStorage.setItem(STORAGE_KEY, '1');
-          // Close planner modal if it was opened by the tour
-          const closeBtn = document.querySelector('.modal-close');
-          if (closeBtn) closeBtn.click();
         },
       });
 
