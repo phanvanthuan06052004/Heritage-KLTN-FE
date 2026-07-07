@@ -278,8 +278,8 @@ const KnowledgeTestDialog = ({ open, onClose, testId, testInfo }) => {
         answers: formattedAnswers ,
       }).unwrap()
 
-      setResults(result)
-      toast.success(`Congratulations! You have completed the test with a score of ${result?.score || 0}/100`)
+      setResults(result?.data)
+      toast.success(`Congratulations! You have completed the test with a score of ${result?.data?.score || 0}/100`)
       
       if (timerRef.current) {
         clearInterval(timerRef.current)

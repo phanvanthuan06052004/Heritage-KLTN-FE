@@ -215,23 +215,18 @@ const HeritageDetail = () => {
 
     const handleSelectCoordinates = useCallback((coordinates) => {
         if (coordinates && typeof coordinates.lat === 'number' && typeof coordinates.lng === 'number') {
+            const selectedAddress =
+                coordinates.address ||
+                `${coordinates.lat.toFixed(6)}, ${coordinates.lng.toFixed(6)}`
+
             setFormData(prev => ({
                 ...prev,
                 coordinates: {
                     latitude: coordinates.lat.toString(),
                     longitude: coordinates.lng.toString(),
                 },
+                location: selectedAddress,
             }))
-            fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates.lng},${coordinates.lat}.json?access_token=pk.eyJ1IjoibmFtbGUwMjIwMDQiLCJhIjoiY205ejlmYm94MHI1djJqb2w5czloNDdrbyJ9.-P_PHQN7L283Z_qIGfgsOg&country=vn`)
-                .then(response => response.json())
-                .then(data => {
-                    const address = data.features?.[0]?.place_name || 'Address not found'
-                    setFormData(prev => ({ ...prev, location: address }))
-                })
-                .catch(error => {
-                    console.error('Error fetching address:', error)
-                    setFormData(prev => ({ ...prev, location: 'Unable to fetch address' }))
-                })
         }
     }, [])
 

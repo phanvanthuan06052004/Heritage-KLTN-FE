@@ -293,18 +293,23 @@ export const heritageSlice = apiSlice.injectEndpoints({
     }),
 
     getAllHeritageNames: builder.query({
-      async queryFn(language, _queryApi, _extraOptions, fetchWithBQ) {
-        const result = await fetchWithBQ('/heritage?page=1&limit=50&sort=title&order=asc')
+      async queryFn(_language, _queryApi, _extraOptions, fetchWithBQ) {
+        // Chỉ cần id + tên (+ slug cho trang Graph). KHÔNG chạy enrichHeritageCards
+        // như trang Khám phá — tránh xử lý thừa và lấy đủ toàn bộ danh sách di sản.
+        const result = await fetchWithBQ('/heritage?page=1&limit=1000&sort=title&order=asc')
 
         if (result.error) return { error: result.error }
 
-        const heritages = await enrichHeritageCards(
-          fetchWithBQ,
-          result.data?.items || [],
-          language || getCurrentLanguage(),
-        )
+        const names = (result.data?.items || []).map((item) => ({
+          _id: item.id,
+          id: item.id,
+          name: item.title,
+          title: item.title,
+          slug: item.slug,
+          nameSlug: item.slug,
+        }))
 
-        return { data: heritages }
+        return { data: names }
       },
       providesTags: [{ type: 'Heritages', id: 'NAMES' }],
     }),

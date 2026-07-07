@@ -121,9 +121,10 @@ const useSocket = (userData, heritageId) => {
         }
 
         const handleUserLeft = (data) => {
+            const leftName = data.username || usersInRoom.find(user => user.id === data.userId)?.name || 'Ẩn danh'
             const systemMessage = {
                 id: `system-${Date.now()}`,
-                content: `${data.username} đã rời phòng.`,
+                content: `${leftName} đã rời phòng.`,
                 sender: { id: 'system', name: 'System' },
                 timestamp: new Date().toISOString(),
                 isSystemMessage: true,
