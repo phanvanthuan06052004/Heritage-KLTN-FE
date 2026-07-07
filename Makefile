@@ -1,4 +1,4 @@
-.PHONY: build-local sync build up down restart deploy logs status ssh
+.PHONY: build-local sync build up down restart deploy logs status
 
 build-local:
 	python deploy.py build-local
@@ -26,6 +26,3 @@ logs:
 
 status:
 	python deploy.py status
-
-ssh:
-	python deploy.py ssh
