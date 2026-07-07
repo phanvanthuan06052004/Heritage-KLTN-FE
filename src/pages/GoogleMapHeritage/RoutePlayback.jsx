@@ -78,10 +78,13 @@ export default function RoutePlayback({ route, map, sites }) {
     if (!map || !currentDayData) return;
     
     if (!markerRef.current) {
+      const container = document.createElement('div');
+      container.className = 'vehicle-marker-container';
       const el = document.createElement('div');
       el.className = 'vehicle-marker';
       el.innerHTML = '🚗';
-      markerRef.current = new maplibregl.Marker({ element: el })
+      container.appendChild(el);
+      markerRef.current = new maplibregl.Marker({ element: container })
         .setLngLat(currentDayData.lineString.geometry.coordinates[0])
         .addTo(map);
     }

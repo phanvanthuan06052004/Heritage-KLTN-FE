@@ -4,6 +4,16 @@ import ToastProvider from "./components/ToastProvider/ToastProvider";
 import { useFavoriteInitializer } from "./hooks/useFavoriteInitializer";
 import { LoadingScreen } from "./components/common/LoadingScreen";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 const GlobalChatbot = lazy(() => import("./components/GlobalChatbot/GlobalChatbot"));
 
@@ -13,6 +23,7 @@ const App = () => {
   return (
     <ErrorBoundary>
       <Suspense fallback={<LoadingScreen />}>
+        <ScrollToTop />
         <AppRoutes />
         <ToastProvider />
         <Suspense fallback={null}>

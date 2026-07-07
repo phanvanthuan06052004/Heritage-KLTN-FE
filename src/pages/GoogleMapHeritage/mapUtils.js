@@ -92,12 +92,15 @@ export function hasNormalized(values, value) {
 
 export function markerElement(site, selected) {
   const [color, icon] = CAT_STYLE[(site.categories || [])[0]] || CAT_STYLE.default;
+  const container = document.createElement('div');
+  container.className = 'map-marker-container';
   const el = document.createElement('button');
   el.className = `map-marker ${selected ? 'selected' : ''}`;
   el.style.setProperty('--marker-color', color);
   el.textContent = icon;
   el.title = site.name;
-  return el;
+  container.appendChild(el);
+  return container;
 }
 
 export function parseOpeningHours(value) {
