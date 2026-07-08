@@ -10,7 +10,7 @@ import {
   formatPrice, scorePercent, siteRank, stars, categoryLabel, reviewUrl,
   formatDescriptionBlocks, normalizeText, hasNormalized, markerElement,
   parseOpeningHours, toPlannerSite, optionalNumber, formatApiError,
-  detailedAddress, useProvinceCenter, decodePolyline,
+  detailedAddress, useProvinceCenter, decodePolyline, buildRecommendPayload,
 } from './mapUtils';
 
 function App() {
@@ -309,22 +309,13 @@ function App() {
     setStatus({ type: 'info', text: `Điểm kết thúc: ${point.label}` });
   }
   async function recommendRoute() {
-    const interestText = [planner.tripGoal, planner.travelGroup, planner.environmentPreference, ...(planner.selectedInterests || [])].filter(Boolean).join(', ') || `Khám phá di sản tại ${[...selectedProvinces].slice(0, 3).join(', ')}`;
     setLoading(true); setActionLoading('route'); setRoute(null);
-    const resolvedEnd = endPoint || startPoint;
-    const body = {
-      raw_text: interestText,
-      destination_provinces: [...selectedProvinces],
-      start_date: planner.tripDate,
-      duration_days: Number(planner.days) || 1,
-      number_of_people: Number(planner.people) || 2,
-      pace: planner.pace || 'moderate',
-      travel_mode: planner.mode,
-      start_lat: startPoint.lat,
-      start_lng: startPoint.lng,
-      end_lat: resolvedEnd.lat,
-      end_lng: resolvedEnd.lng
-    };
+    const body = buildRecommendPayload(planner, {
+      selectedProvinces: [...selectedProvinces],
+      selectedSites,
+      startPoint,
+      endPoint,
+    });
     try {
       const response = await fetch(`${API}/trips/recommend`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const data = await response.json();
