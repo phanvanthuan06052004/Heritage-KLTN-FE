@@ -64,7 +64,7 @@ const MobileMenu = ({ isOpen, navLinks, userMenuLinks, onClose }) => {
             <Link
               key={item.to}
               to={item.to}
-              onClick={onClose}
+              onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onClose(); }}
               className={cn(
                 "flex items-center gap-3 p-3 rounded-2xl transition-colors text-sm",
                 location.pathname === item.to
@@ -89,7 +89,7 @@ const MobileMenu = ({ isOpen, navLinks, userMenuLinks, onClose }) => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  onClick={onClose}
+                  onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onClose(); }}
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-2xl transition-colors text-sm",
                     location.pathname === item.to

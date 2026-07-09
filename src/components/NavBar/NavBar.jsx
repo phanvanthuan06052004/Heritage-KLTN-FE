@@ -55,7 +55,7 @@ const NavBar = () => {
       <header className={navbarClasses}>
         <div className='lcn-container-x flex h-full items-center justify-between gap-4'>
           {/* Logo */}
-          <Link to='/' className='flex shrink-0 items-center gap-2.5 text-museum-ivory'>
+          <Link to='/' className='flex shrink-0 items-center gap-2.5 text-museum-ivory' onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img
               src='/images/logo-mark.png'
               alt='Heritage'

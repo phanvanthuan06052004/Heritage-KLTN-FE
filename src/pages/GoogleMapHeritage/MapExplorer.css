@@ -2683,11 +2683,12 @@
 .heritage-map-page .rs-stat span { font-weight: 600; }
 .heritage-map-page .ai-summary {
   padding: 12px 18px;
-  margin: 0;
+  margin: 5px;
   font-size: 12px;
   line-height: 1.55;
   color: rgb(var(--museum-parchment));
   border-bottom: 1px solid rgba(var(--museum-gold), 0.12);
+  background: linear-gradient(135deg, rgba(var(--museum-seal), .85), rgba(var(--museum-seal), .95) 52%, rgba(var(--museum-seal), .8));
 }
 .heritage-map-page .route-notes {
   padding: 12px 18px;

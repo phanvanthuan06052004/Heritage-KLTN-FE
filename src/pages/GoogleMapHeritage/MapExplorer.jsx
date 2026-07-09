@@ -154,12 +154,24 @@ function App() {
   function toggleProvince(province) {
     setSelectedProvinces(current => {
       const next = new Set(current);
-      if (next.has(province)) next.delete(province); else next.add(province);
-      if (!current.size && PROV_COORDS[province]) {
-        const [lat, lng] = PROV_COORDS[province];
-        const point = { lat, lng, label: province };
-        setStartPoint(point); setEndPoint(point);
-        setPlanner(value => ({ ...value, startText: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, endText: `${lat.toFixed(4)}, ${lng.toFixed(4)}` }));
+      if (next.has(province)) {
+        next.delete(province);
+        setSelectedIds(ids => {
+          const nextIds = new Set(ids);
+          [...ids].forEach(id => {
+            const site = sites.find(s => s.id === id);
+            if (site && hasNormalized(new Set([province]), site.province)) nextIds.delete(id);
+          });
+          return nextIds;
+        });
+      } else {
+        next.add(province);
+        if (!current.size && PROV_COORDS[province]) {
+          const [lat, lng] = PROV_COORDS[province];
+          const point = { lat, lng, label: province };
+          setStartPoint(point); setEndPoint(point);
+          setPlanner(value => ({ ...value, startText: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, endText: `${lat.toFixed(4)}, ${lng.toFixed(4)}` }));
+        }
       }
       return next;
     });
@@ -185,7 +197,7 @@ function App() {
   }
   function focusSite(site) {
     skipFitRef.current = true;
-    setSelectedProvinces(new Set([site.province]));
+    if (!route) setSelectedProvinces(new Set([site.province]));
     setActiveSite(site);
     const map = mapRef.current;
     if (map && Number.isFinite(site.lng) && Number.isFinite(site.lat)) {

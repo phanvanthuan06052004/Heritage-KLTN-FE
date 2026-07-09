@@ -14,7 +14,7 @@ import {
   MuseumErrorState,
   MuseumSkeletonGrid,
 } from "~/components/common/MuseumStates";
-import { setHeritagesPage } from "~/store/slices/paginationSlice";
+import { setHeritagesPage, setHeritagesSearchQuery } from "~/store/slices/paginationSlice";
 import {
   selectHeritagesCurrentPage,
   selectHeritagesItemsPerPage,
@@ -53,6 +53,12 @@ const Heritages = () => {
   useEffect(() => {
     trigger(queryParams);
   }, [queryParams, trigger]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(setHeritagesSearchQuery(''));
+    };
+  }, [dispatch]);
 
   useLanguageChange(() => {
     trigger(queryParams);
