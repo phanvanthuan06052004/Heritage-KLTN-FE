@@ -17,6 +17,7 @@ const NavLinks = ({ navLinks }) => {
           <Link
             key={link.to}
             to={link.to}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className={cn(
               "group relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[0.9rem] font-medium leading-none transition-all duration-300 xl:gap-2 xl:px-3.5",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-museum-gold-light",

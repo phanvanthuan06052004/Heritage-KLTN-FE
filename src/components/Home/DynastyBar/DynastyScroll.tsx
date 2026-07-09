@@ -200,7 +200,7 @@ export default function DynastyScroll() {
         className="relative z-[2] flex h-full w-full items-center justify-center px-3 sm:px-5"
         style={{ perspective: 2600 }}
       >
-        <div className="relative flex h-full max-h-[880px] w-full max-w-[1280px] flex-col justify-center py-5">
+        <div className="relative flex h-full max-h-[850px] w-full max-w-[1280px] flex-col justify-center py-5">
           <div className="relative z-20 w-full">
             <ScrollRod position="top" />
           </div>

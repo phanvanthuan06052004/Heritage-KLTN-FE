@@ -1,7 +1,7 @@
 import { lazy } from 'react'
 
 export const HeritageChat = lazy(() => import('~/pages/HeritageDetail/HeritageChat'))
-export const LeaderboardTable = lazy(() => import('~/pages/HeritageDetail/LeaderboardTable/LeaderboardTable'))
+export const LeaderboardTable = lazy(() => import('~/pages/HeritageDetail/LeaderboardTable/LeaderboardPanel'))
 export const HeritageKnowledgeTest = lazy(() => import('~/pages/HeritageDetail/HeritageKnowledgeTest/HeritageKnowledgeTest'))
 export const HeritageDetailTabs = lazy(() => import('~/pages/HeritageDetail/HeritageDetailTab'))
 export const HeritageFeatures = lazy(() => import('~/pages/HeritageDetail/HeritageFeatures'))

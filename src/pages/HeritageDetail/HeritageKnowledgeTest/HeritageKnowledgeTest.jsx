@@ -19,13 +19,13 @@ const KnowledgeTestItem = ({ test, onClick }) => (
       <div className='flex items-center text-sm text-muted-foreground'>
         <span className='mr-4 flex items-center gap-1'>
           <i className="ri-file-list-2-line text-heritage-dark"></i>
-          {test?.stats?.totalAttempts || 0} attempts
+          {test?.totalAttempts || 0} attempts
         </span>
         <span className='flex items-center gap-1'>
           <i className="ri-bar-chart-2-line text-heritage-dark"></i>
           <span>Average Score:</span>
           <span className='ml-1 font-semibold text-heritage-dark'>
-            {(test?.stats?.averageScore || 0).toFixed(2)}/100
+            {Number(test?.averageScore || 0).toFixed(2)}/100
           </span>
         </span>
       </div>

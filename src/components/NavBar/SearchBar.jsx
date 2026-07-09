@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search, X, Loader2 } from "lucide-react";
@@ -17,6 +17,10 @@ const SearchBar = ({ className }) => {
   const searchQuery = useSelector(selectHeritagesSearchQuery);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!searchQuery) setSearchValue('');
+  }, [searchQuery]);
 
   const handleClear = useCallback(() => {
     setSearchValue("");

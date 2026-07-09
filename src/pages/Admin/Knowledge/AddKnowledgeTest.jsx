@@ -219,8 +219,12 @@ const AddKnowledgeTest = () => {
                 })
             )
 
+            // BE CreateKnowledgeTestDto không nhận `status` (forbidNonWhitelisted → 400).
+            // Bài mới mặc định ACTIVE ở DB; đổi trạng thái sau qua trang Edit.
             const testData = {
-                ...formData,
+                heritageId: formData.heritageId,
+                title: formData.title,
+                content: formData.content,
                 questions,
             }
 

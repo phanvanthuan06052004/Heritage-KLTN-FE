@@ -142,14 +142,20 @@ const HeritageDetail = () => {
               </div>
             </div>
           </div>
-          <Dialog open={activeFeature === 'leaderboard'} onClose={closeFeatureDialog}>
-            <DialogHeader>
-              <DialogTitle>{t('heritageDetail.leaderboardTitle')}</DialogTitle>
-              <DialogDescription>
+          <Dialog
+            open={activeFeature === 'leaderboard'}
+            onClose={closeFeatureDialog}
+            className='max-h-[90vh] max-w-4xl overflow-hidden border-museum-gold/25 bg-museum-black p-0 text-museum-ivory shadow-museum-card sm:rounded-lg [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:bg-museum-ivory/10 [&>button]:p-2 [&>button]:text-museum-ivory [&>button]:opacity-90 [&>button]:hover:bg-museum-gold/20'
+          >
+            <DialogHeader className='border-b border-museum-gold/20 bg-museum-espresso px-5 py-5 text-left sm:px-7'>
+              <DialogTitle className='pr-12 font-display text-2xl leading-tight text-museum-gold-light sm:text-3xl'>
+                {t('heritageDetail.leaderboardTitle')}
+              </DialogTitle>
+              <DialogDescription className='mt-2 max-w-2xl text-sm leading-6 text-museum-muted'>
                 {t('heritageDetail.leaderboardDescription')} {data?.name}
               </DialogDescription>
             </DialogHeader>
-            <div className='py-4'>
+            <div className='max-h-[calc(90vh-118px)] overflow-hidden'>
               <LeaderboardTable
                 heritageId={id}
                 heritageName={data?.name}

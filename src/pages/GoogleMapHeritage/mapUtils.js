@@ -130,6 +130,111 @@ export function optionalNumber(value) {
   return Number.isFinite(n) ? n : null;
 }
 
+export const INTEREST_LABEL_TO_KEY = {
+  'Đền chùa & Tâm linh': ['spiritual'],
+  'Lịch sử & Khảo cổ': ['history'],
+  'Kiến trúc & Nghệ thuật': ['architecture'],
+  'Cảnh quan thiên nhiên': ['nature'],
+  'Trải nghiệm văn hóa địa phương': ['local_food', 'craft_village'],
+  'Thích hợp cho trẻ em': [],
+  'Thích hợp người lớn tuổi': [],
+};
+
+export const INTEREST_LABEL_TO_CONSTRAINT = {
+  'Thích hợp cho trẻ em': ['child_friendly'],
+  'Thích hợp người lớn tuổi': ['elderly_friendly', 'avoid_long_walking'],
+};
+
+export const TRIP_GOAL_TO_KEY = {
+  'Tìm hiểu lịch sử chiều sâu': ['history'],
+  'Check-in di sản nổi bật': ['photography'],
+  'Hành hương và tâm linh': ['spiritual'],
+  'Gia đình nhẹ nhàng': [],
+};
+
+export const TRAVEL_GROUP_TO_CONSTRAINT = {
+  'Có trẻ em': ['child_friendly'],
+  'Có người lớn tuổi': ['elderly_friendly', 'avoid_long_walking'],
+  'Nhóm bạn trẻ': [],
+  'Đi một mình': [],
+};
+
+export const ENVIRONMENT_PREF_TO_CONSTRAINT = {
+  'Ưu tiên điểm trong nhà nếu mưa hoặc chất lượng không khí kém': ['prefer_indoor'],
+  'Ưu tiên ngoài trời khi thời tiết đẹp': ['prefer_outdoor'],
+  'Hạn chế di chuyển xa': ['avoid_long_walking'],
+};
+
+function uniqueList(values) {
+  return [...new Set((values || []).filter(Boolean))];
+}
+
+export function addDaysToDate(dateStr, days) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr || ''));
+  if (!match) return '';
+  const [, y, m, d] = match.map(Number);
+  const base = new Date(Date.UTC(y, m - 1, d));
+  if (Number.isNaN(base.getTime())) return '';
+  const offset = Math.max(0, (Number(days) || 1) - 1);
+  base.setUTCDate(base.getUTCDate() + offset);
+  return base.toISOString().slice(0, 10);
+}
+
+export function buildRecommendPayload(planner = {}, context = {}) {
+  const {
+    selectedProvinces = [],
+    selectedSites = [],
+    endPoint = null,
+  } = context;
+  const startPoint = context.startPoint || DEFAULT_START;
+
+  const provinces = [...selectedProvinces];
+  const resolvedEnd = endPoint || startPoint;
+  const duration = Number(planner.days) || 1;
+
+  const interests = uniqueList([
+    ...(planner.selectedInterests || []).flatMap(label => INTEREST_LABEL_TO_KEY[label] || []),
+    ...(TRIP_GOAL_TO_KEY[planner.tripGoal] || []),
+  ]);
+
+  const constraints = uniqueList([
+    ...(planner.selectedInterests || []).flatMap(label => INTEREST_LABEL_TO_CONSTRAINT[label] || []),
+    ...(TRAVEL_GROUP_TO_CONSTRAINT[planner.travelGroup] || []),
+    ...(ENVIRONMENT_PREF_TO_CONSTRAINT[planner.environmentPreference] || []),
+  ]);
+
+  const mustVisitSiteIds = uniqueList(
+    (selectedSites || []).map(site => (typeof site === 'string' ? site : site?.id))
+  );
+
+  const hasStructuredSignal = interests.length > 0 || constraints.length > 0;
+  const rawText = hasStructuredSignal
+    ? ''
+    : [planner.tripGoal, planner.travelGroup, planner.environmentPreference, ...(planner.selectedInterests || [])]
+        .filter(Boolean)
+        .join(', ') || (provinces.length ? `Khám phá di sản tại ${provinces.slice(0, 3).join(', ')}` : '');
+
+  return {
+    raw_text: rawText,
+    destination_area: provinces[0] || 'Hà Nội',
+    destination_provinces: provinces,
+    start_date: planner.tripDate || '',
+    end_date: addDaysToDate(planner.tripDate, duration),
+    duration_days: duration,
+    number_of_people: Number(planner.people) || 1,
+    interests: interests.length ? interests : ['history', 'local_food'],
+    pace: planner.pace || 'moderate',
+    travel_mode: planner.mode || 'mixed',
+    budget_level: planner.budget || 'medium',
+    constraints,
+    must_visit_site_ids: mustVisitSiteIds,
+    start_lat: startPoint.lat,
+    start_lng: startPoint.lng,
+    end_lat: resolvedEnd.lat,
+    end_lng: resolvedEnd.lng,
+  };
+}
+
 export function formatApiError(data) {
   if (Array.isArray(data?.detail))
     return data.detail.map(item => `${item.loc?.join('.')}: ${item.msg}`).join('; ');
