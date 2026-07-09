@@ -184,9 +184,9 @@ export function buildRecommendPayload(planner = {}, context = {}) {
   const {
     selectedProvinces = [],
     selectedSites = [],
-    startPoint = DEFAULT_START,
     endPoint = null,
   } = context;
+  const startPoint = context.startPoint || DEFAULT_START;
 
   const provinces = [...selectedProvinces];
   const resolvedEnd = endPoint || startPoint;

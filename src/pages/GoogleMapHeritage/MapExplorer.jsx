@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { toast } from 'react-toastify';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapExplorer.css';
 import RoutePlayback from './RoutePlayback';
 import ExploreOnboarding from './ExploreOnboarding';
 import {
-  API, DEFAULT_START, FEATURED_PER_PROVINCE, PROV_COORDS, CAT_STYLE, CAT_LABELS,
+  API, FEATURED_PER_PROVINCE, PROV_COORDS, CAT_STYLE, CAT_LABELS,
   formatPrice, scorePercent, siteRank, stars, categoryLabel, reviewUrl,
   formatDescriptionBlocks, normalizeText, hasNormalized, markerElement,
   parseOpeningHours, toPlannerSite, optionalNumber, formatApiError,
@@ -37,7 +38,7 @@ function App() {
   const [pickingMapFor, setPickingMapFor] = useState(null);
   const [step, setStep] = useState(1);
   const [planner, setPlanner] = useState({ days: 3, people: 2, mode: 'driving', tripDate: new Date().toISOString().slice(0, 10), windowStart: '08:00', windowEnd: '18:00', startText: '', endText: '', maxDistanceKm: '', maxDurationMin: '', avoidHighways: false, avoidTolls: false });
-  const [startPoint, setStartPoint] = useState(DEFAULT_START);
+  const [startPoint, setStartPoint] = useState(null);
   const [endPoint, setEndPoint] = useState(null);
   const [route, setRoute] = useState(null);
   const [status, setStatus] = useState({ type: 'info', text: 'Mở ấn triện “Tạo lịch trình” để bắt đầu hành trình qua các di sản Việt Nam.' });
@@ -79,10 +80,6 @@ function App() {
   const popupSite = hoverSite || activeSite;
 
   useEffect(() => { setSitesLoading(true); fetch(`${API}/heritage-sites`).then(r => r.json()).then(d => setSites(Array.isArray(d) ? d : [])).catch(e => setStatus({ type: 'error', text: `Không tải được dữ liệu: ${e.message}` })).finally(() => setSitesLoading(false)); }, []);
-  useEffect(() => {
-    setStartPoint(DEFAULT_START);
-    setPlanner(value => ({ ...value, startText: DEFAULT_START.label, endText: '' }));
-  }, []);
   useEffect(() => { skipFitRef.current = true; }, [query]);
   useEffect(() => {
     if (mapRef.current || !mapNodeRef.current) return;
@@ -243,33 +240,58 @@ function App() {
   }
   function getBrowserLocation(kind) {
     if (!navigator.geolocation) {
+      toast.error('Trình duyệt của bạn không hỗ trợ định vị.');
       setStatus({ type: 'error', text: 'Trình duyệt của bạn không hỗ trợ định vị.' });
       return;
     }
-    setActionLoading(`geo-${kind}`);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        const baseLabel = await reverseGeocode(latitude, longitude);
-        const label = `${baseLabel} (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`;
-        const point = { lat: latitude, lng: longitude, label };
-        if (kind === 'start') {
-          setStartPoint(point);
-          setPlanner(p => ({ ...p, startText: point.label }));
-          setStatus({ type: 'info', text: `Vị trí xuất phát: ${point.label}` });
-        } else {
-          setEndPoint(point);
-          setPlanner(p => ({ ...p, endText: point.label }));
-          setStatus({ type: 'info', text: `Vị trí kết thúc: ${point.label}` });
+    const request = () => {
+      setActionLoading(`geo-${kind}`);
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          const baseLabel = await reverseGeocode(latitude, longitude);
+          const label = `${baseLabel} (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`;
+          const point = { lat: latitude, lng: longitude, label };
+          if (kind === 'start') {
+            setStartPoint(point);
+            setPlanner(p => ({ ...p, startText: point.label }));
+            setStatus({ type: 'info', text: `Vị trí xuất phát: ${point.label}` });
+          } else {
+            setEndPoint(point);
+            setPlanner(p => ({ ...p, endText: point.label }));
+            setStatus({ type: 'info', text: `Vị trí kết thúc: ${point.label}` });
+          }
+          setActionLoading(null);
+        },
+        (err) => {
+          setActionLoading(null);
+          let text = 'Không thể lấy vị trí. Vui lòng thử lại.';
+          if (err.code === err.PERMISSION_DENIED) {
+            text = 'Bạn chưa cấp quyền truy cập vị trí. Hãy bật quyền vị trí trong trình duyệt rồi thử lại, hoặc chọn điểm trên bản đồ.';
+          } else if (err.code === err.POSITION_UNAVAILABLE) {
+            text = 'Không xác định được vị trí hiện tại. Vui lòng chọn điểm trên bản đồ hoặc nhập địa chỉ.';
+          } else if (err.code === err.TIMEOUT) {
+            text = 'Quá thời gian lấy vị trí. Vui lòng thử lại.';
+          }
+          toast.error(text);
+          setStatus({ type: 'error', text });
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    };
+    if (navigator.permissions?.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then(result => {
+        if (result.state === 'denied') {
+          const text = 'Quyền truy cập vị trí đang bị chặn. Hãy bật lại trong cài đặt trình duyệt, hoặc chọn điểm trên bản đồ / nhập địa chỉ.';
+          toast.error(text);
+          setStatus({ type: 'error', text });
+          return;
         }
-        setActionLoading(null);
-      },
-      (err) => {
-        setActionLoading(null);
-        setStatus({ type: 'error', text: 'Không thể lấy vị trí. Hãy chắc chắn bạn đã cấp quyền.' });
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
+        request();
+      }).catch(request);
+    } else {
+      request();
+    }
   }
   function pickLocation(kind) {
     startPickingMap(kind);
@@ -431,7 +453,7 @@ function App() {
       <div className="selected-sites-bar"><span>Đã chọn {selectedSites.length} điểm</span><button onClick={() => { setMinimizedPlanner(false); setPlannerOpen(true); }}>Tiếp tục lịch trình →</button></div>
     )}
 
-    <PlannerDialogV3 open={plannerOpen} setOpen={setPlannerOpen} step={step} setStep={setStep} sites={sites} provinces={provinces} selectedProvinces={selectedProvinces} toggleProvince={toggleProvince} selectedSites={selectedSites} toggleSelected={toggleSelected} setActiveSite={setActiveSite} planner={planner} setPlanner={setPlanner} selectPoint={selectPoint} useCenter={() => useProvinceCenter(selectedProvinces, setStartPoint, setEndPoint, setPlanner)} makeRoundTrip={() => { setEndPoint(startPoint); setPlanner(v => ({ ...v, endText: v.startText || `${startPoint.lat}, ${startPoint.lng}` })); }} loading={loading} actionLoading={actionLoading} sitesLoading={sitesLoading} planRoute={planRoute} pickLocation={pickLocation} getBrowserLocation={getBrowserLocation} startPickingMap={startPickingMap} minimizedPlanner={minimizedPlanner} setMinimizedPlanner={setMinimizedPlanner} />
+    <PlannerDialogV3 open={plannerOpen} setOpen={setPlannerOpen} step={step} setStep={setStep} sites={sites} provinces={provinces} selectedProvinces={selectedProvinces} toggleProvince={toggleProvince} selectedSites={selectedSites} toggleSelected={toggleSelected} setActiveSite={setActiveSite} planner={planner} setPlanner={setPlanner} selectPoint={selectPoint} useCenter={() => useProvinceCenter(selectedProvinces, setStartPoint, setEndPoint, setPlanner)} makeRoundTrip={() => { if (!startPoint) { setStatus({ type: 'error', text: 'Chọn điểm xuất phát trước.' }); return; } setEndPoint(startPoint); setPlanner(v => ({ ...v, endText: v.startText || `${startPoint.lat}, ${startPoint.lng}` })); }} loading={loading} actionLoading={actionLoading} sitesLoading={sitesLoading} planRoute={planRoute} pickLocation={pickLocation} getBrowserLocation={getBrowserLocation} startPickingMap={startPickingMap} minimizedPlanner={minimizedPlanner} setMinimizedPlanner={setMinimizedPlanner} />
     {route && <RouteSummary route={route} openPlanner={() => setPlannerOpen(true)} focus={id => { const site = sites.find(item => item.id === id); if (site) focusSite(site); }} />}
     {route && <RoutePlayback route={route} map={mapRef.current} sites={sites} />}
     {popupSite && popupPos && <MiniSitePopup site={popupSite} pos={popupPos} popupRef={popupRef} selected={selectedIds.has(popupSite.id)} toggle={() => toggleSelected(popupSite.id)} detail={() => setDetailSite(popupSite)} close={closeSitePopup} keepHover={() => { popupHoverRef.current = true; clearTimeout(hoverClearTimerRef.current); clearTimeout(hoverIntentTimerRef.current); }} endHover={() => { popupHoverRef.current = false; setHoverSite(null); }} />}
@@ -646,7 +668,7 @@ function PlannerDialogV3(props) {
                           onClick={() => getBrowserLocation('start')}
                           disabled={busy}
                         >
-                          {actionLoading === 'browser-location' ? <Spinner /> : '🧭'}
+                          {actionLoading === 'geo-start' ? <Spinner /> : '🧭'}
                           <span>Vị trí hiện tại</span>
                         </button>
 
@@ -678,7 +700,7 @@ function PlannerDialogV3(props) {
                           onClick={() => getBrowserLocation('end')}
                           disabled={busy}
                         >
-                          {actionLoading === 'browser-location' ? <Spinner /> : '🧭'}
+                          {actionLoading === 'geo-end' ? <Spinner /> : '🧭'}
                           <span>Vị trí hiện tại</span>
                         </button>
 
