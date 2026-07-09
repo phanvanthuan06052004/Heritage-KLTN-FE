@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';
 import { API } from './mapUtils';
@@ -21,6 +22,7 @@ function decodePolyline(str, precision = 5) {
 }
 
 export default function RoutePlayback({ route, map, sites }) {
+  const { t } = useTranslation();
   const [activeDay, setActiveDay] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -158,7 +160,7 @@ export default function RoutePlayback({ route, map, sites }) {
       const res = await fetch(`${API}/heritage-sites/${narrateSite.id}/narrate`);
       if (!res.ok) throw new Error(`Narration request failed: ${res.status}`);
       const data = await res.json();
-      const narration = data.narration || narrateSite.long_description || narrateSite.description || "Hiện chưa có tư liệu thuyết minh cho địa điểm này.";
+      const narration = data.narration || narrateSite.long_description || narrateSite.description || t('explore.playback.noNarration');
       setNarrationText(narration);
       
       // Auto text-to-speech if available
@@ -170,7 +172,7 @@ export default function RoutePlayback({ route, map, sites }) {
       }
     } catch (e) {
       console.error(e);
-      setNarrationText("Lỗi khi tải thông tin. Vui lòng thử lại sau.");
+      setNarrationText(t('explore.playback.narrationError'));
     } finally {
       setLoadingNarration(false);
     }
@@ -191,22 +193,22 @@ export default function RoutePlayback({ route, map, sites }) {
     <>
       <div className="playback-controller">
         <div className="playback-header">
-          <strong>Hành trình mô phỏng</strong>
+          <strong>{t('explore.playback.simulatedJourney')}</strong>
           <select value={activeDay} onChange={e => { setActiveDay(Number(e.target.value)); setProgress(0); setVisitedStops(new Set()); setPlaying(false); }}>
             {route.days.map((d, i) => (
-              <option key={i} value={i}>Ngày {d.day}</option>
+              <option key={i} value={i}>{t('explore.playback.day', { day: d.day })}</option>
             ))}
           </select>
         </div>
         <div className="playback-controls">
           <button className="primary" onClick={() => setPlaying(!playing)}>
-            {playing ? '⏸ Tạm dừng' : '▶ Phát'}
+            {playing ? `⏸ ${t('explore.playback.pause')}` : `▶ ${t('explore.playback.play')}`}
           </button>
           <button className="ghost" onClick={() => { setProgress(0); setVisitedStops(new Set()); }}>
-            ⏮ Làm lại
+            ⏮ {t('explore.playback.restart')}
           </button>
           <select className="speed-select" value={speed} onChange={e => setSpeed(Number(e.target.value))}>
-            <option value={1}>1x Tốc độ</option>
+            <option value={1}>{`1x ${t('explore.playback.speedLabel')}`}</option>
             <option value={2}>2x</option>
             <option value={5}>5x</option>
             <option value={10}>10x</option>
@@ -233,21 +235,21 @@ export default function RoutePlayback({ route, map, sites }) {
       {narrateSite && (
         <div className="narration-overlay">
           <div className="narration-popup">
-            <h3>Đã đến: {narrateSite.name}</h3>
+            <h3>{t('explore.playback.arrivedAt', { name: narrateSite.name })}</h3>
             {!narrationText ? (
               <div className="narration-prompt">
-                <p>Bạn có muốn nghe thông tin và lịch sử về địa điểm này không?</p>
+                <p>{t('explore.playback.narrationPrompt')}</p>
                 <div className="actions">
                   <button className="primary" onClick={handleFetchNarration} disabled={loadingNarration}>
-                    {loadingNarration ? <><i className="loading-spinner" aria-hidden="true" /> Đang tải...</> : 'Có, Kể tôi nghe 🔊'}
+                    {loadingNarration ? <><i className="loading-spinner" aria-hidden="true" /> {t('explore.playback.loading')}</> : `${t('explore.playback.yesTell')} 🔊`}
                   </button>
-                  <button className="ghost" onClick={closeNarration} disabled={loadingNarration}>Bỏ qua</button>
+                  <button className="ghost" onClick={closeNarration} disabled={loadingNarration}>{t('explore.playback.skip')}</button>
                 </div>
               </div>
             ) : (
               <div className="narration-content">
                 <p>{narrationText}</p>
-                <button className="primary" onClick={closeNarration}>Tiếp tục hành trình 🚙</button>
+                <button className="primary" onClick={closeNarration}>{t('explore.playback.continueJourney')} 🚙</button>
               </div>
             )}
           </div>

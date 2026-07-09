@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Dialog from '@radix-ui/react-dialog';
 import { toast } from 'react-toastify';
 import maplibregl from 'maplibre-gl';
@@ -8,13 +9,15 @@ import RoutePlayback from './RoutePlayback';
 import ExploreOnboarding from './ExploreOnboarding';
 import {
   API, FEATURED_PER_PROVINCE, PROV_COORDS, CAT_STYLE, CAT_LABELS,
-  formatPrice, scorePercent, siteRank, stars, categoryLabel, reviewUrl,
+  formatPrice, scorePercent, siteRank, stars, reviewUrl,
   formatDescriptionBlocks, normalizeText, hasNormalized, markerElement,
   parseOpeningHours, toPlannerSite, optionalNumber, formatApiError,
   detailedAddress, useProvinceCenter, decodePolyline, buildRecommendPayload,
 } from './mapUtils';
 
 function App() {
+  const { t } = useTranslation();
+  const catLabel = useCallback((c) => t(`explore.categories.${c}`, { defaultValue: CAT_LABELS[c] || c }), [t]);
   const mapRef = useRef(null);
   const mapNodeRef = useRef(null);
   const markersRef = useRef([]);
@@ -41,14 +44,14 @@ function App() {
   const [startPoint, setStartPoint] = useState(null);
   const [endPoint, setEndPoint] = useState(null);
   const [route, setRoute] = useState(null);
-  const [status, setStatus] = useState({ type: 'info', text: 'Mở ấn triện “Tạo lịch trình” để bắt đầu hành trình qua các di sản Việt Nam.' });
+  const [status, setStatus] = useState({ type: 'info', key: 'explore.ui.initialStatus' });
   const [loading, setLoading] = useState(false);
   const [sitesLoading, setSitesLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [minimizedPlanner, setMinimizedPlanner] = useState(false);
 
   const provinces = useMemo(() => [...new Set(sites.map(s => s.province).filter(Boolean))].sort(), [sites]);
-  const categories = useMemo(() => [...new Set(sites.flatMap(site => site.categories?.length ? site.categories : ['default']))].sort((a, b) => (CAT_LABELS[a] || a).localeCompare(CAT_LABELS[b] || b, 'vi')), [sites]);
+  const categories = useMemo(() => [...new Set(sites.flatMap(site => site.categories?.length ? site.categories : ['default']))].sort((a, b) => catLabel(a).localeCompare(catLabel(b))), [sites, catLabel]);
   const featuredSites = useMemo(() => {
     const byProvince = new Map();
     sites.forEach(site => {
@@ -65,9 +68,9 @@ function App() {
     const text = query.trim().toLowerCase();
     if (!text) return [];
     const siteMatches = sites.filter(site => site.name.toLowerCase().includes(text) || site.province.toLowerCase().includes(text)).slice(0, 6).map(site => ({ type: 'site', id: site.id, label: site.name, sub: site.province, site }));
-    const provinceMatches = provinces.filter(province => province.toLowerCase().includes(text)).slice(0, 3).map(province => ({ type: 'province', id: province, label: province, sub: 'Tỉnh/thành phố' }));
+    const provinceMatches = provinces.filter(province => province.toLowerCase().includes(text)).slice(0, 3).map(province => ({ type: 'province', id: province, label: province, sub: t('explore.ui.provinceSub') }));
     return [...siteMatches, ...provinceMatches].slice(0, 8);
-  }, [provinces, query, sites]);
+  }, [provinces, query, sites, t]);
   const filteredSites = useMemo(() => {
     const source = selectedProvinces.size ? sites : featuredSites;
     return source.filter(site => {
@@ -79,7 +82,7 @@ function App() {
   const selectedSites = useMemo(() => [...selectedIds].map(id => sites.find(site => site.id === id)).filter(Boolean), [selectedIds, sites]);
   const popupSite = hoverSite || activeSite;
 
-  useEffect(() => { setSitesLoading(true); fetch(`${API}/heritage-sites`).then(r => r.json()).then(d => setSites(Array.isArray(d) ? d : [])).catch(e => setStatus({ type: 'error', text: `Không tải được dữ liệu: ${e.message}` })).finally(() => setSitesLoading(false)); }, []);
+  useEffect(() => { setSitesLoading(true); fetch(`${API}/heritage-sites`).then(r => r.json()).then(d => setSites(Array.isArray(d) ? d : [])).catch(e => setStatus({ type: 'error', key: 'explore.ui.loadError', params: { message: e.message } })).finally(() => setSitesLoading(false)); }, []);
   useEffect(() => { skipFitRef.current = true; }, [query]);
   useEffect(() => {
     if (mapRef.current || !mapNodeRef.current) return;
@@ -252,8 +255,8 @@ function App() {
   }
   function getBrowserLocation(kind) {
     if (!navigator.geolocation) {
-      toast.error('Trình duyệt của bạn không hỗ trợ định vị.');
-      setStatus({ type: 'error', text: 'Trình duyệt của bạn không hỗ trợ định vị.' });
+      toast.error(t('explore.status.geoUnsupported'));
+      setStatus({ type: 'error', key: 'explore.status.geoUnsupported' });
       return;
     }
     const request = () => {
@@ -267,26 +270,26 @@ function App() {
           if (kind === 'start') {
             setStartPoint(point);
             setPlanner(p => ({ ...p, startText: point.label }));
-            setStatus({ type: 'info', text: `Vị trí xuất phát: ${point.label}` });
+            setStatus({ type: 'info', key: 'explore.status.startPosition', params: { label: point.label } });
           } else {
             setEndPoint(point);
             setPlanner(p => ({ ...p, endText: point.label }));
-            setStatus({ type: 'info', text: `Vị trí kết thúc: ${point.label}` });
+            setStatus({ type: 'info', key: 'explore.status.endPosition', params: { label: point.label } });
           }
           setActionLoading(null);
         },
         (err) => {
           setActionLoading(null);
-          let text = 'Không thể lấy vị trí. Vui lòng thử lại.';
+          let key = 'explore.status.geoFailed';
           if (err.code === err.PERMISSION_DENIED) {
-            text = 'Bạn chưa cấp quyền truy cập vị trí. Hãy bật quyền vị trí trong trình duyệt rồi thử lại, hoặc chọn điểm trên bản đồ.';
+            key = 'explore.status.geoDenied';
           } else if (err.code === err.POSITION_UNAVAILABLE) {
-            text = 'Không xác định được vị trí hiện tại. Vui lòng chọn điểm trên bản đồ hoặc nhập địa chỉ.';
+            key = 'explore.status.geoUnavailable';
           } else if (err.code === err.TIMEOUT) {
-            text = 'Quá thời gian lấy vị trí. Vui lòng thử lại.';
+            key = 'explore.status.geoTimeout';
           }
-          toast.error(text);
-          setStatus({ type: 'error', text });
+          toast.error(t(key));
+          setStatus({ type: 'error', key });
         },
         { timeout: 10000, enableHighAccuracy: true }
       );
@@ -294,9 +297,8 @@ function App() {
     if (navigator.permissions?.query) {
       navigator.permissions.query({ name: 'geolocation' }).then(result => {
         if (result.state === 'denied') {
-          const text = 'Quyền truy cập vị trí đang bị chặn. Hãy bật lại trong cài đặt trình duyệt, hoặc chọn điểm trên bản đồ / nhập địa chỉ.';
-          toast.error(text);
-          setStatus({ type: 'error', text });
+          toast.error(t('explore.status.geoBlocked'));
+          setStatus({ type: 'error', key: 'explore.status.geoBlocked' });
           return;
         }
         request();
@@ -311,14 +313,14 @@ function App() {
   function startPickingMap(kind) {
     setPickingMapFor(kind);
     setPlannerOpen(false);
-    setStatus({ type: 'info', text: 'Vui lòng click vào một điểm trên bản đồ.' });
+    setStatus({ type: 'info', key: 'explore.status.clickOnMap' });
   }
   async function updatePoint(kind, textOverride = null) {
     const text = textOverride ?? (kind === 'start' ? planner.startText : planner.endText);
     setActionLoading(`point-${kind}`);
     try {
       const point = await geocode(text);
-      if (!point) { setStatus({ type: 'error', text: `Không tìm thấy ${kind === 'start' ? 'điểm xuất phát' : 'điểm kết thúc'}.` }); return; }
+      if (!point) { setStatus({ type: 'error', key: kind === 'start' ? 'explore.status.startNotFound' : 'explore.status.endNotFound' }); return; }
       if (kind === 'start') {
         setStartPoint(point);
         setPlanner(p => ({ ...p, startText: point.label }));
@@ -326,7 +328,7 @@ function App() {
         setEndPoint(point);
         setPlanner(p => ({ ...p, endText: point.label }));
       }
-      setStatus({ type: 'info', text: `${kind === 'start' ? 'Xuất phát' : 'Kết thúc'}: ${point.label}` });
+      setStatus({ type: 'info', key: kind === 'start' ? 'explore.status.startShort' : 'explore.status.endShort', params: { label: point.label } });
     } finally {
       setActionLoading(null);
     }
@@ -335,12 +337,12 @@ function App() {
     if (kind === 'start') {
       setStartPoint(point);
       setPlanner(value => ({ ...value, startText: point.label }));
-      setStatus({ type: 'info', text: `Điểm xuất phát: ${point.label}` });
+      setStatus({ type: 'info', key: 'explore.status.startPoint', params: { label: point.label } });
       return;
     }
     setEndPoint(point);
     setPlanner(value => ({ ...value, endText: point.label }));
-    setStatus({ type: 'info', text: `Điểm kết thúc: ${point.label}` });
+    setStatus({ type: 'info', key: 'explore.status.endPoint', params: { label: point.label } });
   }
   async function recommendRoute() {
     setLoading(true); setActionLoading('route'); setRoute(null);
@@ -383,19 +385,19 @@ function App() {
             arrival_time: (item.time || '').split('-')[0] || '',
             travel_from_prev_km: (item.distance_from_previous_m || 0) / 1000,
             travel_from_prev_min: item.travel_from_previous_minutes || 0,
-            reason: item.reason || 'Phù hợp với sở thích và vùng di sản đã chọn.'
+            reason: item.reason || t('explore.route.defaultReason')
           }))
         }))
       };
       setRoute(mappedRoute); drawRoute(mappedRoute); setPlannerOpen(false);
-      setStatus({ type: 'success', text: 'AI đã thiết kế lịch trình thành công.' });
-    } catch (error) { setStatus({ type: 'error', text: error.message || 'Không thể tạo gợi ý.' }); }
+      setStatus({ type: 'success', key: 'explore.status.routeSuccess' });
+    } catch (error) { setStatus({ type: 'error', text: error.message || t('explore.status.routeFailed') }); }
     finally { setLoading(false); setActionLoading(null); }
   }
 
   async function planRoute() {
-    if (!selectedProvinces.size) { setStatus({ type: 'error', text: 'Chọn ít nhất một tỉnh trước khi tạo lịch trình.' }); setStep(1); return; }
-    if (planner.mode === 'transit') { setStatus({ type: 'error', text: 'Phương tiện công cộng cần GTFS/OpenTripPlanner. Hiện hỗ trợ ô tô, xe máy, đi bộ qua OSRM.' }); setStep(3); return; }
+    if (!selectedProvinces.size) { setStatus({ type: 'error', key: 'explore.status.selectProvinceFirst' }); setStep(1); return; }
+    if (planner.mode === 'transit') { setStatus({ type: 'error', key: 'explore.status.transitUnsupported' }); setStep(3); return; }
 
     // Always use AI recommendation first for rich results
     await recommendRoute();
@@ -446,35 +448,36 @@ function App() {
 
   return <div className="heritage-map-page map-first-shell">
     <main className="map-wrap"><div ref={mapNodeRef} className="map" /></main>
-    <SearchBox query={query} setQuery={setQuery} suggestions={searchSuggestions} choose={chooseSuggestion} />
+    <SearchBox query={query} setQuery={setQuery} suggestions={searchSuggestions} choose={chooseSuggestion} placeholder={t('explore.ui.mapSearchPlaceholder')} />
     <div className="top-left-stack">
-      <button className="create-trip-btn" onClick={() => { setMinimizedPlanner(false); setPlannerOpen(true); }} disabled={sitesLoading || loading}><span>{sitesLoading ? <Spinner /> : '印'}</span>{sitesLoading ? 'Đang mở bản đồ' : 'Tạo lịch trình'}</button>
-      <StatusBanner status={status} />
+      <button className="create-trip-btn" onClick={() => { setMinimizedPlanner(false); setPlannerOpen(true); }} disabled={sitesLoading || loading}><span>{sitesLoading ? <Spinner /> : '印'}</span>{sitesLoading ? t('explore.ui.openingMap') : t('explore.ui.createTrip')}</button>
+      <StatusBanner status={status} t={t} />
     </div>
-    {selectedProvinces.size > 0 && <button className="reset-map-btn" onClick={resetMapFocus}>Tắt zoom</button>}
-    <CategoryFilters categories={categories} selected={selectedCategories} toggle={toggleCategory} clear={() => setSelectedCategories(new Set())} loading={sitesLoading} />
-    {(sitesLoading || loading || actionLoading?.startsWith('map-')) && <MapLoadingOverlay text={sitesLoading ? 'Đang tải bản đồ di sản...' : actionLoading?.startsWith('map-') ? 'Đang định danh tọa độ...' : 'Đang dựng lộ trình...'} />}
+    {selectedProvinces.size > 0 && <button className="reset-map-btn" onClick={resetMapFocus}>{t('explore.ui.resetZoom')}</button>}
+    <CategoryFilters categories={categories} selected={selectedCategories} toggle={toggleCategory} clear={() => setSelectedCategories(new Set())} loading={sitesLoading} t={t} catLabel={catLabel} />
+    {(sitesLoading || loading || actionLoading?.startsWith('map-')) && <MapLoadingOverlay text={sitesLoading ? t('explore.ui.loadingMapData') : actionLoading?.startsWith('map-') ? t('explore.ui.identifyingCoords') : t('explore.ui.buildingRoute')} subtitle={t('explore.ui.preparingMaterials')} />}
 
     {!plannerOpen && !pickingMapFor && !route && selectedSites.length === 0 && (
       <button className="floating-return-btn" onClick={() => setPlannerOpen(true)}>
-        Quay lại lịch trình
+        {t('explore.ui.backToItinerary')}
       </button>
     )}
 
     {selectedSites.length > 0 && !plannerOpen && (
-      <div className="selected-sites-bar"><span>Đã chọn {selectedSites.length} điểm</span><button onClick={() => { setMinimizedPlanner(false); setPlannerOpen(true); }}>Tiếp tục lịch trình →</button></div>
+      <div className="selected-sites-bar"><span>{t('explore.ui.selectedPoints', { count: selectedSites.length })}</span><button onClick={() => { setMinimizedPlanner(false); setPlannerOpen(true); }}>{t('explore.ui.continueItinerary')}</button></div>
     )}
 
-    <PlannerDialogV3 open={plannerOpen} setOpen={setPlannerOpen} step={step} setStep={setStep} sites={sites} provinces={provinces} selectedProvinces={selectedProvinces} toggleProvince={toggleProvince} selectedSites={selectedSites} toggleSelected={toggleSelected} setActiveSite={setActiveSite} planner={planner} setPlanner={setPlanner} selectPoint={selectPoint} useCenter={() => useProvinceCenter(selectedProvinces, setStartPoint, setEndPoint, setPlanner)} makeRoundTrip={() => { if (!startPoint) { setStatus({ type: 'error', text: 'Chọn điểm xuất phát trước.' }); return; } setEndPoint(startPoint); setPlanner(v => ({ ...v, endText: v.startText || `${startPoint.lat}, ${startPoint.lng}` })); }} loading={loading} actionLoading={actionLoading} sitesLoading={sitesLoading} planRoute={planRoute} pickLocation={pickLocation} getBrowserLocation={getBrowserLocation} startPickingMap={startPickingMap} minimizedPlanner={minimizedPlanner} setMinimizedPlanner={setMinimizedPlanner} />
-    {route && <RouteSummary route={route} openPlanner={() => setPlannerOpen(true)} focus={id => { const site = sites.find(item => item.id === id); if (site) focusSite(site); }} />}
+    <PlannerDialogV3 open={plannerOpen} setOpen={setPlannerOpen} step={step} setStep={setStep} sites={sites} provinces={provinces} selectedProvinces={selectedProvinces} toggleProvince={toggleProvince} selectedSites={selectedSites} toggleSelected={toggleSelected} setActiveSite={setActiveSite} planner={planner} setPlanner={setPlanner} selectPoint={selectPoint} useCenter={() => useProvinceCenter(selectedProvinces, setStartPoint, setEndPoint, setPlanner)} makeRoundTrip={() => { if (!startPoint) { setStatus({ type: 'error', key: 'explore.status.selectStartFirst' }); return; } setEndPoint(startPoint); setPlanner(v => ({ ...v, endText: v.startText || `${startPoint.lat}, ${startPoint.lng}` })); }} loading={loading} actionLoading={actionLoading} sitesLoading={sitesLoading} planRoute={planRoute} pickLocation={pickLocation} getBrowserLocation={getBrowserLocation} startPickingMap={startPickingMap} minimizedPlanner={minimizedPlanner} setMinimizedPlanner={setMinimizedPlanner} />
+    {route && <RouteSummary route={route} openPlanner={() => setPlannerOpen(true)} focus={id => { const site = sites.find(item => item.id === id); if (site) focusSite(site); }} t={t} />}
     {route && <RoutePlayback route={route} map={mapRef.current} sites={sites} />}
-    {popupSite && popupPos && <MiniSitePopup site={popupSite} pos={popupPos} popupRef={popupRef} selected={selectedIds.has(popupSite.id)} toggle={() => toggleSelected(popupSite.id)} detail={() => setDetailSite(popupSite)} close={closeSitePopup} keepHover={() => { popupHoverRef.current = true; clearTimeout(hoverClearTimerRef.current); clearTimeout(hoverIntentTimerRef.current); }} endHover={() => { popupHoverRef.current = false; setHoverSite(null); }} />}
-    <SiteDetailDialog site={detailSite} selected={detailSite ? selectedIds.has(detailSite.id) : false} toggle={() => detailSite && toggleSelected(detailSite.id)} close={() => setDetailSite(null)} />
+    {popupSite && popupPos && <MiniSitePopup site={popupSite} pos={popupPos} popupRef={popupRef} selected={selectedIds.has(popupSite.id)} toggle={() => toggleSelected(popupSite.id)} detail={() => setDetailSite(popupSite)} close={closeSitePopup} t={t} catLabel={catLabel} keepHover={() => { popupHoverRef.current = true; clearTimeout(hoverClearTimerRef.current); clearTimeout(hoverIntentTimerRef.current); }} endHover={() => { popupHoverRef.current = false; setHoverSite(null); }} />}
+    <SiteDetailDialog site={detailSite} selected={detailSite ? selectedIds.has(detailSite.id) : false} toggle={() => detailSite && toggleSelected(detailSite.id)} close={() => setDetailSite(null)} t={t} catLabel={catLabel} />
     <ExploreOnboarding />
   </div>;
 }
 
 function LocationSearchInput({ label, value, onChange, onSelect, placeholder, disabled, loading, showSub = true }) {
+  const { t } = useTranslation();
   const [suggestions, setSuggestions] = useState([]);
   const [searching, setSearching] = useState(false);
   const [open, setOpen] = useState(false);
@@ -499,7 +502,7 @@ function LocationSearchInput({ label, value, onChange, onSelect, placeholder, di
         const response = await fetch(url);
         const data = await response.json();
         if (!alive) return;
-        const subMap = { administrative: 'Khu vực', city: 'Thành phố', town: 'Thị trấn', village: 'Làng', hamlet: 'Thôn', road: 'Đường', suburb: 'Quận', county: 'Huyện', state: 'Tỉnh', pedestrian: 'Đường bộ', footway: 'Lối đi' };
+        const subMap = { administrative: t('explore.locationTypes.administrative'), city: t('explore.locationTypes.city'), town: t('explore.locationTypes.town'), village: t('explore.locationTypes.village'), hamlet: t('explore.locationTypes.hamlet'), road: t('explore.locationTypes.road'), suburb: t('explore.locationTypes.suburb'), county: t('explore.locationTypes.county'), state: t('explore.locationTypes.state'), pedestrian: t('explore.locationTypes.pedestrian'), footway: t('explore.locationTypes.footway') };
         setSuggestions(Array.isArray(data) ? data.map(item => ({ lat: Number(item.lat), lng: Number(item.lon), label: detailedAddress(item) || item.display_name || text, sub: subMap[item.type] || subMap[item.class] || '' })).filter(item => Number.isFinite(item.lat) && Number.isFinite(item.lng)) : []);
         setOpen(true);
       } catch {
@@ -509,7 +512,7 @@ function LocationSearchInput({ label, value, onChange, onSelect, placeholder, di
       }
     }, 350);
     return () => { alive = false; clearTimeout(timer); };
-  }, [disabled, value]);
+  }, [disabled, value, t]);
 
   const handleSelect = useCallback((item) => {
     setSuggestions([]);
@@ -522,6 +525,7 @@ function LocationSearchInput({ label, value, onChange, onSelect, placeholder, di
 }
 
 function PlannerDialogV3(props) {
+  const { t } = useTranslation();
   const {
     open, setOpen, step, setStep, provinces, selectedProvinces, toggleProvince,
     selectedSites, toggleSelected, setActiveSite, planner, setPlanner, selectPoint,
@@ -531,9 +535,35 @@ function PlannerDialogV3(props) {
 
   const busy = loading || Boolean(actionLoading);
   const interests = [
-    'Đền chùa & Tâm linh', 'Lịch sử & Khảo cổ', 'Kiến trúc & Nghệ thuật',
-    'Cảnh quan thiên nhiên', 'Trải nghiệm văn hóa địa phương',
-    'Thích hợp cho trẻ em', 'Thích hợp người lớn tuổi'
+    { value: 'Đền chùa & Tâm linh', key: 'spiritual' },
+    { value: 'Lịch sử & Khảo cổ', key: 'history' },
+    { value: 'Kiến trúc & Nghệ thuật', key: 'architecture' },
+    { value: 'Cảnh quan thiên nhiên', key: 'nature' },
+    { value: 'Trải nghiệm văn hóa địa phương', key: 'local' },
+    { value: 'Thích hợp cho trẻ em', key: 'children' },
+    { value: 'Thích hợp người lớn tuổi', key: 'elderly' },
+  ];
+  const tripGoals = [
+    { value: 'Tìm hiểu lịch sử chiều sâu', key: 'history' },
+    { value: 'Check-in di sản nổi bật', key: 'checkin' },
+    { value: 'Hành hương và tâm linh', key: 'spiritual' },
+    { value: 'Gia đình nhẹ nhàng', key: 'family' },
+  ];
+  const travelGroups = [
+    { value: 'Có trẻ em', key: 'children' },
+    { value: 'Có người lớn tuổi', key: 'elderly' },
+    { value: 'Nhóm bạn trẻ', key: 'youth' },
+    { value: 'Đi một mình', key: 'solo' },
+  ];
+  const paces = [
+    { value: 'relaxed', key: 'relaxed' },
+    { value: 'moderate', key: 'moderate' },
+    { value: 'packed', key: 'packed' },
+  ];
+  const envPrefs = [
+    { value: 'Ưu tiên điểm trong nhà nếu mưa hoặc chất lượng không khí kém', key: 'indoor' },
+    { value: 'Ưu tiên ngoài trời khi thời tiết đẹp', key: 'outdoor' },
+    { value: 'Hạn chế di chuyển xa', key: 'limit' },
   ];
 
   const toggleInterest = interest => setPlanner(value => {
@@ -547,22 +577,22 @@ function PlannerDialogV3(props) {
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="planner-modal">
           <div className="modal-hero">
-            <Dialog.Title>Chiếu chỉ hành trình di sản</Dialog.Title>
-            <Dialog.Description>Chọn vùng đất, trả lời vài câu hỏi, rồi hệ thống lập tuyến và giải thích lý do chọn điểm.</Dialog.Description>
+            <Dialog.Title>{t('explore.planner.title')}</Dialog.Title>
+            <Dialog.Description>{t('explore.planner.description')}</Dialog.Description>
             <Dialog.Close className="modal-close" disabled={busy}>×</Dialog.Close>
           </div>
           {busy && (
             <div className="modal-loading-overlay">
               <div className="modal-loading-content">
                 <Spinner />
-                <strong>{actionLoading === 'route' ? 'Đang chiếu lập lộ trình...' : 'Đang xử lý...'}</strong>
-                <small>Vui lòng chờ trong giây lát</small>
+                <strong>{actionLoading === 'route' ? t('explore.planner.processingRoute') : t('explore.planner.processing')}</strong>
+                <small>{t('explore.planner.pleaseWait')}</small>
               </div>
             </div>
           )}
 
           <div className="wizard-tabs five-tabs">
-            {['Vùng đất', 'Di sản ưu tiên', 'Sở thích', 'Khởi hành', 'Lộ trình'].map((label, i) => (
+            {[t('explore.planner.tabLand'), t('explore.planner.tabHeritage'), t('explore.planner.tabInterest'), t('explore.planner.tabDeparture'), t('explore.planner.tabRoute')].map((label, i) => (
               <button key={label} className={step === i + 1 ? 'active' : ''} onClick={() => setStep(i + 1)} disabled={busy}>
                 <span>{i + 1}</span>{label}
               </button>
@@ -573,8 +603,8 @@ function PlannerDialogV3(props) {
             <div className="wizard-scroll">
               {step === 1 && (
                 <>
-                  <h3>Chọn vùng đất</h3>
-                  <p>Chọn tỉnh để lọc bản đồ. Hệ thống sẽ giới hạn lộ trình trong các tỉnh này.</p>
+                  <h3>{t('explore.planner.selectLand')}</h3>
+                  <p>{t('explore.planner.selectLandDesc')}</p>
                   {sitesLoading ? <SkeletonRows count={5} /> : (
                     <div className="province-grid modal-grid">
                       {provinces.slice(0, 60).map(province => (
@@ -587,61 +617,51 @@ function PlannerDialogV3(props) {
 
               {step === 2 && (
                 <>
-                  <h3>Di sản ưu tiên (Bắt buộc)</h3>
-                  <p>Đây là các di sản bạn <strong>chắc chắn</strong> muốn đi qua. Hãy đóng hộp thoại này, bấm vào marker trên bản đồ để xem và "Đưa vào lịch trình".</p>
-                  <SelectedSites sites={selectedSites} remove={toggleSelected} focus={setActiveSite} disabled={busy} />
+                  <h3>{t('explore.planner.priorityHeritage')}</h3>
+                  <p>{t('explore.planner.priorityHeritageDesc')}</p>
+                  <SelectedSites sites={selectedSites} remove={toggleSelected} focus={setActiveSite} disabled={busy} t={t} />
                   <label style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer', color: selectedProvinces.size ? 'rgb(var(--museum-gold))' : 'rgb(var(--museum-muted))' }}>
                     <input type="checkbox" checked={minimizedPlanner} onChange={e => { setMinimizedPlanner(e.target.checked); if (e.target.checked) setOpen(false); else setOpen(true); }} disabled={busy || !selectedProvinces.size} style={{ accentColor: 'rgb(var(--museum-gold))' }} />
-                    Thu nhỏ để chọn điểm trực tiếp trên bản đồ
+                    {t('explore.planner.minimizeToPick')}
                   </label>
                 </>
               )}
 
               {step === 3 && (
                 <>
-                  <h3>AI hiểu bạn hơn</h3>
-                  <p>Trả lời nhanh để hệ thống chọn điểm di sản hợp người đi, nhịp độ, thời tiết và chất lượng không khí.</p>
+                  <h3>{t('explore.planner.aiUnderstands')}</h3>
+                  <p>{t('explore.planner.aiUnderstandsDesc')}</p>
                   <div className="question-grid">
-                    <label>Mục tiêu chuyến đi
+                    <label>{t('explore.planner.tripGoalLabel')}
                       <select value={planner.tripGoal || ''} onChange={e => setPlanner(v => ({ ...v, tripGoal: e.target.value }))} disabled={busy}>
-                        <option value="">Chọn mục tiêu</option>
-                        <option value="Tìm hiểu lịch sử chiều sâu">Tìm hiểu lịch sử chiều sâu</option>
-                        <option value="Check-in di sản nổi bật">Check-in di sản nổi bật</option>
-                        <option value="Hành hương và tâm linh">Hành hương và tâm linh</option>
-                        <option value="Gia đình nhẹ nhàng">Gia đình nhẹ nhàng</option>
+                        <option value="">{t('explore.planner.tripGoalPlaceholder')}</option>
+                        {tripGoals.map(o => <option key={o.key} value={o.value}>{t(`explore.planner.goals.${o.key}`)}</option>)}
                       </select>
                     </label>
-                    <label>Đi cùng ai?
+                    <label>{t('explore.planner.travelGroupLabel')}
                       <select value={planner.travelGroup || ''} onChange={e => setPlanner(v => ({ ...v, travelGroup: e.target.value }))} disabled={busy}>
-                        <option value="">Chọn nhóm đi</option>
-                        <option value="Có trẻ em">Có trẻ em</option>
-                        <option value="Có người lớn tuổi">Có người lớn tuổi</option>
-                        <option value="Nhóm bạn trẻ">Nhóm bạn trẻ</option>
-                        <option value="Đi một mình">Đi một mình</option>
+                        <option value="">{t('explore.planner.travelGroupPlaceholder')}</option>
+                        {travelGroups.map(o => <option key={o.key} value={o.value}>{t(`explore.planner.groups.${o.key}`)}</option>)}
                       </select>
                     </label>
-                    <label>Nhịp độ mong muốn
+                    <label>{t('explore.planner.paceLabel')}
                       <select value={planner.pace || 'moderate'} onChange={e => setPlanner(v => ({ ...v, pace: e.target.value }))} disabled={busy}>
-                        <option value="relaxed">Thong thả</option>
-                        <option value="moderate">Vừa phải</option>
-                        <option value="packed">Đi nhiều điểm</option>
+                        {paces.map(o => <option key={o.key} value={o.value}>{t(`explore.planner.paces.${o.key}`)}</option>)}
                       </select>
                     </label>
-                    <label>Ưu tiên môi trường
+                    <label>{t('explore.planner.envLabel')}
                       <select value={planner.environmentPreference || ''} onChange={e => setPlanner(v => ({ ...v, environmentPreference: e.target.value }))} disabled={busy}>
-                        <option value="">Không ưu tiên đặc biệt</option>
-                        <option value="Ưu tiên điểm trong nhà nếu mưa hoặc chất lượng không khí kém">Ưu tiên trong nhà khi AQI kém</option>
-                        <option value="Ưu tiên ngoài trời khi thời tiết đẹp">Ưu tiên ngoài trời khi đẹp trời</option>
-                        <option value="Hạn chế di chuyển xa">Hạn chế di chuyển xa</option>
+                        <option value="">{t('explore.planner.envPlaceholder')}</option>
+                        {envPrefs.map(o => <option key={o.key} value={o.value}>{t(`explore.planner.envs.${o.key}`)}</option>)}
                       </select>
                     </label>
                   </div>
                   <div className="interest-box">
-                    <label>Sở thích chính</label>
+                    <label>{t('explore.planner.mainInterests')}</label>
                     <div>
                       {interests.map(interest => {
-                        const isSelected = (planner.selectedInterests || []).includes(interest);
-                        return <button key={interest} type="button" className={`ghost ${isSelected ? 'active' : ''}`} onClick={() => toggleInterest(interest)} disabled={busy}>{interest}</button>;
+                        const isSelected = (planner.selectedInterests || []).includes(interest.value);
+                        return <button key={interest.key} type="button" className={`ghost ${isSelected ? 'active' : ''}`} onClick={() => toggleInterest(interest.value)} disabled={busy}>{t(`explore.planner.interests.${interest.key}`)}</button>;
                       })}
                     </div>
                   </div>
@@ -651,25 +671,25 @@ function PlannerDialogV3(props) {
               {step === 4 && (
                 <section className="departure-step">
                   <div className="departure-header">
-                    <h3>Khởi hành</h3>
-                    <p>Gõ địa chỉ, chọn gợi ý, hoặc dùng tính năng vị trí.</p>
+                    <h3>{t('explore.planner.departure')}</h3>
+                    <p>{t('explore.planner.departureDesc')}</p>
                   </div>
 
                   {selectedSites.length > 0 && (
                     <div className="selected-sites-notice">
-                      ✓ Đã chọn {selectedSites.length} điểm — hệ thống sẽ lập tuyến theo các điểm này.
+                      {t('explore.planner.selectedNotice', { count: selectedSites.length })}
                     </div>
                   )}
 
                   <div className="departure-grid">
                     <div className="location-card">
                       <LocationSearchInput
-                        label="Điểm xuất phát"
+                        label={t('explore.planner.startPointLabel')}
                         showSub={false}
                         value={planner.startText}
                         disabled={busy}
                         loading={actionLoading === 'geo-start'}
-                        placeholder="Tìm địa chỉ hoặc tên địa danh..."
+                        placeholder={t('explore.planner.startPointPlaceholder')}
                         onChange={value => setPlanner(v => ({ ...v, startText: value }))}
                         onSelect={point => selectPoint('start', point)}
                       />
@@ -681,7 +701,7 @@ function PlannerDialogV3(props) {
                           disabled={busy}
                         >
                           {actionLoading === 'geo-start' ? <Spinner /> : '🧭'}
-                          <span>Vị trí hiện tại</span>
+                          <span>{t('explore.planner.currentLocation')}</span>
                         </button>
 
                         <button
@@ -689,19 +709,19 @@ function PlannerDialogV3(props) {
                           onClick={() => startPickingMap('start')}
                           disabled={busy}
                         >
-                          📍 <span>Chọn bản đồ</span>
+                          📍 <span>{t('explore.planner.pickOnMap')}</span>
                         </button>
                       </div>
                     </div>
 
                     <div className="location-card">
                       <LocationSearchInput
-                        label="Điểm kết thúc"
+                        label={t('explore.planner.endPointLabel')}
                         showSub={false}
                         value={planner.endText}
                         disabled={busy}
                         loading={actionLoading === 'geo-end'}
-                        placeholder="Để trống nếu quay về điểm xuất phát"
+                        placeholder={t('explore.planner.endPointPlaceholder')}
                         onChange={value => setPlanner(v => ({ ...v, endText: value }))}
                         onSelect={point => selectPoint('end', point)}
                       />
@@ -713,7 +733,7 @@ function PlannerDialogV3(props) {
                           disabled={busy}
                         >
                           {actionLoading === 'geo-end' ? <Spinner /> : '🧭'}
-                          <span>Vị trí hiện tại</span>
+                          <span>{t('explore.planner.currentLocation')}</span>
                         </button>
 
                         <button
@@ -721,7 +741,7 @@ function PlannerDialogV3(props) {
                           onClick={() => startPickingMap('end')}
                           disabled={busy}
                         >
-                          📍 <span>Chọn bản đồ</span>
+                          📍 <span>{t('explore.planner.pickOnMap')}</span>
                         </button>
 
                         <button
@@ -729,7 +749,7 @@ function PlannerDialogV3(props) {
                           onClick={makeRoundTrip}
                           disabled={busy}
                         >
-                          ↩ <span>Khứ hồi</span>
+                          ↩ <span>{t('explore.planner.roundTrip')}</span>
                         </button>
                       </div>
                     </div>
@@ -739,39 +759,39 @@ function PlannerDialogV3(props) {
 
               {step === 5 && (
                 <>
-                  <h3>Lộ trình</h3>
+                  <h3>{t('explore.planner.routeTitle')}</h3>
                   <div className="form-grid compact step-4-grid">
-                    <label>Số ngày
+                    <label>{t('explore.planner.days')}
                       <input type="number" min="1" value={planner.days} onChange={e => setPlanner(v => ({ ...v, days: e.target.value }))} disabled={busy} />
                     </label>
-                    <label>Số người
+                    <label>{t('explore.planner.people')}
                       <input type="number" min="1" value={planner.people} onChange={e => setPlanner(v => ({ ...v, people: e.target.value }))} disabled={busy} />
                     </label>
-                    <label>Phương tiện
+                    <label>{t('explore.planner.transport')}
                       <select value={planner.mode} onChange={e => setPlanner(v => ({ ...v, mode: e.target.value }))} disabled={busy}>
-                        <option value="driving">🚗 Ô tô</option>
-                        <option value="motorbike">🏍 Xe máy</option>
-                        <option value="walking">🚶 Đi bộ</option>
-                        <option value="transit">🚌 Công cộng</option>
+                        <option value="driving">{t('explore.planner.car')}</option>
+                        <option value="motorbike">{t('explore.planner.motorbike')}</option>
+                        <option value="walking">{t('explore.planner.walking')}</option>
+                        <option value="transit">{t('explore.planner.transit')}</option>
                       </select>
                     </label>
-                    <label>Ngày đi
+                    <label>{t('explore.planner.tripDate')}
                       <input type="date" value={planner.tripDate} onChange={e => setPlanner(v => ({ ...v, tripDate: e.target.value }))} disabled={busy} />
                     </label>
                     <div className="time-group">
-                      <label>Giờ bắt đầu
+                      <label>{t('explore.planner.startTime')}
                         <input type="time" value={planner.windowStart} onChange={e => setPlanner(v => ({ ...v, windowStart: e.target.value }))} disabled={busy} />
                       </label>
-                      <label>Giờ kết thúc
+                      <label>{t('explore.planner.endTime')}
                         <input type="time" value={planner.windowEnd} onChange={e => setPlanner(v => ({ ...v, windowEnd: e.target.value }))} disabled={busy} />
                       </label>
                     </div>
                     <div className="limit-group">
-                      <label>Km tối đa
-                        <input value={planner.maxDistanceKm} onChange={e => setPlanner(v => ({ ...v, maxDistanceKm: e.target.value }))} disabled={busy} placeholder="Tùy chọn" />
+                      <label>{t('explore.planner.maxKm')}
+                        <input value={planner.maxDistanceKm} onChange={e => setPlanner(v => ({ ...v, maxDistanceKm: e.target.value }))} disabled={busy} placeholder={t('explore.planner.optional')} />
                       </label>
-                      <label>Phút tối đa
-                        <input value={planner.maxDurationMin} onChange={e => setPlanner(v => ({ ...v, maxDurationMin: e.target.value }))} disabled={busy} placeholder="Tùy chọn" />
+                      <label>{t('explore.planner.maxMin')}
+                        <input value={planner.maxDurationMin} onChange={e => setPlanner(v => ({ ...v, maxDurationMin: e.target.value }))} disabled={busy} placeholder={t('explore.planner.optional')} />
                       </label>
                     </div>
                   </div>
@@ -780,11 +800,11 @@ function PlannerDialogV3(props) {
             </div>
 
             <div className="modal-actions">
-              {step === 1 && <button className="primary" onClick={() => setStep(2)} disabled={busy || sitesLoading}>Tiếp tục</button>}
-              {step === 2 && <><button className="ghost" onClick={() => setStep(1)} disabled={busy}>Quay lại</button><button className="primary" onClick={() => setStep(3)} disabled={busy}>Tiếp tục</button></>}
-              {step === 3 && <><button className="ghost" onClick={() => setStep(2)} disabled={busy}>Quay lại</button><button className="primary" onClick={() => setStep(4)} disabled={busy}>Tiếp tục</button></>}
-              {step === 4 && <><button className="ghost" onClick={useCenter} disabled={busy || !selectedProvinces.size}>Về trung tâm vùng đất</button><button className="ghost" onClick={() => setStep(3)} disabled={busy}>Quay lại</button><button className="primary" onClick={() => setStep(5)} disabled={busy}>Tiếp tục</button></>}
-              {step === 5 && <><button className="ghost" onClick={() => setStep(4)} disabled={busy}>Quay lại</button><button className="primary" onClick={planRoute} disabled={busy || sitesLoading}>{loading ? <><Spinner /> Đang tạo lộ trình</> : 'Ban chiếu lập tuyến'}</button></>}
+              {step === 1 && <button className="primary" onClick={() => setStep(2)} disabled={busy || sitesLoading}>{t('explore.planner.continue')}</button>}
+              {step === 2 && <><button className="ghost" onClick={() => setStep(1)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={() => setStep(3)} disabled={busy}>{t('explore.planner.continue')}</button></>}
+              {step === 3 && <><button className="ghost" onClick={() => setStep(2)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={() => setStep(4)} disabled={busy}>{t('explore.planner.continue')}</button></>}
+              {step === 4 && <><button className="ghost" onClick={useCenter} disabled={busy || !selectedProvinces.size}>{t('explore.planner.backToCenter')}</button><button className="ghost" onClick={() => setStep(3)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={() => setStep(5)} disabled={busy}>{t('explore.planner.continue')}</button></>}
+              {step === 5 && <><button className="ghost" onClick={() => setStep(4)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={planRoute} disabled={busy || sitesLoading}>{loading ? <><Spinner /> {t('explore.planner.creatingRoute')}</> : t('explore.planner.createRoute')}</button></>}
             </div>
           </div>
         </Dialog.Content>
@@ -795,21 +815,21 @@ function PlannerDialogV3(props) {
 
 function Spinner() { return <i className="loading-spinner" aria-hidden="true" />; }
 function InlineLoading({ text }) { return <div className="inline-loading"><Spinner /><span>{text}</span></div>; }
-function MapLoadingOverlay({ text }) { return <div className="map-loading-overlay"><div><Spinner /><strong>{text}</strong><small>Đang chuẩn bị tư liệu hành trình</small></div></div>; }
+function MapLoadingOverlay({ text, subtitle }) { return <div className="map-loading-overlay"><div><Spinner /><strong>{text}</strong><small>{subtitle}</small></div></div>; }
 function SkeletonRows({ count = 4 }) { return <div className="skeleton-list">{Array.from({ length: count }).map((_, index) => <span key={index} />)}</div>; }
-function StatusBanner({ status }) { return <div className={`status ${status.type}`}>{status.text}</div>; }
-function SearchBox({ query, setQuery, suggestions, choose }) { return <div className="map-search-center"><div className="map-search-card"><span>⌕</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm kiếm trên bản đồ" />{query && <button onClick={() => setQuery('')}>×</button>}</div>{suggestions.length > 0 && <div className="search-suggestions">{suggestions.map(item => <button key={`${item.type}-${item.id}`} onClick={() => choose(item)}><span>{item.type === 'site' ? '⌖' : '◉'}</span><div><strong>{item.label}</strong><small>{item.sub}</small></div></button>)}</div>}</div>; }
-function CategoryFilters({ categories, selected, toggle, clear, loading }) { return <aside className="category-filter"><div><strong>Loại địa điểm</strong>{selected.size > 0 && <button onClick={clear} disabled={loading}>Tất cả</button>}</div>{loading ? <SkeletonRows count={6} /> : categories.map(category => { const [color, icon] = CAT_STYLE[category] || CAT_STYLE.default; return <button key={category} className={selected.has(category) ? 'active' : ''} style={{ '--cat-color': color }} onClick={() => toggle(category)}><span>{icon}</span>{categoryLabel(category)}</button>; })}</aside>; }
-function SelectedSites({ sites, remove, focus, disabled }) { return <div className="selected-box">{sites.length ? sites.map(site => <button key={site.id} onClick={() => focus(site)} disabled={disabled}>{site.name}<span onClick={e => { e.stopPropagation(); if (!disabled) remove(site.id); }}>×</span></button>) : <p>Chưa chọn điểm bắt buộc nào.</p>}</div>; }
-function RouteSummary({ route, openPlanner, focus }) {
+function StatusBanner({ status, t }) { return <div className={`status ${status.type}`}>{status.key ? t(status.key, status.params) : status.text}</div>; }
+function SearchBox({ query, setQuery, suggestions, choose, placeholder }) { return <div className="map-search-center"><div className="map-search-card"><span>⌕</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder={placeholder} />{query && <button onClick={() => setQuery('')}>×</button>}</div>{suggestions.length > 0 && <div className="search-suggestions">{suggestions.map(item => <button key={`${item.type}-${item.id}`} onClick={() => choose(item)}><span>{item.type === 'site' ? '⌖' : '◉'}</span><div><strong>{item.label}</strong><small>{item.sub}</small></div></button>)}</div>}</div>; }
+function CategoryFilters({ categories, selected, toggle, clear, loading, t, catLabel }) { return <aside className="category-filter"><div><strong>{t('explore.ui.categoryType')}</strong>{selected.size > 0 && <button onClick={clear} disabled={loading}>{t('explore.ui.allCategories')}</button>}</div>{loading ? <SkeletonRows count={6} /> : categories.map(category => { const [color, icon] = CAT_STYLE[category] || CAT_STYLE.default; return <button key={category} className={selected.has(category) ? 'active' : ''} style={{ '--cat-color': color }} onClick={() => toggle(category)}><span>{icon}</span>{catLabel(category)}</button>; })}</aside>; }
+function SelectedSites({ sites, remove, focus, disabled, t }) { return <div className="selected-box">{sites.length ? sites.map(site => <button key={site.id} onClick={() => focus(site)} disabled={disabled}>{site.name}<span onClick={e => { e.stopPropagation(); if (!disabled) remove(site.id); }}>×</span></button>) : <p>{t('explore.planner.noRequiredPoints')}</p>}</div>; }
+function RouteSummary({ route, openPlanner, focus, t }) {
   const formatTime = (min) => {
     const m = Math.round(min);
-    if (m < 60) return `${m} phút`;
+    if (m < 60) return `${m} ${t('explore.route.minutes')}`;
     const h = Math.floor(m / 60);
     const m2 = m % 60;
     return m2 > 0 ? `${h}h ${m2}p` : `${h}h`;
   };
-  const notes = formatRouteWarnings(route.warnings || []);
+  const notes = formatRouteWarnings(route.warnings || [], t);
   const totalStops = (route.days || []).reduce((acc, d) => acc + (d.stops?.length || 0), 0);
   const dayColors = ['#9f1d19', '#b88935', '#6f3f20', '#3f7a4c', '#6f1714'];
 
@@ -817,22 +837,22 @@ function RouteSummary({ route, openPlanner, focus }) {
     <div className="rs-header">
       <div className="rs-status-badge">
         <span className="rs-status-dot" style={{ background: route.status === 'feasible' ? '#3f7a4c' : '#d7a84f' }} />
-        {route.status === 'feasible' ? 'Lộ trình khả thi' : 'Cần chỉnh lộ trình'}
+        {route.status === 'feasible' ? t('explore.route.feasible') : t('explore.route.needAdjust')}
       </div>
       <div className="rs-stats">
         <div className="rs-stat"><strong>📏</strong><span>{Number(route.total_distance_km).toFixed(1)} km</span></div>
         <div className="rs-stat"><strong>⏱</strong><span>{formatTime(route.total_duration_min)}</span></div>
-        <div className="rs-stat"><strong>📍</strong><span>{totalStops} di sản</span></div>
+        <div className="rs-stat"><strong>📍</strong><span>{t('explore.route.heritageCount', { count: totalStops })}</span></div>
       </div>
     </div>
 
     {route.summary && <p className="ai-summary">📝 {route.summary}</p>}
 
-    {notes.length > 0 && <div className="route-notes"><strong>Ghi chú hành trình</strong>{notes.map(note => <p key={note}>{note}</p>)}</div>}
+    {notes.length > 0 && <div className="route-notes"><strong>{t('explore.route.routeNotes')}</strong>{notes.map(note => <p key={note}>{note}</p>)}</div>}
 
     <div className="route-days">
       {route.days?.map((day, idx) => <div className="day" key={day.day} style={{ borderLeftColor: dayColors[idx % dayColors.length] }}>
-        <h3><span className="day-number" style={{ background: dayColors[idx % dayColors.length] }}>{day.day}</span>Ngày {day.day}</h3>
+        <h3><span className="day-number" style={{ background: dayColors[idx % dayColors.length] }}>{day.day}</span>{t('explore.route.day', { day: day.day })}</h3>
         {day.stops?.length > 0 ? day.stops.map(stop => <button key={`${day.day}-${stop.site_id}`} onClick={() => focus(stop.site_id)}>
           <time>{stop.arrival_time}</time>
           <div className="stop-info">
@@ -845,46 +865,46 @@ function RouteSummary({ route, openPlanner, focus }) {
           </div>
         </button>) : <div className="day-empty">
           <span>🍜</span>
-          <p>Ngày tự do — Khám phá ẩm thực địa phương, dạo chợ, chụp ảnh</p>
+          <p>{t('explore.route.freeDay')}</p>
         </div>}
       </div>)}
     </div>
 
     <div className="rs-actions">
-      <button className="rs-btn-ghost" onClick={openPlanner}>← Chỉnh sửa lịch trình</button>
+      <button className="rs-btn-ghost" onClick={openPlanner}>← {t('explore.route.editItinerary')}</button>
     </div>
   </aside>;
 }
 
-function formatRouteWarnings(warnings) {
+function formatRouteWarnings(warnings, t) {
   const mapped = warnings.map(warning => {
     const text = String(warning || '').toLowerCase();
     if (text.includes('sklearn') || text.includes('kmeans') || text.includes('latitude split')) {
-      return 'Các điểm ghé thăm được chia theo trục Bắc - Nam để cân bằng từng ngày.';
+      return t('explore.warnings.split');
     }
     if (text.includes('osrm') || text.includes('route request') || text.includes('table request')) {
-      return 'Một đoạn đường đang dùng ước lượng tạm thời vì dữ liệu tuyến chưa sẵn sàng.';
+      return t('explore.warnings.osrm');
     }
     if (text.includes('avoid_highways') || text.includes('avoid_tolls')) {
-      return 'Tùy chọn tránh cao tốc hoặc trạm thu phí hiện chỉ dùng như gợi ý tham khảo.';
+      return t('explore.warnings.avoid');
     }
     if (text.includes('motorbike') || text.includes('walking')) {
-      return 'Thời gian di chuyển được quy đổi theo dữ liệu đường ô tô, cần đối chiếu khi đi xe máy hoặc đi bộ.';
+      return t('explore.warnings.mode');
     }
     if (text.includes('transit')) {
-      return 'Phương tiện công cộng cần thêm dữ liệu chuyên biệt, hiện chưa thể lập tuyến chính xác.';
+      return t('explore.warnings.transit');
     }
     return warning;
   }).filter(Boolean);
   return [...new Set(mapped)];
 }
-function MiniSitePopup({ site, pos, popupRef, selected, toggle, detail, close, keepHover, endHover }) { const cats = site.categories || []; return <div ref={popupRef} className="mini-site-popup" style={{ left: pos.x, top: pos.y }} onMouseEnter={keepHover} onMouseLeave={endHover}><button className="mini-close" onClick={close}>×</button><div className="site-kicker">Điểm di sản</div><h2>{site.name}</h2><p className="province">📍 {site.province}</p><div className="badges">{cats.slice(0, 3).map(cat => <span key={cat}>{categoryLabel(cat)}</span>)}</div><p>{site.description || site.long_description || 'Đang cập nhật thông tin.'}</p><dl><dt>Giờ mở cửa</dt><dd>{site.opening_hours || '08:00-17:00'}</dd><dt>Thời lượng</dt><dd>{site.estimated_visit_minutes || 60} phút</dd><dt>Giá vé</dt><dd>{formatPrice(site.ticket_price)}</dd></dl><div className="site-actions"><button className="primary" onClick={toggle}>{selected ? 'Bỏ chọn' : 'Chọn điểm này'}</button><button className="ghost" onClick={detail}>Xem chi tiết</button></div></div>; }
-function SiteDetailDialog({ site, selected, toggle, close }) {
+function MiniSitePopup({ site, pos, popupRef, selected, toggle, detail, close, keepHover, endHover, t, catLabel }) { const cats = site.categories || []; return <div ref={popupRef} className="mini-site-popup" style={{ left: pos.x, top: pos.y }} onMouseEnter={keepHover} onMouseLeave={endHover}><button className="mini-close" onClick={close}>×</button><div className="site-kicker">{t('explore.detail.heritagePoint')}</div><h2>{site.name}</h2><p className="province">📍 {site.province}</p><div className="badges">{cats.slice(0, 3).map(cat => <span key={cat}>{catLabel(cat)}</span>)}</div><p>{site.description || site.long_description || t('explore.detail.updatingInfo')}</p><dl><dt>{t('explore.detail.openingHours')}</dt><dd>{site.opening_hours || '08:00-17:00'}</dd><dt>{t('explore.detail.duration')}</dt><dd>{t('explore.detail.minutes', { count: site.estimated_visit_minutes || 60 })}</dd><dt>{t('explore.detail.ticketPrice')}</dt><dd>{site.ticket_price ? formatPrice(site.ticket_price) : t('explore.detail.free')}</dd></dl><div className="site-actions"><button className="primary" onClick={toggle}>{selected ? t('explore.detail.deselect') : t('explore.detail.selectThisPoint')}</button><button className="ghost" onClick={detail}>{t('explore.detail.viewDetail')}</button></div></div>; }
+function SiteDetailDialog({ site, selected, toggle, close, t, catLabel }) {
   const [images, setImages] = useState([]); const [reviews, setReviews] = useState([]); const [enriched, setEnriched] = useState(null); const [slide, setSlide] = useState(0); const [detailLoading, setDetailLoading] = useState(false); const open = Boolean(site);
   useEffect(() => { if (!site) return; let alive = true; setImages([]); setReviews([]); setEnriched(null); setSlide(0); setDetailLoading(true); Promise.allSettled([fetch(`${API}/heritage-sites/${site.id}/images`).then(r => r.json()), fetch(`${API}/heritage-sites/${site.id}/reviews`).then(r => r.json()), fetch(`${API}/heritage-sites/${site.id}/enrich`).then(r => r.json())]).then(([img, rev, enr]) => { if (!alive) return; if (img.status === 'fulfilled') setImages(img.value.images || []); if (rev.status === 'fulfilled' && Array.isArray(rev.value)) setReviews(rev.value); if (enr.status === 'fulfilled') setEnriched(enr.value); }).finally(() => { if (alive) setDetailLoading(false); }); return () => { alive = false; }; }, [site]);
   if (!site) return null;
-  const description = enriched?.long_description || site.long_description || site.description || 'Đang cập nhật thông tin.'; const tips = enriched?.visit_tips || site.visit_tips;
-  if (detailLoading) return <Dialog.Root open={open} onOpenChange={value => !value && close()}><Dialog.Portal><Dialog.Overlay className="dialog-overlay" /><Dialog.Content className="detail-modal"><Dialog.Close className="modal-close">&times;</Dialog.Close><InlineLoading text="Đang mở hồ sơ di sản..." /><div className="detail-layout"><div className="detail-left"><div className="detail-carousel"><div className="detail-placeholder"><span><Spinner /></span><strong>{site.name}</strong><small>Đang tải ảnh và tư liệu...</small></div></div></div><div className="detail-right"><div className="detail-header"><div className="site-kicker">Hồ sơ di sản</div><Dialog.Title>{site.name}</Dialog.Title><Dialog.Description>📍 {site.province}</Dialog.Description><div className="badges">{(site.categories || []).map(cat => <span key={cat}>{categoryLabel(cat)}</span>)}</div></div><div className="detail-body"><h3>Giới thiệu</h3><SkeletonRows count={4} /></div></div></div></Dialog.Content></Dialog.Portal></Dialog.Root>;
+  const description = enriched?.long_description || site.long_description || site.description || t('explore.detail.updatingInfo'); const tips = enriched?.visit_tips || site.visit_tips;
+  if (detailLoading) return <Dialog.Root open={open} onOpenChange={value => !value && close()}><Dialog.Portal><Dialog.Overlay className="dialog-overlay" /><Dialog.Content className="detail-modal"><Dialog.Close className="modal-close">&times;</Dialog.Close><InlineLoading text={t('explore.detail.openingProfile')} /><div className="detail-layout"><div className="detail-left"><div className="detail-carousel"><div className="detail-placeholder"><span><Spinner /></span><strong>{site.name}</strong><small>{t('explore.detail.loadingImages')}</small></div></div></div><div className="detail-right"><div className="detail-header"><div className="site-kicker">{t('explore.detail.heritageProfile')}</div><Dialog.Title>{site.name}</Dialog.Title><Dialog.Description>📍 {site.province}</Dialog.Description><div className="badges">{(site.categories || []).map(cat => <span key={cat}>{catLabel(cat)}</span>)}</div></div><div className="detail-body"><h3>{t('explore.detail.introduction')}</h3><SkeletonRows count={4} /></div></div></div></Dialog.Content></Dialog.Portal></Dialog.Root>;
   return (
     <Dialog.Root open={open} onOpenChange={(value) => !value && close()}>
       <Dialog.Portal>
@@ -916,7 +936,7 @@ function SiteDetailDialog({ site, selected, toggle, close }) {
                         <button
                           className="carousel-nav prev"
                           onClick={() => setSlide((slide - 1 + images.length) % images.length)}
-                          aria-label="Ảnh trước"
+                          aria-label={t('explore.detail.prevImage')}
                         >
                           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M11 3L5 9L11 15" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -925,7 +945,7 @@ function SiteDetailDialog({ site, selected, toggle, close }) {
                         <button
                           className="carousel-nav next"
                           onClick={() => setSlide((slide + 1) % images.length)}
-                          aria-label="Ảnh tiếp"
+                          aria-label={t('explore.detail.nextImage')}
                         >
                           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M7 3L13 9L7 15" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -940,7 +960,7 @@ function SiteDetailDialog({ site, selected, toggle, close }) {
                               key={i}
                               className={i === slide ? 'active' : ''}
                               onClick={() => setSlide(i)}
-                              aria-label={`Ảnh ${i + 1}`}
+                              aria-label={t('explore.detail.imageN', { n: i + 1 })}
                             />
                           ))}
                         </div>
@@ -951,20 +971,20 @@ function SiteDetailDialog({ site, selected, toggle, close }) {
                   <div className="detail-placeholder">
                     <span>{(CAT_STYLE[(site.categories || [])[0]] || CAT_STYLE.default)[1]}</span>
                     <strong>{site.name}</strong>
-                    <small>Chưa có ảnh</small>
+                    <small>{t('explore.detail.noImage')}</small>
                   </div>
                 )}
               </div>
               <dl className="detail-quick-info">
-                <div><dt>🕰 Giờ mở cửa</dt><dd>{site.opening_hours || '08:00-17:00'}</dd></div>
-                <div><dt>⏳ Thời lượng</dt><dd>{site.estimated_visit_minutes || 60} phút</dd></div>
-                <div><dt>🎫 Giá vé</dt><dd>{formatPrice(site.ticket_price)}</dd></div>
-                <div><dt>★ Phổ biến</dt><dd>{scorePercent(site.popularity_score)}</dd></div>
-                <div><dt>✦ Lịch sử</dt><dd>{scorePercent(site.historical_importance_score)}</dd></div>
+                <div><dt>🕰 {t('explore.detail.openingHours')}</dt><dd>{site.opening_hours || '08:00-17:00'}</dd></div>
+                <div><dt>⏳ {t('explore.detail.duration')}</dt><dd>{t('explore.detail.minutes', { count: site.estimated_visit_minutes || 60 })}</dd></div>
+                <div><dt>🎫 {t('explore.detail.ticketPrice')}</dt><dd>{site.ticket_price ? formatPrice(site.ticket_price) : t('explore.detail.free')}</dd></div>
+                <div><dt>★ {t('explore.detail.popular')}</dt><dd>{scorePercent(site.popularity_score)}</dd></div>
+                <div><dt>✦ {t('explore.detail.historyScore')}</dt><dd>{scorePercent(site.historical_importance_score)}</dd></div>
               </dl>
               <div className="site-actions">
                 <button className="primary" onClick={toggle}>
-                  {selected ? 'Bỏ chọn khỏi hành trình' : 'Chọn vào hành trình'}
+                  {selected ? t('explore.detail.deselectFromTrip') : t('explore.detail.selectToTrip')}
                 </button>
                 <a
                   className="ghost link-btn"
@@ -972,48 +992,48 @@ function SiteDetailDialog({ site, selected, toggle, close }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Mở bản đồ
+                  {t('explore.detail.openMap')}
                 </a>
               </div>
             </div>
             {/* RIGHT: Header + Description + Reviews */}
             <div className="detail-right">
               <div className="detail-header">
-                <div className="site-kicker">Hồ sơ di sản</div>
+                <div className="site-kicker">{t('explore.detail.heritageProfile')}</div>
                 <Dialog.Title>{site.name}</Dialog.Title>
                 <Dialog.Description>📍 {site.province}</Dialog.Description>
                 <div className="badges">
                   {(site.categories || []).slice(0, 4).map((cat) => (
-                    <span key={cat}>{categoryLabel(cat)}</span>
+                    <span key={cat}>{catLabel(cat)}</span>
                   ))}
                 </div>
               </div>
               <div className="detail-body">
-                <h3>Giới thiệu</h3>
+                <h3>{t('explore.detail.introduction')}</h3>
                 <DescriptionText text={description} />
                 {tips && (
                   <div className="tips">
-                    <strong>Lưu ý tham quan</strong>
+                    <strong>{t('explore.detail.visitNote')}</strong>
                     <p>{tips}</p>
                   </div>
                 )}
                 <section className="reviews">
-                  <h3>Đánh giá nổi bật</h3>
+                  <h3>{t('explore.detail.topReviews')}</h3>
                   {reviews.length ? (
                     reviews.slice(0, 4).map((review, i) => (
                       <article key={`${review.author}-${i}`}>
                         <div>
-                          <strong>{review.author || 'Khách tham quan'}</strong>
+                          <strong>{review.author || t('explore.detail.visitor')}</strong>
                           <span>{stars(review.rating)}</span>
                         </div>
                         <p>{review.text}</p>
                         <a href={reviewUrl(review, site)} target="_blank" rel="noreferrer">
-                          {review.source || 'Tìm đánh giá'} ↗
+                          {review.source || t('explore.detail.findReview')} ↗
                         </a>
                       </article>
                     ))
                   ) : (
-                    <p>Chưa có đánh giá. Hệ thống sẽ bổ sung khi có dữ liệu.</p>
+                    <p>{t('explore.detail.noReviews')}</p>
                   )}
                 </section>
               </div>
