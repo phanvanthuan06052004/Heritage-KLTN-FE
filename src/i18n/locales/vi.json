@@ -652,6 +652,18 @@
         "local": "Trải nghiệm văn hóa địa phương",
         "children": "Thích hợp cho trẻ em",
         "elderly": "Thích hợp người lớn tuổi"
+      },
+      "validation": {
+        "incomplete": "Vui lòng hoàn thành: {{fields}}",
+        "missingProvince": "Vui lòng chọn ít nhất một tỉnh thành",
+        "missingSite": "Vui lòng chọn ít nhất một di sản vào lịch trình",
+        "missingGoal": "Vui lòng chọn mục tiêu chuyến đi",
+        "missingGroup": "Vui lòng chọn nhóm người đi",
+        "missingInterest": "Vui lòng chọn ít nhất một sở thích",
+        "missingStartPoint": "Vui lòng chọn điểm xuất phát",
+        "invalidDays": "Số ngày phải lớn hơn 0",
+        "invalidPeople": "Số người phải lớn hơn 0",
+        "transitUnavailable": "Phương tiện công cộng hiện chưa hỗ trợ"
       }
     },
     "detail": {
@@ -700,7 +712,8 @@
       "osrm": "Một đoạn đường đang dùng ước lượng tạm thời vì dữ liệu tuyến chưa sẵn sàng.",
       "avoid": "Tùy chọn tránh cao tốc hoặc trạm thu phí hiện chỉ dùng như gợi ý tham khảo.",
       "mode": "Thời gian di chuyển được quy đổi theo dữ liệu đường ô tô, cần đối chiếu khi đi xe máy hoặc đi bộ.",
-      "transit": "Phương tiện công cộng cần thêm dữ liệu chuyên biệt, hiện chưa thể lập tuyến chính xác."
+      "transit": "Phương tiện công cộng cần thêm dữ liệu chuyên biệt, hiện chưa thể lập tuyến chính xác.",
+      "islandRoute": "Phát hiện điểm đến trên đảo — tuyến đường bộ không khả dụng, hiển thị đường chim bay. Vui lòng sử dụng tàu/thuyền để di chuyển."
     },
     "categories": {
       "history": "Lịch sử",

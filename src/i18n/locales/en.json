@@ -652,6 +652,18 @@
         "local": "Local cultural experiences",
         "children": "Kid-friendly",
         "elderly": "Elderly-friendly"
+      },
+      "validation": {
+        "incomplete": "Please complete: {{fields}}",
+        "missingProvince": "Please select at least one province",
+        "missingSite": "Please select at least one heritage site",
+        "missingGoal": "Please select a trip goal",
+        "missingGroup": "Please select your travel group",
+        "missingInterest": "Please select at least one interest",
+        "missingStartPoint": "Please select a departure point",
+        "invalidDays": "Days must be greater than 0",
+        "invalidPeople": "Number of people must be greater than 0",
+        "transitUnavailable": "Public transit is not yet supported"
       }
     },
     "detail": {
@@ -700,7 +712,8 @@
       "osrm": "One segment is using a temporary estimate because route data isn't ready yet.",
       "avoid": "The avoid-highways or avoid-tolls option is currently used as a reference suggestion only.",
       "mode": "Travel times are converted from car road data; verify when going by motorbike or on foot.",
-      "transit": "Public transit needs specialized data and cannot be routed accurately yet."
+      "transit": "Public transit needs specialized data and cannot be routed accurately yet.",
+      "islandRoute": "Island destination detected — road routing unavailable, straight-line displayed. Please use ferry/boat for travel."
     },
     "categories": {
       "history": "History",
