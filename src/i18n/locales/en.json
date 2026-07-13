@@ -563,7 +563,6 @@
       "routeSuccess": "AI has designed your itinerary successfully.",
       "routeFailed": "Could not create a suggestion.",
       "selectProvinceFirst": "Select at least one province before creating an itinerary.",
-      "transitUnsupported": "Public transit needs GTFS/OpenTripPlanner. Currently car, motorbike, and walking are supported via OSRM.",
       "selectStartFirst": "Select a start point first."
     },
     "planner": {
@@ -605,17 +604,9 @@
       "routeTitle": "Route",
       "days": "Days",
       "people": "People",
-      "transport": "Transport",
       "tripDate": "Trip date",
       "startTime": "Start time",
       "endTime": "End time",
-      "maxKm": "Max km",
-      "maxMin": "Max minutes",
-      "optional": "Optional",
-      "car": "🚗 Car",
-      "motorbike": "🏍 Motorbike",
-      "walking": "🚶 Walking",
-      "transit": "🚌 Public transit",
       "continue": "Continue",
       "back": "Back",
       "backToCenter": "Center on region",
@@ -662,8 +653,7 @@
         "missingInterest": "Please select at least one interest",
         "missingStartPoint": "Please select a departure point",
         "invalidDays": "Days must be greater than 0",
-        "invalidPeople": "Number of people must be greater than 0",
-        "transitUnavailable": "Public transit is not yet supported"
+        "invalidPeople": "Number of people must be greater than 0"
       }
     },
     "detail": {
@@ -710,9 +700,6 @@
     "warnings": {
       "split": "Stops are split along a North-South axis to balance each day.",
       "osrm": "One segment is using a temporary estimate because route data isn't ready yet.",
-      "avoid": "The avoid-highways or avoid-tolls option is currently used as a reference suggestion only.",
-      "mode": "Travel times are converted from car road data; verify when going by motorbike or on foot.",
-      "transit": "Public transit needs specialized data and cannot be routed accurately yet.",
       "islandRoute": "Island destination detected — road routing unavailable, straight-line displayed. Please use ferry/boat for travel."
     },
     "categories": {
@@ -753,7 +740,11 @@
       "skip": "Skip",
       "continueJourney": "Continue journey",
       "noNarration": "There is no narration available for this place yet.",
-      "narrationError": "Error loading information. Please try again later."
+      "narrationError": "Error loading information. Please try again later.",
+      "skipAll": "Skip all",
+      "skipAllTitle": "Stop showing narration popups at each stop",
+      "skipAllOn": "Narration off",
+      "skipAllOff": "Narration on"
     },
     "onboarding": {
       "step1Title": "Vietnam heritage map",

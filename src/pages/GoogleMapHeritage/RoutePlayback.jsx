@@ -31,6 +31,7 @@ export default function RoutePlayback({ route, map, sites }) {
   const [narrationText, setNarrationText] = useState("");
   const [loadingNarration, setLoadingNarration] = useState(false);
   const [visitedStops, setVisitedStops] = useState(new Set());
+  const [skipAllNarrations, setSkipAllNarrations] = useState(false);
   
   const markerRef = useRef(null);
   const animRef = useRef(null);
@@ -109,6 +110,15 @@ export default function RoutePlayback({ route, map, sites }) {
         // Check if we hit a stop we haven't visited
         for (const stop of currentDayData.stopsMap) {
           if (newProgress >= stop.distance && !visitedStops.has(stop.site.id)) {
+            if (skipAllNarrations) {
+              // Silent pass — mark visited, keep driving
+              setVisitedStops(prev => {
+                const next = new Set(prev);
+                next.add(stop.site.id);
+                return next;
+              });
+              continue;
+            }
             // Arrived at stop!
             setPlaying(false);
             playingRef.current = false;
@@ -194,7 +204,7 @@ export default function RoutePlayback({ route, map, sites }) {
       <div className="playback-controller">
         <div className="playback-header">
           <strong>{t('explore.playback.simulatedJourney')}</strong>
-          <select value={activeDay} onChange={e => { setActiveDay(Number(e.target.value)); setProgress(0); setVisitedStops(new Set()); setPlaying(false); }}>
+          <select value={activeDay} onChange={e => { setActiveDay(Number(e.target.value)); setProgress(0); setVisitedStops(new Set()); setSkipAllNarrations(false); setPlaying(false); }}>
             {route.days.map((d, i) => (
               <option key={i} value={i}>{t('explore.playback.day', { day: d.day })}</option>
             ))}
@@ -204,8 +214,15 @@ export default function RoutePlayback({ route, map, sites }) {
           <button className="primary" onClick={() => setPlaying(!playing)}>
             {playing ? `⏸ ${t('explore.playback.pause')}` : `▶ ${t('explore.playback.play')}`}
           </button>
-          <button className="ghost" onClick={() => { setProgress(0); setVisitedStops(new Set()); }}>
+          <button className="ghost" onClick={() => { setProgress(0); setVisitedStops(new Set()); setSkipAllNarrations(false); }}>
             ⏮ {t('explore.playback.restart')}
+          </button>
+          <button 
+            className={skipAllNarrations ? 'ghost active' : 'ghost'}
+            onClick={() => setSkipAllNarrations(v => !v)}
+            title={t('explore.playback.skipAllTitle')}
+          >
+            {skipAllNarrations ? `🔇 ${t('explore.playback.skipAllOn')}` : `🔊 ${t('explore.playback.skipAllOff')}`}
           </button>
           <select className="speed-select" value={speed} onChange={e => setSpeed(Number(e.target.value))}>
             <option value={1}>{`1x ${t('explore.playback.speedLabel')}`}</option>
@@ -244,6 +261,7 @@ export default function RoutePlayback({ route, map, sites }) {
                     {loadingNarration ? <><i className="loading-spinner" aria-hidden="true" /> {t('explore.playback.loading')}</> : `${t('explore.playback.yesTell')} 🔊`}
                   </button>
                   <button className="ghost" onClick={closeNarration} disabled={loadingNarration}>{t('explore.playback.skip')}</button>
+                  <button className="ghost" onClick={() => { setSkipAllNarrations(true); closeNarration(); }} disabled={loadingNarration}>{t('explore.playback.skipAll')}</button>
                 </div>
               </div>
             ) : (

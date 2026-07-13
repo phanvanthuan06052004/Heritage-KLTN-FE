@@ -40,7 +40,7 @@ function App() {
   const [plannerOpen, setPlannerOpen] = useState(false);
   const [pickingMapFor, setPickingMapFor] = useState(null);
   const [step, setStep] = useState(1);
-  const [planner, setPlanner] = useState({ days: 3, people: 2, mode: 'driving', tripDate: new Date().toISOString().slice(0, 10), windowStart: '08:00', windowEnd: '18:00', startText: '', endText: '', maxDistanceKm: '', maxDurationMin: '', avoidHighways: false, avoidTolls: false });
+  const [planner, setPlanner] = useState({ days: 3, people: 2, tripDate: new Date().toISOString().slice(0, 10), windowStart: '08:00', windowEnd: '18:00', startText: '', endText: '' });
   const [startPoint, setStartPoint] = useState(null);
   const [endPoint, setEndPoint] = useState(null);
   const [route, setRoute] = useState(null);
@@ -401,7 +401,7 @@ function App() {
 
   async function planRoute() {
     if (!selectedProvinces.size) { setStatus({ type: 'error', key: 'explore.status.selectProvinceFirst' }); setStep(1); return; }
-    if (planner.mode === 'transit') { setStatus({ type: 'error', key: 'explore.status.transitUnsupported' }); setStep(3); return; }
+    
 
     // Always use AI recommendation first for rich results
     await recommendRoute();
@@ -590,7 +590,7 @@ function PlannerDialogV3(props) {
     startPoint: 'explore.planner.validation.missingStartPoint',
     days: 'explore.planner.validation.invalidDays',
     people: 'explore.planner.validation.invalidPeople',
-    transit: 'explore.planner.validation.transitUnavailable',
+    
   };
 
   function validateStep(targetStep, context) {
@@ -614,7 +614,7 @@ function PlannerDialogV3(props) {
       case 5:
         if (!(Number(planner.days) >= 1)) missingKeys.push('days');
         if (!(Number(planner.people) >= 1)) missingKeys.push('people');
-        if (planner.mode === 'transit') missingKeys.push('transit');
+        
         break;
       default:
         break;
@@ -908,15 +908,6 @@ function PlannerDialogV3(props) {
                       <input type="number" min="1" value={planner.people} onChange={e => setPlanner(v => ({ ...v, people: e.target.value }))} disabled={busy} />
                       {hasErr('people') && <span className="field-error">{t('explore.planner.validation.invalidPeople')}</span>}
                     </label>
-                    <label>{t('explore.planner.transport')}
-                      <select value={planner.mode} onChange={e => setPlanner(v => ({ ...v, mode: e.target.value }))} disabled={busy}>
-                        <option value="driving">{t('explore.planner.car')}</option>
-                        <option value="motorbike">{t('explore.planner.motorbike')}</option>
-                        <option value="walking">{t('explore.planner.walking')}</option>
-                        <option value="transit">{t('explore.planner.transit')}</option>
-                      </select>
-                      {hasErr('transit') && <span className="field-error">{t('explore.planner.validation.transitUnavailable')}</span>}
-                    </label>
                     <label>{t('explore.planner.tripDate')}
                       <input type="date" value={planner.tripDate} onChange={e => setPlanner(v => ({ ...v, tripDate: e.target.value }))} disabled={busy} />
                     </label>
@@ -926,14 +917,6 @@ function PlannerDialogV3(props) {
                       </label>
                       <label>{t('explore.planner.endTime')}
                         <input type="time" value={planner.windowEnd} onChange={e => setPlanner(v => ({ ...v, windowEnd: e.target.value }))} disabled={busy} />
-                      </label>
-                    </div>
-                    <div className="limit-group">
-                      <label>{t('explore.planner.maxKm')}
-                        <input value={planner.maxDistanceKm} onChange={e => setPlanner(v => ({ ...v, maxDistanceKm: e.target.value }))} disabled={busy} placeholder={t('explore.planner.optional')} />
-                      </label>
-                      <label>{t('explore.planner.maxMin')}
-                        <input value={planner.maxDurationMin} onChange={e => setPlanner(v => ({ ...v, maxDurationMin: e.target.value }))} disabled={busy} placeholder={t('explore.planner.optional')} />
                       </label>
                     </div>
                   </div>
@@ -1026,15 +1009,6 @@ function formatRouteWarnings(warnings, t) {
     }
     if (text.includes('osrm') || text.includes('route request') || text.includes('table request')) {
       return t('explore.warnings.osrm');
-    }
-    if (text.includes('avoid_highways') || text.includes('avoid_tolls')) {
-      return t('explore.warnings.avoid');
-    }
-    if (text.includes('motorbike') || text.includes('walking')) {
-      return t('explore.warnings.mode');
-    }
-    if (text.includes('transit')) {
-      return t('explore.warnings.transit');
     }
     if (text.includes('island') || text.includes('đảo') || text.includes('water')) {
       return t('explore.warnings.islandRoute');

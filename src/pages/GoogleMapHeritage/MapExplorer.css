@@ -478,8 +478,7 @@
   font-weight: 700;
 }
 
-.heritage-map-page .time-group,
-.heritage-map-page .limit-group {
+.heritage-map-page .time-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
