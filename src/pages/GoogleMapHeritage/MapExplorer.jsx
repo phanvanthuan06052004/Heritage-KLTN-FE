@@ -6,7 +6,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapExplorer.css';
 import RoutePlayback from './RoutePlayback';
-import ExploreOnboarding from './ExploreOnboarding';
+
 import {
   API, FEATURED_PER_PROVINCE, PROV_COORDS, CAT_STYLE, CAT_LABELS,
   formatPrice, scorePercent, siteRank, stars, reviewUrl,
@@ -40,7 +40,7 @@ function App() {
   const [plannerOpen, setPlannerOpen] = useState(false);
   const [pickingMapFor, setPickingMapFor] = useState(null);
   const [step, setStep] = useState(1);
-  const [planner, setPlanner] = useState({ days: 3, people: 2, mode: 'driving', tripDate: new Date().toISOString().slice(0, 10), windowStart: '08:00', windowEnd: '18:00', startText: '', endText: '', maxDistanceKm: '', maxDurationMin: '', avoidHighways: false, avoidTolls: false });
+  const [planner, setPlanner] = useState({ days: 3, people: 2, tripDate: new Date().toISOString().slice(0, 10), windowStart: '08:00', windowEnd: '18:00', startText: '', endText: '' });
   const [startPoint, setStartPoint] = useState(null);
   const [endPoint, setEndPoint] = useState(null);
   const [route, setRoute] = useState(null);
@@ -155,6 +155,7 @@ function App() {
   }, [pickingMapFor]);
 
   function toggleProvince(province) {
+    const isFirstAdd = !selectedProvinces.size && !selectedProvinces.has(province);
     setSelectedProvinces(current => {
       const next = new Set(current);
       if (next.has(province)) {
@@ -169,15 +170,18 @@ function App() {
         });
       } else {
         next.add(province);
-        if (!current.size && PROV_COORDS[province]) {
-          const [lat, lng] = PROV_COORDS[province];
-          const point = { lat, lng, label: province };
-          setStartPoint(point); setEndPoint(point);
-          setPlanner(value => ({ ...value, startText: `${lat.toFixed(4)}, ${lng.toFixed(4)}`, endText: `${lat.toFixed(4)}, ${lng.toFixed(4)}` }));
-        }
       }
       return next;
     });
+    if (isFirstAdd) {
+      geocode(province).then(point => {
+        if (point) {
+          setStartPoint(point);
+          setEndPoint(point);
+          setPlanner(value => ({ ...value, startText: point.label, endText: point.label }));
+        }
+      });
+    }
   }
   function toggleSelected(id) { setSelectedIds(current => { const next = new Set(current); next.has(id) ? next.delete(id) : next.add(id); return next; }); }
   function toggleCategory(category) { setSelectedCategories(current => { const next = new Set(current); next.has(category) ? next.delete(category) : next.add(category); return next; }); }
@@ -375,7 +379,7 @@ function App() {
           }, 0);
         }, 0),
         summary: data.summary,
-        warnings: [],
+        warnings: data.warnings || [],
         days: (data.days || []).map((d, i) => ({
           day: d.day,
           coordinates: data.route_geometries?.[i] || [],
@@ -397,7 +401,7 @@ function App() {
 
   async function planRoute() {
     if (!selectedProvinces.size) { setStatus({ type: 'error', key: 'explore.status.selectProvinceFirst' }); setStep(1); return; }
-    if (planner.mode === 'transit') { setStatus({ type: 'error', key: 'explore.status.transitUnsupported' }); setStep(3); return; }
+    
 
     // Always use AI recommendation first for rich results
     await recommendRoute();
@@ -467,16 +471,16 @@ function App() {
       <div className="selected-sites-bar"><span>{t('explore.ui.selectedPoints', { count: selectedSites.length })}</span><button onClick={() => { setMinimizedPlanner(false); setPlannerOpen(true); }}>{t('explore.ui.continueItinerary')}</button></div>
     )}
 
-    <PlannerDialogV3 open={plannerOpen} setOpen={setPlannerOpen} step={step} setStep={setStep} sites={sites} provinces={provinces} selectedProvinces={selectedProvinces} toggleProvince={toggleProvince} selectedSites={selectedSites} toggleSelected={toggleSelected} setActiveSite={setActiveSite} planner={planner} setPlanner={setPlanner} selectPoint={selectPoint} useCenter={() => useProvinceCenter(selectedProvinces, setStartPoint, setEndPoint, setPlanner)} makeRoundTrip={() => { if (!startPoint) { setStatus({ type: 'error', key: 'explore.status.selectStartFirst' }); return; } setEndPoint(startPoint); setPlanner(v => ({ ...v, endText: v.startText || `${startPoint.lat}, ${startPoint.lng}` })); }} loading={loading} actionLoading={actionLoading} sitesLoading={sitesLoading} planRoute={planRoute} pickLocation={pickLocation} getBrowserLocation={getBrowserLocation} startPickingMap={startPickingMap} minimizedPlanner={minimizedPlanner} setMinimizedPlanner={setMinimizedPlanner} />
+    <PlannerDialogV3 open={plannerOpen} setOpen={setPlannerOpen} step={step} setStep={setStep} sites={sites} provinces={provinces} selectedProvinces={selectedProvinces} toggleProvince={toggleProvince} selectedSites={selectedSites} toggleSelected={toggleSelected} setActiveSite={setActiveSite} planner={planner} setPlanner={setPlanner} selectPoint={selectPoint} useCenter={() => useProvinceCenter(selectedProvinces, setStartPoint, setEndPoint, setPlanner)} makeRoundTrip={() => { if (!startPoint) { setStatus({ type: 'error', key: 'explore.status.selectStartFirst' }); return; } setEndPoint(startPoint); setPlanner(v => ({ ...v, endText: v.startText || `${startPoint.lat}, ${startPoint.lng}` })); }} loading={loading} actionLoading={actionLoading} sitesLoading={sitesLoading} planRoute={planRoute} pickLocation={pickLocation} getBrowserLocation={getBrowserLocation} startPickingMap={startPickingMap} minimizedPlanner={minimizedPlanner} setMinimizedPlanner={setMinimizedPlanner} geocodeStart={() => updatePoint('start')} geocodeEnd={() => updatePoint('end')} startPoint={startPoint} endPoint={endPoint} />
     {route && <RouteSummary route={route} openPlanner={() => setPlannerOpen(true)} focus={id => { const site = sites.find(item => item.id === id); if (site) focusSite(site); }} t={t} />}
     {route && <RoutePlayback route={route} map={mapRef.current} sites={sites} />}
     {popupSite && popupPos && <MiniSitePopup site={popupSite} pos={popupPos} popupRef={popupRef} selected={selectedIds.has(popupSite.id)} toggle={() => toggleSelected(popupSite.id)} detail={() => setDetailSite(popupSite)} close={closeSitePopup} t={t} catLabel={catLabel} keepHover={() => { popupHoverRef.current = true; clearTimeout(hoverClearTimerRef.current); clearTimeout(hoverIntentTimerRef.current); }} endHover={() => { popupHoverRef.current = false; setHoverSite(null); }} />}
     <SiteDetailDialog site={detailSite} selected={detailSite ? selectedIds.has(detailSite.id) : false} toggle={() => detailSite && toggleSelected(detailSite.id)} close={() => setDetailSite(null)} t={t} catLabel={catLabel} />
-    <ExploreOnboarding />
+
   </div>;
 }
 
-function LocationSearchInput({ label, value, onChange, onSelect, placeholder, disabled, loading, showSub = true }) {
+function LocationSearchInput({ label, value, onChange, onSelect, placeholder, disabled, loading, showSub = true, onBlurGeocode }) {
   const { t } = useTranslation();
   const [suggestions, setSuggestions] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -521,7 +525,7 @@ function LocationSearchInput({ label, value, onChange, onSelect, placeholder, di
     onSelect(item);
   }, [onSelect]);
 
-  return <label className="location-search-field"><div className="location-search-label">{label}</div><div className="location-search-box"><input value={value} onFocus={() => { clearTimeout(blurTimerRef.current); if (suggestions.length) setOpen(true); }} onBlur={closeSuggestions} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} />{(loading || searching) && <Spinner />}</div>{open && suggestions.length > 0 && <div className="location-suggestions">{suggestions.map((item, index) => <button key={`${item.lat}-${item.lng}-${index}`} type="button" onMouseDown={e => { e.preventDefault(); handleSelect(item); }}><span>⌖</span><div><strong>{item.label}</strong>{showSub && item.sub ? <small>{item.sub}</small> : null}</div></button>)}</div>}</label>;
+  return <label className="location-search-field"><div className="location-search-label">{label}</div><div className="location-search-box"><input value={value} onFocus={() => { clearTimeout(blurTimerRef.current); if (suggestions.length) setOpen(true); }} onBlur={() => { closeSuggestions(); if (onBlurGeocode && suggestions.length === 0) onBlurGeocode(value); }} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} />{(loading || searching) && <Spinner />}</div>{open && suggestions.length > 0 && <div className="location-suggestions">{suggestions.map((item, index) => <button key={`${item.lat}-${item.lng}-${index}`} type="button" onMouseDown={e => { e.preventDefault(); handleSelect(item); }}><span>⌖</span><div><strong>{item.label}</strong>{showSub && item.sub ? <small>{item.sub}</small> : null}</div></button>)}</div>}</label>;
 }
 
 function PlannerDialogV3(props) {
@@ -530,7 +534,8 @@ function PlannerDialogV3(props) {
     open, setOpen, step, setStep, provinces, selectedProvinces, toggleProvince,
     selectedSites, toggleSelected, setActiveSite, planner, setPlanner, selectPoint,
     useCenter, makeRoundTrip, loading, actionLoading, sitesLoading, planRoute,
-    getBrowserLocation, startPickingMap, minimizedPlanner, setMinimizedPlanner
+    getBrowserLocation, startPickingMap, minimizedPlanner, setMinimizedPlanner,
+    geocodeStart, geocodeEnd, startPoint
   } = props;
 
   const busy = loading || Boolean(actionLoading);
@@ -571,6 +576,121 @@ function PlannerDialogV3(props) {
     return { ...value, selectedInterests: current.includes(interest) ? current.filter(item => item !== interest) : [...current, interest] };
   });
 
+  // --- Per-tab validation state ---
+  // validationErrors format: [stepNumber, ['province', ...]] or null when clean.
+  const [validationErrors, setValidationErrors] = useState(null);
+  const [shake, setShake] = useState(false);
+
+  const validationMessages = {
+    province: 'explore.planner.validation.missingProvince',
+    site: 'explore.planner.validation.missingSite',
+    goal: 'explore.planner.validation.missingGoal',
+    group: 'explore.planner.validation.missingGroup',
+    interest: 'explore.planner.validation.missingInterest',
+    startPoint: 'explore.planner.validation.missingStartPoint',
+    days: 'explore.planner.validation.invalidDays',
+    people: 'explore.planner.validation.invalidPeople',
+    
+  };
+
+  function validateStep(targetStep, context) {
+    const { selectedProvinces, selectedSites, planner, startPoint } = context;
+    const missingKeys = [];
+    switch (targetStep) {
+      case 1:
+        if (!(selectedProvinces && selectedProvinces.size >= 1)) missingKeys.push('province');
+        break;
+      case 2:
+        if (!(Array.isArray(selectedSites) && selectedSites.length >= 1)) missingKeys.push('site');
+        break;
+      case 3:
+        if (!planner.tripGoal) missingKeys.push('goal');
+        if (!planner.travelGroup) missingKeys.push('group');
+        if (!((planner.selectedInterests || []).length >= 1)) missingKeys.push('interest');
+        break;
+      case 4:
+        if (!(startPoint && Number.isFinite(startPoint.lat) && Number.isFinite(startPoint.lng))) missingKeys.push('startPoint');
+        break;
+      case 5:
+        if (!(Number(planner.days) >= 1)) missingKeys.push('days');
+        if (!(Number(planner.people) >= 1)) missingKeys.push('people');
+        
+        break;
+      default:
+        break;
+    }
+    return { ok: missingKeys.length === 0, missingKeys };
+  }
+
+  const currentContext = { selectedProvinces, selectedSites, planner, startPoint };
+
+  function triggerShake() {
+    setShake(false);
+    requestAnimationFrame(() => requestAnimationFrame(() => setShake(true)));
+  }
+
+  function warnMissing(keys) {
+    const fields = keys.map(key => t(validationMessages[key])).join(', ');
+    toast.warn(t('explore.planner.validation.incomplete', { fields }));
+  }
+
+  function handleContinue() {
+    const { ok, missingKeys } = validateStep(step, currentContext);
+    if (!ok) {
+      setValidationErrors([step, missingKeys]);
+      triggerShake();
+      warnMissing(missingKeys);
+      return;
+    }
+    setValidationErrors(null);
+    setStep(step + 1);
+  }
+
+  // Final submit: gate the route build on the last tab's rules before delegating
+  // to the untouched planRoute() routing logic.
+  function handleSubmit() {
+    const { ok, missingKeys } = validateStep(5, currentContext);
+    if (!ok) {
+      setValidationErrors([5, missingKeys]);
+      triggerShake();
+      warnMissing(missingKeys);
+      return;
+    }
+    setValidationErrors(null);
+    planRoute();
+  }
+
+  function handleTabClick(targetStep) {
+    if (busy) return;
+    // Backward navigation (or staying put) is always allowed.
+    if (targetStep <= step) { setStep(targetStep); return; }
+    // Forward jump: validate current step and every intermediate step in order.
+    for (let s = step; s < targetStep; s++) {
+      const { ok, missingKeys } = validateStep(s, currentContext);
+      if (!ok) {
+        setStep(s);
+        setValidationErrors([s, missingKeys]);
+        triggerShake();
+        warnMissing(missingKeys);
+        return;
+      }
+    }
+    setValidationErrors(null);
+    setStep(targetStep);
+  }
+
+  // Re-validate the active step as the user edits fields so errors clear live.
+  useEffect(() => {
+    if (validationErrors && validationErrors[0] === step) {
+      const { ok, missingKeys } = validateStep(step, { selectedProvinces, selectedSites, planner, startPoint });
+      if (ok) setValidationErrors(null);
+      else setValidationErrors([step, missingKeys]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProvinces, selectedSites, planner, startPoint, step]);
+
+  const hasErr = key => Boolean(validationErrors && validationErrors[0] === step && validationErrors[1].includes(key));
+
   return (
     <Dialog.Root open={open} onOpenChange={value => !busy && setOpen(value)}>
       <Dialog.Portal>
@@ -591,12 +711,23 @@ function PlannerDialogV3(props) {
             </div>
           )}
 
-          <div className="wizard-tabs five-tabs">
-            {[t('explore.planner.tabLand'), t('explore.planner.tabHeritage'), t('explore.planner.tabInterest'), t('explore.planner.tabDeparture'), t('explore.planner.tabRoute')].map((label, i) => (
-              <button key={label} className={step === i + 1 ? 'active' : ''} onClick={() => setStep(i + 1)} disabled={busy}>
-                <span>{i + 1}</span>{label}
-              </button>
-            ))}
+          {validationErrors && validationErrors[0] === step && validationErrors[1].length > 0 && (
+            <div className="validation-warning" role="alert">
+              {t('explore.planner.validation.incomplete', { fields: validationErrors[1].map(key => t(validationMessages[key])).join(', ') })}
+            </div>
+          )}
+
+          <div className={`wizard-tabs five-tabs${shake ? ' validation-shake' : ''}`} onAnimationEnd={() => setShake(false)}>
+            {[t('explore.planner.tabLand'), t('explore.planner.tabHeritage'), t('explore.planner.tabInterest'), t('explore.planner.tabDeparture'), t('explore.planner.tabRoute')].map((label, i) => {
+              const tabStep = i + 1;
+              const tabHasError = Boolean(validationErrors && validationErrors[0] === tabStep && validationErrors[1].length > 0);
+              const className = [step === tabStep ? 'active' : '', tabHasError ? 'tab-error' : ''].filter(Boolean).join(' ');
+              return (
+                <button key={label} className={className} onClick={() => handleTabClick(tabStep)} disabled={busy}>
+                  <span>{tabStep}</span>{label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="wizard-body">
@@ -612,6 +743,7 @@ function PlannerDialogV3(props) {
                       ))}
                     </div>
                   )}
+                  {hasErr('province') && <div className="field-error">{t('explore.planner.validation.missingProvince')}</div>}
                 </>
               )}
 
@@ -620,6 +752,7 @@ function PlannerDialogV3(props) {
                   <h3>{t('explore.planner.priorityHeritage')}</h3>
                   <p>{t('explore.planner.priorityHeritageDesc')}</p>
                   <SelectedSites sites={selectedSites} remove={toggleSelected} focus={setActiveSite} disabled={busy} t={t} />
+                  {hasErr('site') && <div className="field-error">{t('explore.planner.validation.missingSite')}</div>}
                   <label style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer', color: selectedProvinces.size ? 'rgb(var(--museum-gold))' : 'rgb(var(--museum-muted))' }}>
                     <input type="checkbox" checked={minimizedPlanner} onChange={e => { setMinimizedPlanner(e.target.checked); if (e.target.checked) setOpen(false); else setOpen(true); }} disabled={busy || !selectedProvinces.size} style={{ accentColor: 'rgb(var(--museum-gold))' }} />
                     {t('explore.planner.minimizeToPick')}
@@ -637,12 +770,14 @@ function PlannerDialogV3(props) {
                         <option value="">{t('explore.planner.tripGoalPlaceholder')}</option>
                         {tripGoals.map(o => <option key={o.key} value={o.value}>{t(`explore.planner.goals.${o.key}`)}</option>)}
                       </select>
+                      {hasErr('goal') && <span className="field-error">{t('explore.planner.validation.missingGoal')}</span>}
                     </label>
                     <label>{t('explore.planner.travelGroupLabel')}
                       <select value={planner.travelGroup || ''} onChange={e => setPlanner(v => ({ ...v, travelGroup: e.target.value }))} disabled={busy}>
                         <option value="">{t('explore.planner.travelGroupPlaceholder')}</option>
                         {travelGroups.map(o => <option key={o.key} value={o.value}>{t(`explore.planner.groups.${o.key}`)}</option>)}
                       </select>
+                      {hasErr('group') && <span className="field-error">{t('explore.planner.validation.missingGroup')}</span>}
                     </label>
                     <label>{t('explore.planner.paceLabel')}
                       <select value={planner.pace || 'moderate'} onChange={e => setPlanner(v => ({ ...v, pace: e.target.value }))} disabled={busy}>
@@ -664,6 +799,7 @@ function PlannerDialogV3(props) {
                         return <button key={interest.key} type="button" className={`ghost ${isSelected ? 'active' : ''}`} onClick={() => toggleInterest(interest.value)} disabled={busy}>{t(`explore.planner.interests.${interest.key}`)}</button>;
                       })}
                     </div>
+                    {hasErr('interest') && <div className="field-error">{t('explore.planner.validation.missingInterest')}</div>}
                   </div>
                 </>
               )}
@@ -692,6 +828,7 @@ function PlannerDialogV3(props) {
                         placeholder={t('explore.planner.startPointPlaceholder')}
                         onChange={value => setPlanner(v => ({ ...v, startText: value }))}
                         onSelect={point => selectPoint('start', point)}
+                        onBlurGeocode={geocodeStart}
                       />
 
                       <div className="location-actions">
@@ -712,6 +849,7 @@ function PlannerDialogV3(props) {
                           📍 <span>{t('explore.planner.pickOnMap')}</span>
                         </button>
                       </div>
+                      {hasErr('startPoint') && <div className="field-error">{t('explore.planner.validation.missingStartPoint')}</div>}
                     </div>
 
                     <div className="location-card">
@@ -724,6 +862,7 @@ function PlannerDialogV3(props) {
                         placeholder={t('explore.planner.endPointPlaceholder')}
                         onChange={value => setPlanner(v => ({ ...v, endText: value }))}
                         onSelect={point => selectPoint('end', point)}
+                        onBlurGeocode={geocodeEnd}
                       />
 
                       <div className="location-actions">
@@ -763,17 +902,11 @@ function PlannerDialogV3(props) {
                   <div className="form-grid compact step-4-grid">
                     <label>{t('explore.planner.days')}
                       <input type="number" min="1" value={planner.days} onChange={e => setPlanner(v => ({ ...v, days: e.target.value }))} disabled={busy} />
+                      {hasErr('days') && <span className="field-error">{t('explore.planner.validation.invalidDays')}</span>}
                     </label>
                     <label>{t('explore.planner.people')}
                       <input type="number" min="1" value={planner.people} onChange={e => setPlanner(v => ({ ...v, people: e.target.value }))} disabled={busy} />
-                    </label>
-                    <label>{t('explore.planner.transport')}
-                      <select value={planner.mode} onChange={e => setPlanner(v => ({ ...v, mode: e.target.value }))} disabled={busy}>
-                        <option value="driving">{t('explore.planner.car')}</option>
-                        <option value="motorbike">{t('explore.planner.motorbike')}</option>
-                        <option value="walking">{t('explore.planner.walking')}</option>
-                        <option value="transit">{t('explore.planner.transit')}</option>
-                      </select>
+                      {hasErr('people') && <span className="field-error">{t('explore.planner.validation.invalidPeople')}</span>}
                     </label>
                     <label>{t('explore.planner.tripDate')}
                       <input type="date" value={planner.tripDate} onChange={e => setPlanner(v => ({ ...v, tripDate: e.target.value }))} disabled={busy} />
@@ -786,25 +919,17 @@ function PlannerDialogV3(props) {
                         <input type="time" value={planner.windowEnd} onChange={e => setPlanner(v => ({ ...v, windowEnd: e.target.value }))} disabled={busy} />
                       </label>
                     </div>
-                    <div className="limit-group">
-                      <label>{t('explore.planner.maxKm')}
-                        <input value={planner.maxDistanceKm} onChange={e => setPlanner(v => ({ ...v, maxDistanceKm: e.target.value }))} disabled={busy} placeholder={t('explore.planner.optional')} />
-                      </label>
-                      <label>{t('explore.planner.maxMin')}
-                        <input value={planner.maxDurationMin} onChange={e => setPlanner(v => ({ ...v, maxDurationMin: e.target.value }))} disabled={busy} placeholder={t('explore.planner.optional')} />
-                      </label>
-                    </div>
                   </div>
                 </>
               )}
             </div>
 
             <div className="modal-actions">
-              {step === 1 && <button className="primary" onClick={() => setStep(2)} disabled={busy || sitesLoading}>{t('explore.planner.continue')}</button>}
-              {step === 2 && <><button className="ghost" onClick={() => setStep(1)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={() => setStep(3)} disabled={busy}>{t('explore.planner.continue')}</button></>}
-              {step === 3 && <><button className="ghost" onClick={() => setStep(2)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={() => setStep(4)} disabled={busy}>{t('explore.planner.continue')}</button></>}
-              {step === 4 && <><button className="ghost" onClick={useCenter} disabled={busy || !selectedProvinces.size}>{t('explore.planner.backToCenter')}</button><button className="ghost" onClick={() => setStep(3)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={() => setStep(5)} disabled={busy}>{t('explore.planner.continue')}</button></>}
-              {step === 5 && <><button className="ghost" onClick={() => setStep(4)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={planRoute} disabled={busy || sitesLoading}>{loading ? <><Spinner /> {t('explore.planner.creatingRoute')}</> : t('explore.planner.createRoute')}</button></>}
+              {step === 1 && <button className="primary" onClick={handleContinue} disabled={busy || sitesLoading}>{t('explore.planner.continue')}</button>}
+              {step === 2 && <><button className="ghost" onClick={() => setStep(1)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={handleContinue} disabled={busy}>{t('explore.planner.continue')}</button></>}
+              {step === 3 && <><button className="ghost" onClick={() => setStep(2)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={handleContinue} disabled={busy}>{t('explore.planner.continue')}</button></>}
+              {step === 4 && <><button className="ghost" onClick={useCenter} disabled={busy || !selectedProvinces.size}>{t('explore.planner.backToCenter')}</button><button className="ghost" onClick={() => setStep(3)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={handleContinue} disabled={busy}>{t('explore.planner.continue')}</button></>}
+              {step === 5 && <><button className="ghost" onClick={() => setStep(4)} disabled={busy}>{t('explore.planner.back')}</button><button className="primary" onClick={handleSubmit} disabled={busy || sitesLoading}>{loading ? <><Spinner /> {t('explore.planner.creatingRoute')}</> : t('explore.planner.createRoute')}</button></>}
             </div>
           </div>
         </Dialog.Content>
@@ -885,14 +1010,8 @@ function formatRouteWarnings(warnings, t) {
     if (text.includes('osrm') || text.includes('route request') || text.includes('table request')) {
       return t('explore.warnings.osrm');
     }
-    if (text.includes('avoid_highways') || text.includes('avoid_tolls')) {
-      return t('explore.warnings.avoid');
-    }
-    if (text.includes('motorbike') || text.includes('walking')) {
-      return t('explore.warnings.mode');
-    }
-    if (text.includes('transit')) {
-      return t('explore.warnings.transit');
+    if (text.includes('island') || text.includes('đảo') || text.includes('water')) {
+      return t('explore.warnings.islandRoute');
     }
     return warning;
   }).filter(Boolean);

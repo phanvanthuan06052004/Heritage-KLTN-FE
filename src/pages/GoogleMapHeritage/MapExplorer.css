@@ -478,8 +478,7 @@
   font-weight: 700;
 }
 
-.heritage-map-page .time-group,
-.heritage-map-page .limit-group {
+.heritage-map-page .time-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
@@ -873,6 +872,7 @@
 /* --- AI summary & route notes --- */
 .heritage-map-page .ai-summary,
 .heritage-map-page .route-notes {
+  margin: 6px;
   margin-top: 12px;
   padding: 13px 14px;
   border: 1px solid rgba(var(--museum-seal), 0.24);
@@ -2633,6 +2633,73 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* ===== Planner per-tab validation ===== */
+/* Tab error state */
+.wizard-tabs .tab-error {
+  border-bottom-color: rgb(var(--museum-seal)) !important;
+  color: rgb(var(--museum-seal));
+}
+.wizard-tabs .tab-error span {
+  background: rgb(var(--museum-seal));
+  color: var(--museum-ivory);
+}
+
+/* Validation warning bar */
+.validation-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin: 0 14px 12px;
+  background: rgba(159, 29, 25, 0.08);
+  border: 1px solid rgba(159, 29, 25, 0.25);
+  border-radius: 6px;
+  color: rgb(var(--museum-seal));
+  font-size: 13px;
+  animation: fadeIn 0.25s ease;
+}
+.validation-warning::before {
+  content: '⚠';
+  font-size: 16px;
+}
+
+/* Inline field error */
+.field-error {
+  color: rgb(var(--museum-seal));
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: fadeIn 0.2s ease;
+}
+.field-error::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(var(--museum-seal));
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Shake animation for validation failure */
+@keyframes validationShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+.validation-shake {
+  animation: validationShake 0.4s ease;
 }
 
 /* ===== Route Summary V2 ===== */

@@ -43,7 +43,6 @@ describe('buildRecommendPayload — field contract with backend TripInput', () =
     expect(typeof payload.number_of_people).toBe('number');
     expect(Array.isArray(payload.interests)).toBe(true);
     expect(typeof payload.pace).toBe('string');
-    expect(typeof payload.travel_mode).toBe('string');
     expect(typeof payload.budget_level).toBe('string');
     expect(Array.isArray(payload.constraints)).toBe(true);
     expect(Array.isArray(payload.must_visit_site_ids)).toBe(true);
@@ -63,7 +62,6 @@ describe('buildRecommendPayload — input cases', () => {
     expect(payload.number_of_people).toBe(1);
     expect(payload.interests).toEqual(['history', 'local_food']);
     expect(payload.pace).toBe('moderate');
-    expect(payload.travel_mode).toBe('mixed');
     expect(payload.budget_level).toBe('medium');
     expect(payload.constraints).toEqual([]);
     expect(payload.must_visit_site_ids).toEqual([]);
@@ -90,7 +88,6 @@ describe('buildRecommendPayload — input cases', () => {
     });
     expect(payload.duration_days).toBe(3);
     expect(payload.pace).toBe('packed');
-    expect(payload.travel_mode).toBe('motorbike');
     expect(payload.number_of_people).toBe(4);
     expect(payload.destination_area).toBe('Ninh Bình');
     expect(payload.destination_provinces).toEqual(['Ninh Bình', 'Hà Nội']);
@@ -123,14 +120,6 @@ describe('buildRecommendPayload — input cases', () => {
     });
     expect(payload.must_visit_site_ids).toEqual(['site_a', 'site_b', 'site_c']);
   });
-
-  it.each(['driving', 'motorbike', 'walking', 'transit', 'mixed'])(
-    'CASE travel_mode=%s passes through unchanged',
-    mode => {
-      const payload = buildRecommendPayload({ mode }, {});
-      expect(payload.travel_mode).toBe(mode);
-    }
-  );
 
   it('CASE end point omitted: end coords fall back to start (round trip)', () => {
     const start = { lat: 16.05, lng: 108.2 };

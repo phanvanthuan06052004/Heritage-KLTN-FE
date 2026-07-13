@@ -224,7 +224,7 @@ export function buildRecommendPayload(planner = {}, context = {}) {
     number_of_people: Number(planner.people) || 1,
     interests: interests.length ? interests : ['history', 'local_food'],
     pace: planner.pace || 'moderate',
-    travel_mode: planner.mode || 'mixed',
+    
     budget_level: planner.budget || 'medium',
     constraints,
     must_visit_site_ids: mustVisitSiteIds,
