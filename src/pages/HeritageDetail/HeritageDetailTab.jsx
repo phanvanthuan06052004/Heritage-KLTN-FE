@@ -3,7 +3,7 @@ import { Star, Loader2, MoreVertical, Trash2, ThumbsUp } from 'lucide-react'
 import { Suspense } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/common/ui/Tabs'
 import { Button } from '~/components/common/ui/Button'
-import { HistoryTab, GalleryTab } from '~/components/lazyComponents'
+import { HistoryTab, GalleryTab, HeritageKnowledgeTest } from '~/components/lazyComponents'
 import WriteReviewModal from '~/components/WriteReviewModal'
 import {
   useGetAllCommentQuery,
@@ -119,6 +119,7 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
         <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
         <TabsTrigger value="gallery">{t("tabs.gallery")}</TabsTrigger>
         <TabsTrigger value="review">{t("tabs.reviews")}</TabsTrigger>
+        <TabsTrigger value="quiz">{t("tabs.quiz")}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="space-y-6">
@@ -325,6 +326,13 @@ const HeritageDetailTabs = ({ data, isAuthenticated, navigate }) => {
             </div>
           </div>
         )}
+      </TabsContent>
+
+      <TabsContent value="quiz" className="space-y-6">
+        <h3 className="font-display text-2xl font-semibold text-museum-gold-light">{t("tabs.quiz")}</h3>
+        <Suspense fallback={<div>Loading...</div>}>
+          <HeritageKnowledgeTest heritageId={data?._id} heritageName={data?.name} />
+        </Suspense>
       </TabsContent>
     </Tabs>
   )

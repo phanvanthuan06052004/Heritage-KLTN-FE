@@ -1,4 +1,4 @@
-import { BookOpen, Loader2 } from 'lucide-react'
+import { BookOpen, Loader2, ScrollText } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { useGetKnowledgeTestsByHeritageQuery } from '~/store/apis/knowledgeTestApi'
 import KnowledgeTestDialog from './KnowledgeTestDialog'
@@ -8,23 +8,29 @@ const KnowledgeTestItem = ({ test, onClick }) => (
   <div
     onClick={() => onClick(test)}
     onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClick(test)}
-    className='bg-white border border-gray-200 rounded-lg p-4 hover:border-heritage-dark hover:bg-heritage-light/20 cursor-pointer transition-all duration-200 flex items-start shadow-sm hover:shadow-md'
+    className='bg-museum-parchment/30 border border-museum-gold/15 rounded-xl p-5 hover:border-museum-gold/50 hover:bg-museum-gold/5 cursor-pointer transition-all duration-300 flex items-start shadow-sm hover:shadow-museum-card border-l-4 border-l-museum-gold group'
     role='button'
     tabIndex={0}
     aria-label={`Bài kiểm tra ${test?.title}`}
   >
-    <div className='flex-1'>
-      <h4 className='font-semibold text-lg mb-2 text-heritage-dark'>{test?.title}</h4>
-      <p className='text-sm text-muted-foreground line-clamp-3 mb-4'>{test?.content}</p>
-      <div className='flex items-center text-sm text-muted-foreground'>
-        <span className='mr-4 flex items-center gap-1'>
-          <i className="ri-file-list-2-line text-heritage-dark"></i>
-          {test?.totalAttempts || 0} attempts
+    {/* Seal icon prefix */}
+    <div className='w-10 h-10 rounded-full bg-museum-gold/10 border border-museum-gold/30 flex items-center justify-center flex-shrink-0 mr-4 mt-0.5 group-hover:bg-museum-gold/20 transition-colors duration-300'>
+      <ScrollText className='h-5 w-5 text-museum-gold' />
+    </div>
+    <div className='flex-1 min-w-0'>
+      <h4 className='font-semibold text-lg mb-1.5 text-museum-espresso dark:text-museum-ivory group-hover:text-museum-gold transition-colors duration-300 font-display'>
+        {test?.title}
+      </h4>
+      <p className='text-sm text-museum-muted line-clamp-3 mb-4 leading-relaxed'>{test?.content}</p>
+      <div className='flex items-center text-sm text-museum-muted'>
+        <span className='mr-5 flex items-center gap-1.5'>
+          <i className="ri-file-list-2-line text-museum-gold text-base"></i>
+          <span>{test?.totalAttempts || 0} lượt làm</span>
         </span>
-        <span className='flex items-center gap-1'>
-          <i className="ri-bar-chart-2-line text-heritage-dark"></i>
-          <span>Average Score:</span>
-          <span className='ml-1 font-semibold text-heritage-dark'>
+        <span className='flex items-center gap-1.5'>
+          <i className="ri-bar-chart-2-line text-museum-gold text-base"></i>
+          <span>Điểm trung bình:</span>
+          <span className='ml-1 font-semibold text-museum-gold'>
             {Number(test?.averageScore || 0).toFixed(2)}/100
           </span>
         </span>
@@ -36,12 +42,12 @@ const KnowledgeTestItem = ({ test, onClick }) => (
 // Error message component
 const ErrorMessage = ({ message, onRetry }) => (
   <div className='text-center py-6'>
-    <p className='text-destructive'>{message}</p>
+    <p className='text-museum-seal font-medium'>{message}</p>
     <button
       onClick={onRetry}
-      className='mt-4 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors'
+      className='mt-4 px-5 py-2 border border-museum-gold/40 text-museum-gold rounded-lg hover:bg-museum-gold/10 transition-all duration-300'
     >
-      Try again
+      Thử lại
     </button>
   </div>
 )
@@ -49,16 +55,16 @@ const ErrorMessage = ({ message, onRetry }) => (
 // Loading component
 const LoadingState = () => (
   <div className='flex justify-center items-center py-8'>
-    <Loader2 className='h-6 w-6 animate-spin text-heritage' />
-    <span className='ml-2 text-muted-foreground'>Loading...</span>
+    <Loader2 className='h-6 w-6 animate-spin text-museum-gold' />
+    <span className='ml-2 text-museum-muted'>Đang tải...</span>
   </div>
 )
 
 // Empty state component
 const EmptyState = () => (
-  <div className='flex flex-col items-center justify-center py-6 text-muted-foreground'>
+  <div className='flex flex-col items-center justify-center py-6 text-museum-muted'>
     <BookOpen className='h-8 w-8 mb-2' />
-    <p>No test available for this heritage site.</p>
+    <p>Chưa có bài kiểm tra nào cho di sản này.</p>
   </div>
 )
 
@@ -72,12 +78,12 @@ const HeritageKnowledgeTest = ({ heritageId, heritageName }) => {
 
   const openTest = (test) => {
     setActiveTest(test)
-    toast.info(`Start test: ${test?.title}`, { position: 'top-right' })
+    toast.info(`Bắt đầu bài kiểm tra: ${test?.title}`, { position: 'top-right' })
   }
 
   const closeTest = () => {
     setActiveTest(null)
-    toast.info('Test finished')
+    toast.info('Đã hoàn thành bài kiểm tra')
   }
 
   // Memoized tests list from data

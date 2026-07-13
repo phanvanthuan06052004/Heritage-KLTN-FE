@@ -252,6 +252,7 @@
     "history": "Lịch sử",
     "gallery": "Thư viện ảnh",
     "reviews": "Đánh giá",
+    "quiz": "Kiểm tra kiến thức",
     "introduction": "Giới thiệu",
     "historicalEvents": "Sự kiện lịch sử"
   },
@@ -741,10 +742,7 @@
       "continueJourney": "Tiếp tục hành trình",
       "noNarration": "Hiện chưa có tư liệu thuyết minh cho địa điểm này.",
       "narrationError": "Lỗi khi tải thông tin. Vui lòng thử lại sau.",
-      "skipAll": "Bỏ qua tất cả",
-      "skipAllTitle": "Không hiện popup thuyết minh khi tới điểm",
-      "skipAllOn": "Đã tắt thuyết minh",
-      "skipAllOff": "Bật thuyết minh"
+      "skipAll": "Bỏ qua tất cả"
     },
     "onboarding": {
       "step1Title": "Bản đồ di sản Việt Nam",

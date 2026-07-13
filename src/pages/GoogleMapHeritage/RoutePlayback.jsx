@@ -217,13 +217,6 @@ export default function RoutePlayback({ route, map, sites }) {
           <button className="ghost" onClick={() => { setProgress(0); setVisitedStops(new Set()); setSkipAllNarrations(false); }}>
             ⏮ {t('explore.playback.restart')}
           </button>
-          <button 
-            className={skipAllNarrations ? 'ghost active' : 'ghost'}
-            onClick={() => setSkipAllNarrations(v => !v)}
-            title={t('explore.playback.skipAllTitle')}
-          >
-            {skipAllNarrations ? `🔇 ${t('explore.playback.skipAllOn')}` : `🔊 ${t('explore.playback.skipAllOff')}`}
-          </button>
           <select className="speed-select" value={speed} onChange={e => setSpeed(Number(e.target.value))}>
             <option value={1}>{`1x ${t('explore.playback.speedLabel')}`}</option>
             <option value={2}>2x</option>

@@ -252,6 +252,7 @@
     "history": "History",
     "gallery": "Gallery",
     "reviews": "Reviews",
+    "quiz": "Knowledge Quiz",
     "introduction": "Introduction",
     "historicalEvents": "Historical Events"
   },
@@ -741,10 +742,7 @@
       "continueJourney": "Continue journey",
       "noNarration": "There is no narration available for this place yet.",
       "narrationError": "Error loading information. Please try again later.",
-      "skipAll": "Skip all",
-      "skipAllTitle": "Stop showing narration popups at each stop",
-      "skipAllOn": "Narration off",
-      "skipAllOff": "Narration on"
+      "skipAll": "Skip all"
     },
     "onboarding": {
       "step1Title": "Vietnam heritage map",

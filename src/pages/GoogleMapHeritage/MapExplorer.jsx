@@ -6,7 +6,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapExplorer.css';
 import RoutePlayback from './RoutePlayback';
-import ExploreOnboarding from './ExploreOnboarding';
+
 import {
   API, FEATURED_PER_PROVINCE, PROV_COORDS, CAT_STYLE, CAT_LABELS,
   formatPrice, scorePercent, siteRank, stars, reviewUrl,
@@ -476,7 +476,7 @@ function App() {
     {route && <RoutePlayback route={route} map={mapRef.current} sites={sites} />}
     {popupSite && popupPos && <MiniSitePopup site={popupSite} pos={popupPos} popupRef={popupRef} selected={selectedIds.has(popupSite.id)} toggle={() => toggleSelected(popupSite.id)} detail={() => setDetailSite(popupSite)} close={closeSitePopup} t={t} catLabel={catLabel} keepHover={() => { popupHoverRef.current = true; clearTimeout(hoverClearTimerRef.current); clearTimeout(hoverIntentTimerRef.current); }} endHover={() => { popupHoverRef.current = false; setHoverSite(null); }} />}
     <SiteDetailDialog site={detailSite} selected={detailSite ? selectedIds.has(detailSite.id) : false} toggle={() => detailSite && toggleSelected(detailSite.id)} close={() => setDetailSite(null)} t={t} catLabel={catLabel} />
-    <ExploreOnboarding />
+
   </div>;
 }
 
